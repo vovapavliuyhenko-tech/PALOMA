@@ -816,6 +816,7 @@ body.checkout-page .co-main {
 
 .co-payment-option__sub {
   font-size: 12px;
+  font-weight: 500;
   color: var(--co-muted);
 }
 
@@ -838,7 +839,8 @@ body.checkout-page .co-main {
   font-size: 11px;
   color: var(--co-muted);
   text-align: center;
-  margin: 0;
+  /* перенесён под «Итого» — небольшой отступ сверху */
+  margin: 10px 0 0;
   line-height: 1.5;
 }
 
