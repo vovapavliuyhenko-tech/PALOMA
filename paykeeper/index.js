@@ -75,14 +75,49 @@ async function notifyManager(text) {
   );
 }
 
-/* Фото букетов из заказа — по одному через sendPhoto.
-   sendMediaGroup (альбом) заставлял Telegram тянуть все ссылки разом и мог
-   висеть дольше таймаута функции → фото не доходили. Одиночные sendPhoto
-   быстрые и надёжные; подпись — на первом фото. */
+/* Отправка одного фото ЗАГРУЗКОЙ БАЙТОВ (multipart), а не ссылкой.
+   Раньше слали URL и Telegram сам скачивал картинку — но по некоторым файлам
+   его фетчер зависал (кэш/CDN), и функция падала по таймауту, фото не доходили.
+   Теперь картинку скачивает сама функция (это быстро) и отдаёт Telegram готовые
+   байты — фетчер Telegram из цепочки убран. */
+async function sendPhotoUpload(chatId, url, caption) {
+  let bytes;
+  {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const r = await fetch(url, { signal: ctrl.signal });
+      if (!r.ok) { console.error("[photo] fetch", url, r.status); return false; }
+      bytes = Buffer.from(await r.arrayBuffer());
+    } catch (e) {
+      console.error("[photo] fetch error", url, e && e.message);
+      return false;
+    } finally { clearTimeout(timer); }
+  }
+  const form = new FormData();
+  form.append("chat_id", String(chatId));
+  if (caption) form.append("caption", caption);
+  form.append("photo", new Blob([bytes], { type: "image/jpeg" }), "bouquet.jpg");
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendPhoto`, {
+      method: "POST",
+      body: form, /* fetch сам проставит multipart Content-Type с boundary */
+      signal: ctrl.signal,
+    });
+    if (!res.ok) console.error("[telegram] sendPhoto", chatId, res.status, await res.text().catch(() => ""));
+    return res.ok;
+  } catch (e) {
+    console.error("[telegram] sendPhoto error", chatId, e && e.message);
+    return false;
+  } finally { clearTimeout(timer); }
+}
+
+/* Фото букетов из заказа — по одному, загрузкой байтов. Подпись — на первом. */
 async function sendPhotosToChat(chatId, urls, caption) {
   for (let i = 0; i < urls.length; i++) {
-    const cap = i === 0 ? caption : undefined;
-    await tgCall("sendPhoto", { chat_id: chatId, photo: urls[i], caption: cap });
+    await sendPhotoUpload(chatId, urls[i], i === 0 ? caption : undefined);
   }
 }
 
