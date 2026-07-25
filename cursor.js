@@ -93,7 +93,7 @@
   /* Элементы, где большой кружок «смотреть» НЕ нужен: он перекрывает
      маленькие кнопки — иконки в шапке (избранное, корзина), кнопку отправки
      формы в подвале и круглые соцсети. Чернильная капля остаётся. */
-  const NO_LOOK_SELECTOR = ".site-header__icon, .site-header__cart, .sf2-send, .sf2-soc";
+  const NO_LOOK_SELECTOR = ".site-header__icon, .site-header__cart, .sf2-send, .sf2-soc, .sf2-round__btn";
 
   /* ── Точка цепочки ── */
   class Dot {
