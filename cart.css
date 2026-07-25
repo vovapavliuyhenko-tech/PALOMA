@@ -573,9 +573,9 @@
   line-height: 1.25;
   color: var(--color-text);
   margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Название переносится на несколько строк и влезает целиком (без «…») */
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .cart-drawer__item-size {
   font-size: 12px;
