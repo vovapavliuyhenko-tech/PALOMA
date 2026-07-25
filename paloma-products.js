@@ -951,7 +951,7 @@ window.PALOMA_PRODUCTS = [
     id: "n32",
     slug: "gortenziya-korzina",
     image: "images/paloma/catalog/n32.jpg",
-    name: "Гортензия",
+    name: "Гортензия в корзине",
     price: 11150,
     priceFrom: true,
     categories: ["compositions"],

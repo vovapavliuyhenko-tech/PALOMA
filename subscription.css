@@ -45,6 +45,13 @@ body.subscription-page .subscription-hero__img {
   object-position: center;
 }
 
+/* Видео в герое подписки (без вшитой надписи) заполняет кадр целиком —
+   поэтому cover, а не contain (иначе были бы белые поля по краям). */
+body.subscription-page .subscription-hero__video {
+  object-fit: cover;
+  object-position: center;
+}
+
 /* Глобальный main{overflow-x:hidden} превращает <main> в скролл-контейнер
    (overflow-y становится auto) и ломает position:sticky у фото. clip убирает
    горизонтальную прокрутку, но скролл-контейнер НЕ создаёт — как на странице
