@@ -67,6 +67,8 @@ window.PalomaWishlist = (function () {
     if (!ids.includes(sid)) {
       ids.push(sid);
       save(ids);
+      /* Цель: товар реально добавлен в избранное (только новый, не повтор). */
+      if (window.palomaGoal) window.palomaGoal("favorite_add");
     }
     if (meta) setMeta(sid, meta);
     _notify(sid, true);

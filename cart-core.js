@@ -8,6 +8,19 @@ window.PalomaCart = (function () {
   const STORAGE_KEY = "paloma_cart_v3";
   const LEGACY_KEY = "paloma_cart_v1";
 
+  /* ── Яндекс.Метрика: единый безопасный хелпер целей (счётчик 110912456) ──
+     Вызываем ТОЛЬКО после реально успешного действия. Определён здесь, т.к.
+     cart-core.js подключён почти на всех страницах; другие скрипты зовут его
+     через window.palomaGoal && window.palomaGoal('...'). */
+  function palomaGoal(name) {
+    try {
+      if (typeof window.ym === "function") window.ym(110912456, "reachGoal", name);
+    } catch {
+      /* цель не должна ломать основную логику */
+    }
+  }
+  window.palomaGoal = palomaGoal;
+
   try {
     if (!localStorage.getItem(STORAGE_KEY) && localStorage.getItem(LEGACY_KEY)) {
       localStorage.setItem(STORAGE_KEY, localStorage.getItem(LEGACY_KEY));
@@ -129,6 +142,8 @@ window.PalomaCart = (function () {
 
     saveItems(items);
     _update();
+    /* Цель: товар реально добавлен в корзину (после сохранения). */
+    palomaGoal("add_to_cart");
     if (
       !document.body.classList.contains("cart-page") &&
       !document.body.classList.contains("checkout-page")

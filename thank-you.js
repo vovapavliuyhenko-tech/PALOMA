@@ -40,6 +40,22 @@
     else localStorage.removeItem("paloma_cart_v3");
   }
 
+  /* Цель: успешная покупка. Онлайн — только после подтверждённой оплаты
+     (возврат с ?paid=1 → order.paid). «Оплата при получении» — заказ оформлен.
+     Флаг goalPurchaseSent в заказе защищает от повтора при обновлении страницы. */
+  if (
+    !order.goalPurchaseSent &&
+    (order.paid || order.payment === "payment_on_receipt")
+  ) {
+    if (window.palomaGoal) window.palomaGoal("purchase");
+    order.goalPurchaseSent = true;
+    try {
+      localStorage.setItem(STORAGE_ORDER, JSON.stringify(order));
+    } catch {
+      /* ignore */
+    }
+  }
+
   const f = order.form || {};
   renderSummary(order, f);
   if (order.paid) applyPaidCopy();

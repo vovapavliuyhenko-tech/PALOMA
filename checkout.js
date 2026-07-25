@@ -654,6 +654,9 @@
       return;
     }
 
+    /* Цель: контактные данные заполнены и прошли валидацию. */
+    if (window.palomaGoal) window.palomaGoal("checkout_contacts");
+
     submitting = true;
     [
       document.getElementById("coSubmitBtn"),
@@ -850,6 +853,8 @@
         throw new Error(data.error || "Не удалось создать оплату");
       }
 
+      /* Цель: переход на страницу оплаты (счёт создан, есть ссылка на оплату). */
+      if (window.palomaGoal) window.palomaGoal("payment_start");
       window.location.href = data.paymentUrl;
     } catch (err) {
       console.error("[PALOMA] PayKeeper:", err);
@@ -866,6 +871,8 @@
 
   function init() {
     updateView();
+    /* Цель: начали оформление заказа — открыли чекаут с непустой корзиной. */
+    if (getCart().length && window.palomaGoal) window.palomaGoal("begin_checkout");
     handleDeliveryToggle();
     updateMessengerFields();
 

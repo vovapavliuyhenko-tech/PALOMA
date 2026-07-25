@@ -769,6 +769,8 @@
     }
 
     renderProduct();
+    /* Цель: просмотр карточки товара (только для реально найденного товара). */
+    if (window.palomaGoal) window.palomaGoal("view_product");
     renderAddons();
     renderSimilar();
     initGiftAndFulfill();
