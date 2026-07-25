@@ -39,19 +39,27 @@ function tgChatIds() {
   return TG_CHAT_ID.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
-/* Один вызов Telegram Bot API. Ошибки не роняют заказ — логируем. */
+/* Один вызов Telegram Bot API. Ошибки не роняют заказ — логируем.
+   Жёсткий таймаут на запрос: без него медленный ответ Telegram (например, когда
+   он сам скачивает картинку по ссылке) подвешивал всю функцию до kill по
+   таймауту исполнения, и фото не уходили. */
 async function tgCall(method, payload) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
     const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/${method}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: ctrl.signal,
     });
     if (!res.ok) console.error("[telegram]", method, payload.chat_id, res.status, await res.text().catch(() => ""));
     return res.ok;
   } catch (e) {
     console.error("[telegram] error", method, payload.chat_id, e && e.message);
     return false;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -67,18 +75,14 @@ async function notifyManager(text) {
   );
 }
 
-/* Фото букетов из заказа — альбомом (2–10) или одиночным фото.
-   Telegram сам скачивает картинки по ссылке, поэтому шлём публичные URL. */
+/* Фото букетов из заказа — по одному через sendPhoto.
+   sendMediaGroup (альбом) заставлял Telegram тянуть все ссылки разом и мог
+   висеть дольше таймаута функции → фото не доходили. Одиночные sendPhoto
+   быстрые и надёжные; подпись — на первом фото. */
 async function sendPhotosToChat(chatId, urls, caption) {
-  for (let i = 0; i < urls.length; i += 10) {
-    const chunk = urls.slice(i, i + 10);
+  for (let i = 0; i < urls.length; i++) {
     const cap = i === 0 ? caption : undefined;
-    if (chunk.length === 1) {
-      await tgCall("sendPhoto", { chat_id: chatId, photo: chunk[0], caption: cap });
-    } else {
-      const media = chunk.map((u, idx) => ({ type: "photo", media: u, caption: idx === 0 ? cap : undefined }));
-      await tgCall("sendMediaGroup", { chat_id: chatId, media });
-    }
+    await tgCall("sendPhoto", { chat_id: chatId, photo: urls[i], caption: cap });
   }
 }
 
