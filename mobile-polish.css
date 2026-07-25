@@ -125,6 +125,38 @@
   #homeBlog .home-blog__grid > .home-article-card { flex: 0 0 82% !important; }
   /* карточки, уехавшие за экран, не должны остаться невидимыми из-за reveal-анимации */
   #homeBlog .home-reveal { opacity: 1 !important; transform: none !important; }
+
+  /* ─── КАТЕГОРИИ «Выберите по поводу и настроению» — тот же скролл-джек ───
+     #categories высокий, .home-categories__pin прилипает, JS (index.html)
+     двигает .home-categories__grid по горизонтали при вертикальном скролле. */
+  #categories {
+    height: 320vh !important;
+    overflow: visible !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .home-categories__pin {
+    position: sticky !important;
+    top: 0 !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+  #categories .home-categories__head {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    margin-bottom: 20px !important;
+  }
+  #categories .home-categories__grid {
+    overflow: visible !important;
+    padding: 0 20px !important;
+    scroll-snap-type: none !important;
+    will-change: transform;
+  }
+  /* элементы не должны остаться невидимыми из-за reveal-анимации категорий */
+  #categories .home-categories__item { opacity: 1 !important; transform: none !important; }
 }
 
 @media (max-width: 600px) {
