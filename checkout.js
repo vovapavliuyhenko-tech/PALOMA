@@ -638,7 +638,7 @@
     return data;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (submitting) return; /* защита от двойного клика/повторной отправки */
     const cart = getCart();
     if (!cart.length) {
@@ -713,43 +713,48 @@
     }
 
     /* Заказ «при получении» через функцию не проходит — уведомляем бот
-       отдельно, чтобы в него попадали АБСОЛЮТНО ВСЕ заказы. */
-    notifyManagerOfOrder(orderData);
+       отдельно, чтобы в него попадали АБСОЛЮТНО ВСЕ заказы.
+       ЖДЁМ отправку перед переходом: на мобильных браузерах «fire-and-forget»
+       fetch часто обрывается при немедленном переходе на thank-you, и заказ
+       не долетал до бота. Ограничиваем ожидание 6с, чтобы не держать клиента. */
+    await notifyManagerOfOrder(orderData);
 
     emptyCart();
     showSuccess(orderId);
   }
 
-  /* Мгновенное уведомление менеджеру для заказов без онлайн-оплаты.
-     keepalive: true — запрос переживёт переход на thank-you.html. */
+  /* Уведомление менеджеру для заказов без онлайн-оплаты. Возвращает промис,
+     который резолвится по завершении отправки ИЛИ через 6с (что раньше) —
+     чтобы гарантированно успеть отправить до перехода на thank-you.
+     keepalive: true — подстраховка, если всё же уйдём по таймауту. */
   function notifyManagerOfOrder(orderData) {
     const ep = payEndpoint();
-    if (!ep) return;
+    if (!ep) return Promise.resolve();
     const f = orderData.form || {};
-    try {
-      fetch(ep + "?a=notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        keepalive: true,
-        body: JSON.stringify({
-          orderId: orderData.id,
-          payment: orderData.payment,
-          items: orderData.items.map((i) => ({
-            id: i.id,
-            name: i.name,
-            price: i.price,
-            qty: i.qty || 1,
-          })),
-          delivery: orderData.delivery,
-          clientName: f.name || "",
-          phone: f.phone || "",
-          email: f.email || "",
-          managerText: buildManagerText(orderData),
-        }),
-      }).catch(() => {});
-    } catch {
-      /* уведомление не должно мешать оформлению заказа */
-    }
+    const send = fetch(ep + "?a=notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        orderId: orderData.id,
+        payment: orderData.payment,
+        items: orderData.items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          price: i.price,
+          qty: i.qty || 1,
+        })),
+        delivery: orderData.delivery,
+        clientName: f.name || "",
+        phone: f.phone || "",
+        email: f.email || "",
+        managerText: buildManagerText(orderData),
+      }),
+    }).catch(() => {}); /* уведомление не должно мешать оформлению заказа */
+    return Promise.race([
+      send,
+      new Promise((resolve) => setTimeout(resolve, 6000)),
+    ]);
   }
 
   function emptyCart() {
