@@ -91,8 +91,9 @@
   const DARK_SELECTOR = ".site-footer, [data-cursor-dark]";
 
   /* Элементы, где большой кружок «смотреть» НЕ нужен: он перекрывает
-     маленькие иконки в шапке (избранное, корзина). Чернильная капля остаётся. */
-  const NO_LOOK_SELECTOR = ".site-header__icon, .site-header__cart";
+     маленькие кнопки — иконки в шапке (избранное, корзина), кнопку отправки
+     формы в подвале и круглые соцсети. Чернильная капля остаётся. */
+  const NO_LOOK_SELECTOR = ".site-header__icon, .site-header__cart, .sf2-send, .sf2-soc";
 
   /* ── Точка цепочки ── */
   class Dot {
