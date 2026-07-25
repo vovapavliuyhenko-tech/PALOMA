@@ -565,10 +565,12 @@
   min-width: 0;
 }
 .cart-drawer__item-name {
-  font-family: var(--font-display, "Italiana", serif);
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1.15;
+  /* Читаемый шрифт вместо рукописного (--font-display) — как основной текст сайта */
+  font-family: var(--sans, "Montserrat", system-ui, sans-serif);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
   color: var(--color-text);
   margin-bottom: 4px;
   white-space: nowrap;
