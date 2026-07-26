@@ -741,6 +741,19 @@
       .join("");
     similarSection.hidden = false;
 
+    /* Ecommerce: показ списка «Похожие товары» (impressions). */
+    if (window.palomaEcommerce && window.palomaEcomProduct) {
+      window.palomaEcommerce(
+        "impressions",
+        items.map(function (p, i) {
+          return window.palomaEcomProduct(p, {
+            list: "Похожие товары",
+            position: i + 1,
+          });
+        }),
+      );
+    }
+
     // Запускаем карусель как на главной: стрелки/прогресс + автопрокрутка
     if (typeof window.initProductCarousels === "function") {
       window.initProductCarousels();

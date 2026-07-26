@@ -201,6 +201,18 @@
     });
     grid.appendChild(fragment);
     afterRender();
+
+    /* Ecommerce: показ списка товаров (impressions). Ограничиваем 20
+       позициями — контейнер данных Метрики не должен превышать 8192 симв. */
+    if (window.palomaEcommerce && window.palomaEcomProduct) {
+      const listName = "Каталог: " + (currentFilter || "все");
+      window.palomaEcommerce(
+        "impressions",
+        products.slice(0, 20).map((p, i) =>
+          window.palomaEcomProduct(p, { list: listName, position: i + 1 }),
+        ),
+      );
+    }
   }
 
   function setActiveFilter(filter) {

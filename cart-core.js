@@ -51,10 +51,15 @@ window.PalomaCart = (function () {
     try {
       if (!actionType || !Array.isArray(products) || !products.length) return;
       window.dataLayer = window.dataLayer || [];
-      var block = { products: products };
-      if (actionField) block.actionField = actionField;
       var ecom = { currencyCode: "RUB" };
-      ecom[actionType] = block;
+      if (actionType === "impressions") {
+        /* impressions — прямой массив, без обёртки products/actionField */
+        ecom.impressions = products;
+      } else {
+        var block = { products: products };
+        if (actionField) block.actionField = actionField;
+        ecom[actionType] = block;
+      }
       window.dataLayer.push({ ecommerce: ecom });
     } catch {
       /* ecommerce не должен ломать основную логику */
