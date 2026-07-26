@@ -318,14 +318,15 @@ body.cf-modal-open{overflow:hidden}
   #cf-steps .ea-step__t,#cf-steps .ea-step__t--top,#cf-steps .ea-step__t--mid,
   #cf-steps .ea-proc-step:last-child .ea-step__t--top{
     position:relative!important;left:auto!important;top:auto!important;z-index:2;
-    order:1;margin:0;padding:0 16px;color:#fff;text-align:left;text-transform:uppercase;
-    letter-spacing:.02em;font-size:clamp(18px,5.2vw,23px);line-height:1.15}
-  #cf-steps .ea-step__n{color:#fff;opacity:.8}
+    order:1;margin:0;padding:0 16px;color:#fff!important;text-align:left;text-transform:uppercase;
+    letter-spacing:.02em;font-size:clamp(18px,5.2vw,23px);line-height:1.15;
+    text-shadow:0 1px 10px rgba(0,0,0,.35)}
+  #cf-steps .ea-step__t *,#cf-steps .ea-step__n{color:#fff!important}
   #cf-steps .ea-step__body,#cf-steps .ea-step__body--lo,#cf-steps .ea-step__body--mid,
   #cf-steps .ea-step__body--hi{
     position:relative!important;left:auto!important;top:auto!important;z-index:2;
     order:2;width:100%!important;max-width:none!important;margin:0;padding:7px 16px 18px;text-align:left}
-  #cf-steps .ea-step__d{font-size:clamp(12.5px,3.5vw,14px);line-height:1.45;color:rgba(255,255,255,.92)}
+  #cf-steps .ea-step__d{font-size:clamp(12.5px,3.5vw,14px);line-height:1.45;color:rgba(255,255,255,.94);text-shadow:0 1px 8px rgba(0,0,0,.4)}
   #cf-steps .ea-step__script{font-size:1.25em;color:#fff}
   /* ИНТРО — светлая карточка-обложка (без фото) */
   #cf-steps .ea-proc__intro{justify-content:center;background:#FFFFFF;border:0.5px solid rgba(27,26,24,.1)}
