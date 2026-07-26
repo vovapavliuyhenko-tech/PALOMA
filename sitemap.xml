@@ -2,248 +2,506 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://paloma.website/</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://paloma.website/catalog.html</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://paloma.website/coffee.html</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://paloma.website/contacts.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://paloma.website/coffee-item.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://paloma.website/delivery.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://paloma.website/product.html?slug=belaya-gortenziya</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://paloma.website/wedding-piggy-bank.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://paloma.website/product.html?slug=roza-mandarin</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=roza-melon</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=francuzskaya-krasnaya-roza</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=belaya-klassicheskaya-roza</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=rozovaya-gortenziya</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=golubaya-gortenziya</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=francuzskaya-rozovaya-roza</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=liliya</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=duo-piches</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=duo-mondial</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=neo-serebro</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=klassicheskiy-gladiolus</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=sumochka-s-orhideey</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=dofaminoviy</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=avtorskiy-alium</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=obruchenie</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=persikoviy-sad</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=lavandoviy-vecher</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=georgin-piches</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=toskana</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=sara-bernar</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=persikovoe-oblako</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=lazurit</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=golubaya-dymka</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=rozoviy-shelk</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=pionoviy-vals</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=pervaya-nezhnost</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=pudra</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=lilian</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=beliy-tanec</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=rivyera</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=florenciya</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=lazurnaya-korzina</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=karmen</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=magnoliya</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=utrenniy-svet</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=bebi-blyu</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=roza-fatima</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=korolevskaya-korzina</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=baunti</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=persikoviy-rassvet</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=pudrovoe-oblako</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=roza-silva-pink</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=karnaval</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=myatniy-briz</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=letniy-lug</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=gortenziya-korzina</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-kintsugi-tray</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-love-in-a-box</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-hybrid-para</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-nabor-2-chashki-podnos</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-para-1</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-para-2</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-hybrid-supovaya</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-kintsugi-tarelka</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-hybrid-stakany</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/product.html?slug=seletti-love-in-bloom</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://paloma.website/subscription.html</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/event-decoration.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/event-decoration-author.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/events.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/weddings.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/wedding-piggy-bank.html</loc>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://paloma.website/gift-certificate.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/event-decoration.html</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://paloma.website/care.html</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://paloma.website/delivery.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/contacts.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://paloma.website/blog.html</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://paloma.website/payment.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/offer.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/privacy.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/cookies.html</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=amarillis</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=avtorskiy</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=brauni</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=buket-11</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=buket-15</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=buket-21</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=buket-7</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=farfor</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=leto</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=nezhnyy</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=oblako</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=oformlenie</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=paskha-nabor</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=pechenye</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=rassvet</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=valentinka</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=vaza-gold</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=vaza-vostok</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=vesna</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://paloma.website/product.html?slug=zefir</loc>
-    <lastmod>2026-07-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://paloma.website/live.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://paloma.website/blog-article.html?id=korporativnye-bukety</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://paloma.website/blog-article.html?id=buket-po-nastroeniyu</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://paloma.website/blog-article.html?id=chto-dobavit-k-buketu</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://paloma.website/blog-article.html?id=kak-prodlit-zhizn-buketu</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://paloma.website/blog-article.html?id=cvetnaya-podpiska</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://paloma.website/blog-article.html?id=oformlenie-sobytiy-paloma</loc>
-    <lastmod>2026-07-11</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/payment.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/offer.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/privacy.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://paloma.website/cookies.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

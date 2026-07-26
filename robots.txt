@@ -1,6 +1,18 @@
 User-agent: *
 Allow: /
 
+# Приватные служебные страницы (корзина, избранное, оформление) — не для индекса.
+# Демо- и второстепенные страницы намеренно НЕ закрываем.
+Disallow: /cart.html
+Disallow: /wishlist.html
+Disallow: /checkout.html
+Disallow: /thank-you.html
+Disallow: /order.html
+Disallow: /admin.html
+
+# Метки рекламных кампаний не создают отдельные страницы в индексе
+Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content&yclid&gclid
+
 # AI-краулеры — разрешаем индексацию для ответов ассистентов
 User-agent: GPTBot
 Allow: /

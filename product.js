@@ -158,6 +158,65 @@
     if (/^https?:\/\//.test(p)) return p;
     return SITE + "/" + String(p).replace(/^\/+/, "");
   }
+  /* Динамические canonical + OG + Twitter под конкретный товар.
+     На статике мета в <head> общая — здесь переписываем её под slug,
+     чтобы репосты и склейка в поиске были корректными. */
+  function updateSeoMeta() {
+    if (!product) return;
+    var slug = product.slug || product.id;
+    var url = SITE + "/product.html?slug=" + encodeURIComponent(slug);
+    var img = absUrl((rawProduct && rawProduct.image) || product.image) || "";
+    var raw = (rawProduct && rawProduct.desc) || product.composition || "";
+    var priceTxt = product.price
+      ? (product.priceFrom ? "от " : "") + formatPrice(product.price) + ". "
+      : "";
+    var desc = (
+      product.name +
+      " — " +
+      priceTxt +
+      (raw ? raw + " " : "") +
+      "Доставка по Новороссийску, Геленджику и Анапе, фото букета перед отправкой."
+    ).slice(0, 300);
+
+    function meta(sel, attr, key, val) {
+      if (!val) return;
+      var el = document.head.querySelector(sel + '[' + attr + '="' + key + '"]');
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", val);
+    }
+
+    var mdesc = document.head.querySelector('meta[name="description"]');
+    if (!mdesc) {
+      mdesc = document.createElement("meta");
+      mdesc.setAttribute("name", "description");
+      document.head.appendChild(mdesc);
+    }
+    mdesc.setAttribute("content", desc.slice(0, 160));
+
+    var canon = document.head.querySelector('link[rel="canonical"]');
+    if (!canon) {
+      canon = document.createElement("link");
+      canon.setAttribute("rel", "canonical");
+      document.head.appendChild(canon);
+    }
+    canon.setAttribute("href", url);
+
+    var ogTitle = product.name + " — PALOMA, Новороссийск";
+    meta("meta", "property", "og:type", "product");
+    meta("meta", "property", "og:url", url);
+    meta("meta", "property", "og:title", ogTitle);
+    meta("meta", "property", "og:description", desc.slice(0, 200));
+    meta("meta", "property", "og:image", img);
+    meta("meta", "name", "twitter:card", "summary_large_image");
+    meta("meta", "name", "twitter:title", ogTitle);
+    meta("meta", "name", "twitter:description", desc.slice(0, 200));
+    meta("meta", "name", "twitter:image", img);
+  }
+
   function injectSeoSchema() {
     if (!product) return;
     var slug = product.slug || product.id;
@@ -230,11 +289,8 @@
   }
 
   function renderProduct() {
-    document.title = `${product.name} — PALOMA`;
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.content = `${product.name} — ${rawProduct?.desc || product.composition || ""} — PALOMA flowers coffee you`;
-    }
+    document.title = `${product.name} — купить с доставкой в Новороссийске — PALOMA`;
+    updateSeoMeta();
 
     if (breadCatLink) {
       breadCatLink.textContent = product.categoryLabel || "Каталог";

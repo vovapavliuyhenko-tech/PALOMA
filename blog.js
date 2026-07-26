@@ -132,6 +132,40 @@
       setMeta("name", "twitter:title", art.title + " — Блог PALOMA");
       setMeta("name", "twitter:description", art.excerpt);
       setMeta("name", "twitter:image", img);
+
+      /* ── Schema.org: Article + BreadcrumbList ── */
+      var graph = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Article",
+            headline: art.title,
+            description: art.excerpt,
+            image: img,
+            datePublished: art.date || undefined,
+            dateModified: art.date || undefined,
+            inLanguage: "ru-RU",
+            mainEntityOfPage: url,
+            author: { "@id": SITE + "/#business" },
+            publisher: { "@id": SITE + "/#business" },
+          },
+          {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Главная", item: SITE + "/" },
+              { "@type": "ListItem", position: 2, name: "Блог", item: SITE + "/blog.html" },
+              { "@type": "ListItem", position: 3, name: art.title, item: url },
+            ],
+          },
+        ],
+      };
+      var old = document.getElementById("article-seo-jsonld");
+      if (old) old.remove();
+      var sc = document.createElement("script");
+      sc.type = "application/ld+json";
+      sc.id = "article-seo-jsonld";
+      sc.textContent = JSON.stringify(graph);
+      document.head.appendChild(sc);
     })();
 
     const breadTitle = document.getElementById("articleBreadcrumbTitle");
