@@ -588,10 +588,21 @@
          становится вертикальной лентой (фото на всю ширину стопкой), поэтому
          горизонтальный сдвиг отключаем и сбрасываем transform. */
       var mqMobile = window.matchMedia("(max-width: 900px)");
+      var barWired = false;
+      function wireBar() {
+        if (barWired) return;
+        barWired = true;
+        track.addEventListener("scroll", function () {
+          if (!bar) return;
+          var max = track.scrollWidth - track.clientWidth;
+          bar.style.width =
+            (max > 0 ? (track.scrollLeft / max) * 100 : 0).toFixed(1) + "%";
+        }, { passive: true });
+      }
       function update() {
         if (mqMobile.matches) {
           track.style.transform = "";
-          if (bar) bar.style.width = "";
+          wireBar();
           return;
         }
         var rect = sec.getBoundingClientRect();
