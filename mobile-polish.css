@@ -111,18 +111,20 @@
      сам задаёт высоту по своей пропорции (квадрат) и виден целиком, а текст идёт
      строго ПОД фото. */
   #philosophy .ea-philo__media {
-    position: static !important;
+    position: relative !important;
     order: -1 !important;
     min-height: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
+    height: 0 !important;
+    padding-bottom: 100% !important;   /* квадрат: высота = ширина, строка резервируется */
+    overflow: hidden !important;
   }
   #philosophy .ea-philo__media img {
-    position: static !important;
-    inset: auto !important;
+    position: absolute !important;
+    inset: 0 !important;
     width: 100% !important;
-    height: auto !important;
-    object-fit: fill !important;   /* натуральная пропорция — без кропа */
+    height: 100% !important;
+    object-fit: cover !important;      /* квадрат в квадрате — весь кадр, без обрезки */
+    object-position: center !important;
     display: block !important;
   }
   #philosophy .ea-philo__text {
