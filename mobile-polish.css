@@ -93,13 +93,16 @@
      блоках — hero (#top) и «философия» (#philosophy). Медиа прилипает,
      текстовая карточка со скруглённым верхом наплывает поверх. Структура
      идентична главной (ea-hero__left/__right, ea-philo__media/__text). */
-  #top .ea-hero__left,
-  #philosophy .ea-philo__media {
+  /* Hero: медиа прилипает, текстовая карточка наплывает поверх (динамика). */
+  #top .ea-hero__left {
     position: sticky !important;
     top: 0 !important;
     z-index: 1 !important;
   }
-  #philosophy .ea-philo__media { order: -1 !important; }
+  /* Философия: медиа НЕ пиннится (иначе шапка режет голову невесты),
+     показываем фото целиком, а карточка наплывает через отрицательный отступ. */
+  #philosophy .ea-philo__media { order: -1 !important; z-index: 1 !important; }
+  #philosophy .ea-philo__media img { object-position: 32% 30% !important; }
   #top .ea-hero__right,
   #philosophy .ea-philo__text {
     position: relative;
@@ -109,13 +112,13 @@
     padding-top: 34px;
     box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.12);
   }
-  #philosophy .ea-philo__text { border-bottom: none !important; }
+  #philosophy .ea-philo__text {
+    border-bottom: none !important;
+    margin-top: -32px !important;   /* карточка наплывает на низ фото невесты */
+  }
   #top.ea-panel,
   #philosophy.ea-panel,
   #top .ea-hero__left { overflow: visible !important; }
-  /* Фокус кадра невесты: она в ЛЕВОЙ части квадратного фото, поэтому центрированный
-     cover её вырезал (оставался шлейф). Сдвигаем видимую область влево-вверх. */
-  #philosophy .ea-philo__media img { object-position: 30% 28% !important; }
 
   /* ─── БЛОГ ПОЛЬЗЫ: карточки едут вбок сами при вертикальном скролле ───
      #homeBlog делаем высоким (запас на прокрутку), .home-blog__pin прилипает
