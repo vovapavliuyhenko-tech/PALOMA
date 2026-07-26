@@ -298,30 +298,31 @@ body.cf-modal-open{overflow:hidden}
 
   /* ── КРУПНЫЕ фото/видео, текст МЕЖДУ ними, по-разному на каждом шаге ── */
   /* ШАГ 01: фото A сверху → заголовок+текст в середине → фото B снизу.
-     Верх фото A с 14% — верхняя зона панели пустая (под шапкой). */
+     Верх фото A с 18% — верхние ~146px пусты (под баннером «тех.работы» 67px +
+     шапкой 65px = ~132px), поэтому ничего не залезает под них. */
   #cf-steps .ea-proc__ph--a,
   #cf-steps .ea-proc-step:nth-child(2) .ea-proc__ph--a{
-    top:14%!important;left:9%!important;width:78%!important;height:27%!important;aspect-ratio:auto!important}
+    top:18%!important;left:9%!important;width:78%!important;height:26%!important;aspect-ratio:auto!important}
   #cf-steps .ea-proc__ph--b{
-    top:67%!important;left:13%!important;width:78%!important;height:29%!important;aspect-ratio:auto!important}
+    top:68%!important;left:13%!important;width:78%!important;height:28%!important;aspect-ratio:auto!important}
   /* ШАГ 03: фото D сверху (сдвиг вправо) → текст в середине → фото E снизу (сдвиг влево) */
   #cf-steps .ea-proc-step:last-child .ea-proc__ph--d{
-    top:14%!important;left:13%!important;width:78%!important;height:27%!important;aspect-ratio:auto!important}
+    top:18%!important;left:13%!important;width:78%!important;height:26%!important;aspect-ratio:auto!important}
   #cf-steps .ea-proc-step:last-child .ea-proc__ph--e{
-    top:67%!important;left:9%!important;width:78%!important;height:29%!important;aspect-ratio:auto!important}
-  /* ШАГ 02: заголовок+текст сверху (с 15%, под шапкой) → КРУПНОЕ видео снизу */
-  #cf-steps .ea-proc__ph--c{top:39%!important;left:8%!important;width:84%!important;height:57%!important;aspect-ratio:auto!important}
+    top:68%!important;left:9%!important;width:78%!important;height:28%!important;aspect-ratio:auto!important}
+  /* ШАГ 02: заголовок+текст сверху (с 19%, ниже баннера+шапки) → КРУПНОЕ видео снизу */
+  #cf-steps .ea-proc__ph--c{top:41%!important;left:8%!important;width:84%!important;height:55%!important;aspect-ratio:auto!important}
 
   /* заголовки: 01/03 — ровно между фото, 02 — сверху (в безопасной зоне) */
   #cf-steps .ea-proc-step:nth-child(2) .ea-step__t--top,
-  #cf-steps .ea-proc-step:last-child .ea-step__t--top{top:44%!important;left:6%!important;right:6%!important;width:auto!important}
-  #cf-steps .ea-step__t--mid{top:15%!important;left:6%!important;right:6%!important;width:auto!important}
+  #cf-steps .ea-proc-step:last-child .ea-step__t--top{top:47%!important;left:6%!important;right:6%!important;width:auto!important}
+  #cf-steps .ea-step__t--mid{top:19%!important;left:6%!important;right:6%!important;width:auto!important}
   /* описания: 01/03 — под заголовком в середине, 02 — сверху под заголовком */
   #cf-steps .ea-proc-step:nth-child(2) .ea-step__body--lo,
   #cf-steps .ea-proc-step:last-child .ea-step__body--hi{
-    top:51%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
+    top:53%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
   #cf-steps .ea-proc-step:nth-child(3) .ea-step__body--mid{
-    top:23%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
+    top:26%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
   /* декоративные стрелки на телефоне убираем — мешают */
   #cf-steps .ea-proc__arrow{display:none!important}
 }
