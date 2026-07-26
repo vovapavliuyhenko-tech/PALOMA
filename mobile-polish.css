@@ -106,26 +106,30 @@
   }
   #top.ea-panel,
   #top .ea-hero__left { overflow: visible !important; }
-  /* Философия: фото невесты СТАТИЧНО (без пиннинга) и в ПОЛНУЮ ВЫСОТУ — фото
-     квадратное, поэтому контейнер делаем квадратным (aspect 1/1), тогда виден
-     весь кадр без обрезки. Карточка с текстом идёт ниже с лёгким наплывом. */
+  /* Философия: фото невесты СТАТИЧНО (без пиннинга) и в ПОЛНУЮ ВЫСОТУ — показываем
+     ВЕСЬ кадр без обрезки. Делаем <img> обычным потоковым (не absolute), тогда он
+     сам задаёт высоту по своей пропорции (квадрат) и виден целиком, а текст идёт
+     строго ПОД фото. */
   #philosophy .ea-philo__media {
     position: static !important;
     order: -1 !important;
     min-height: 0 !important;
     height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-    z-index: 1 !important;
+    overflow: visible !important;
   }
-  #philosophy .ea-philo__media img { object-position: center !important; }
+  #philosophy .ea-philo__media img {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: fill !important;   /* натуральная пропорция — без кропа */
+    display: block !important;
+  }
   #philosophy .ea-philo__text {
     position: relative;
     z-index: 2;
     background: #FFFFFF;
-    border-radius: 28px 28px 0 0;
-    margin-top: -22px !important;
-    padding-top: 30px;
-    box-shadow: 0 -14px 30px rgba(0, 0, 0, 0.10);
+    margin-top: 0 !important;
     border-bottom: none !important;
   }
 
