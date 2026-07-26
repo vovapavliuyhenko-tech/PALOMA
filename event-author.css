@@ -497,5 +497,43 @@ body.ea-lb-open{overflow:hidden}
   .ea-serv__card{width:auto;margin:auto clamp(16px,5vw,40px)}
   .ea-proc-step{width:88vw}
   .ea-prefooter__script{max-width:88%;font-size:clamp(20px,5.5vw,32px)}
+
+  /* ── ПРОЦЕСС #process (оформление): мобильная раскладка как у кофейни #cf-steps —
+     ПК-коллаж + горизонтальное листание, но фото/текст подогнаны под телефон,
+     без наложений; верхние ~18% пусты (под баннером+шапкой). ── */
+  #process{height:250vh!important}
+  #process .ea-proc__sticky{overflow:hidden}
+  #process .ea-proc-step,
+  #process .ea-proc-step:last-child{width:90vw!important;padding:0!important}
+  #process .ea-proc__intro{width:86vw!important;padding:0 6vw!important}
+  #process .ea-proc__intro .ea-title{font-size:clamp(27px,8vw,38px)!important;line-height:1.12}
+  #process .ea-proc__intro .ea-proc__lead{font-size:clamp(14px,3.9vw,16px)!important;max-width:none!important;margin-top:14px}
+  #process .ea-proc .ea-step__t,
+  #process .ea-step__t{font-size:clamp(19px,5.6vw,25px)!important;line-height:1.14!important}
+  #process .ea-step__d{font-size:clamp(12.5px,3.5vw,14px)!important;line-height:1.48!important}
+  /* ШАГ 01: фото A сверху → текст в середине → фото B снизу */
+  #process .ea-proc__ph--a,
+  #process .ea-proc-step:nth-child(2) .ea-proc__ph--a{
+    top:18%!important;left:9%!important;width:78%!important;height:26%!important;aspect-ratio:auto!important}
+  #process .ea-proc__ph--b{
+    top:68%!important;left:13%!important;width:78%!important;height:28%!important;aspect-ratio:auto!important}
+  /* ШАГ 03: фото D сверху (сдвиг вправо) → текст в середине → фото E снизу (сдвиг влево) */
+  #process .ea-proc-step:last-child .ea-proc__ph--d{
+    top:18%!important;left:13%!important;width:78%!important;height:26%!important;aspect-ratio:auto!important}
+  #process .ea-proc-step:last-child .ea-proc__ph--e{
+    top:68%!important;left:9%!important;width:78%!important;height:28%!important;aspect-ratio:auto!important}
+  /* ШАГ 02: заголовок+текст сверху → КРУПНОЕ медиа снизу */
+  #process .ea-proc__ph--c{top:41%!important;left:8%!important;width:84%!important;height:55%!important;aspect-ratio:auto!important}
+  /* заголовки: 01/03 — между фото, 02 — сверху */
+  #process .ea-proc-step:nth-child(2) .ea-step__t--top,
+  #process .ea-proc-step:last-child .ea-step__t--top{top:47%!important;left:6%!important;right:6%!important;width:auto!important}
+  #process .ea-step__t--mid{top:19%!important;left:6%!important;right:6%!important;width:auto!important}
+  /* описания */
+  #process .ea-proc-step:nth-child(2) .ea-step__body--lo,
+  #process .ea-proc-step:last-child .ea-step__body--hi{
+    top:53%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
+  #process .ea-proc-step:nth-child(3) .ea-step__body--mid{
+    top:26%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
+  #process .ea-proc__arrow{display:none!important}
 }
 @media(max-width:560px){.ea-hero__frame{width:66vw}.ea-lb__arrow{width:46px;height:46px}.ea-lb__img{max-width:92vw}}
