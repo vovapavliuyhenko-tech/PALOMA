@@ -82,6 +82,7 @@
 
     var notFound = document.getElementById("ciNotFound");
     if (!item) {
+      document.title = "Меню — PALOMA Coffee, Новороссийск";
       if (notFound) notFound.hidden = false;
       var layout = document.getElementById("ciLayout");
       if (layout) layout.hidden = true;
