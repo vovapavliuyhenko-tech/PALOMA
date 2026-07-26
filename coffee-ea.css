@@ -283,6 +283,9 @@ body.cf-modal-open{overflow:hidden}
      наложений и лишних пустот. Механику (sticky-пиннинг, трек) НЕ трогаем,
      только высоту секции уменьшаем, чтобы листалось живо. ── */
   #cf-steps{height:250vh!important}
+  /* панель пиннится НИЖЕ фиксированной шапки (#siteTop = 65px), иначе верх
+     контента (заголовок шага 02) прячется за шапкой */
+  #cf-steps .ea-proc__sticky{top:65px!important;height:calc(100vh - 65px)!important}
   /* панель = ширина телефона; заголовок сверху, описание снизу */
   #cf-steps .ea-proc-step,
   #cf-steps .ea-proc-step:last-child{width:90vw!important;padding:0!important}
