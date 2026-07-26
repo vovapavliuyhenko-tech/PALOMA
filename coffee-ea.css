@@ -309,18 +309,18 @@ body.cf-modal-open{overflow:hidden}
   #cf-steps .ea-proc-step:last-child .ea-proc__ph--e{
     top:61%!important;left:9%!important;width:78%!important;height:33%!important;aspect-ratio:auto!important}
   /* ШАГ 02: заголовок+текст сверху → КРУПНОЕ видео снизу */
-  #cf-steps .ea-proc__ph--c{top:31%!important;left:8%!important;width:84%!important;height:63%!important;aspect-ratio:auto!important}
+  #cf-steps .ea-proc__ph--c{top:35%!important;left:8%!important;width:84%!important;height:60%!important;aspect-ratio:auto!important}
 
-  /* заголовки: 01/03 — по центру (между фото), 02 — сверху */
+  /* заголовки: 01/03 — ровно между фото, 02 — сверху (с запасом от шапки) */
   #cf-steps .ea-proc-step:nth-child(2) .ea-step__t--top,
-  #cf-steps .ea-proc-step:last-child .ea-step__t--top{top:34%!important;left:6%!important;right:6%!important;width:auto!important}
-  #cf-steps .ea-step__t--mid{top:5%!important;left:6%!important;right:6%!important;width:auto!important}
+  #cf-steps .ea-proc-step:last-child .ea-step__t--top{top:37%!important;left:6%!important;right:6%!important;width:auto!important}
+  #cf-steps .ea-step__t--mid{top:9%!important;left:6%!important;right:6%!important;width:auto!important}
   /* описания: 01/03 — под заголовком в середине, 02 — сверху под заголовком */
   #cf-steps .ea-proc-step:nth-child(2) .ea-step__body--lo,
   #cf-steps .ea-proc-step:last-child .ea-step__body--hi{
-    top:42%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
+    top:45%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
   #cf-steps .ea-proc-step:nth-child(3) .ea-step__body--mid{
-    top:15%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
+    top:18%!important;bottom:auto!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
   /* декоративные стрелки на телефоне убираем — мешают */
   #cf-steps .ea-proc__arrow{display:none!important}
 }
