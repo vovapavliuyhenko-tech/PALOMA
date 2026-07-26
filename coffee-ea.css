@@ -278,9 +278,45 @@ body.cf-modal-open{overflow:hidden}
   /* Цветки у заголовка меню — компактнее, чтобы заголовок читался */
   .cf-menu-flower{width:clamp(26px,8vw,40px)!important}
 
-  /* ── ЭТАПЫ #cf-steps: на телефоне НЕ переопределяем — используется базовый
-     ПК-макет .ea-proc (высота 520vh, sticky-пиннинг, панели 760px, абсолютные
-     фото), горизонтальный скролл-джек как на компьютере. ── */
+  /* ── ЭТАПЫ #cf-steps: тот же ПК-макет (коллаж + горизонтальное листание),
+     но размеры фото/текста, позиции и отступы подогнаны под телефон — без
+     наложений и лишних пустот. Механику (sticky-пиннинг, трек) НЕ трогаем,
+     только высоту секции уменьшаем, чтобы листалось живо. ── */
+  #cf-steps{height:250vh!important}
+  /* панель = ширина телефона; заголовок сверху, описание снизу */
+  #cf-steps .ea-proc-step,
+  #cf-steps .ea-proc-step:last-child{width:90vw!important;padding:0!important}
+  #cf-steps .ea-proc__intro{width:86vw!important;padding:0 6vw!important}
+  #cf-steps .ea-proc__intro .ea-title{font-size:clamp(27px,8vw,38px)!important;line-height:1.12}
+  #cf-steps .ea-proc__intro .ea-proc__lead{font-size:clamp(14px,3.9vw,16px)!important;max-width:none!important;margin-top:14px}
+  /* заголовок шага — сверху слева, мобильный размер */
+  #cf-steps .ea-proc .ea-step__t,
+  #cf-steps .ea-step__t{font-size:clamp(20px,6vw,27px)!important;line-height:1.12!important}
+  #cf-steps .ea-step__t--top,
+  #cf-steps .ea-proc-step:nth-child(2) .ea-step__t--top,
+  #cf-steps .ea-proc-step:last-child .ea-step__t--top,
+  #cf-steps .ea-step__t--mid{top:6%!important;left:6%!important;right:6%!important;width:auto!important}
+  /* описание — снизу, на всю ширину карточки */
+  #cf-steps .ea-step__body,
+  #cf-steps .ea-step__body--lo,
+  #cf-steps .ea-step__body--mid,
+  #cf-steps .ea-proc-step:nth-child(2) .ea-step__body--lo,
+  #cf-steps .ea-proc-step:last-child .ea-step__body--hi{
+    top:auto!important;bottom:4%!important;left:6%!important;right:6%!important;width:auto!important;max-width:none!important}
+  #cf-steps .ea-step__d{font-size:clamp(13px,3.7vw,15px)!important;line-height:1.5!important}
+  /* фото — мельче и в шахматном порядке (одно вверху-справа, второе ниже-слева),
+     без наложений (16–43% и 46–72% по высоте) */
+  #cf-steps .ea-proc__ph--a,
+  #cf-steps .ea-proc-step:nth-child(2) .ea-proc__ph--a,
+  #cf-steps .ea-proc-step:last-child .ea-proc__ph--d{
+    top:18%!important;left:45%!important;width:51%!important;height:25%!important;aspect-ratio:auto!important}
+  #cf-steps .ea-proc__ph--b,
+  #cf-steps .ea-proc-step:last-child .ea-proc__ph--e{
+    top:46%!important;left:4%!important;width:51%!important;height:26%!important;aspect-ratio:auto!important}
+  /* видео (шаг 02) — крупнее, по центру */
+  #cf-steps .ea-proc__ph--c{top:15%!important;left:15%!important;width:70%!important;height:40%!important;aspect-ratio:auto!important}
+  /* декоративные стрелки на телефоне убираем — мешают */
+  #cf-steps .ea-proc__arrow{display:none!important}
 }
 
 /* Сладкие разделы («Десерты», «Корпусные», «ChokoMe») — оранжевая активная кнопка-фильтр */
