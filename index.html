@@ -107,7 +107,7 @@
   <meta name="twitter:title" content="PALOMA — авторские букеты и кофе в Новороссийске">
   <meta name="twitter:description" content="Авторские букеты и specialty-кофе в Новороссийске. Фото букета перед отправкой, доставка день-в-день по Новороссийску, Геленджику и Анапе.">
   <meta name="twitter:image" content="https://paloma.website/images/paloma/hero/hero-main.jpg">
-  <link rel="stylesheet" href="mobile-polish.css?v=21">
+  <link rel="stylesheet" href="mobile-polish.css?v=22">
   <script src="paloma-schema.js?v=1"></script>
 </head>
 <body class="is-home">
@@ -1272,19 +1272,35 @@
         function jack(secId, trackSel){
           var sec=document.getElementById(secId); if(!sec) return;
           var track=sec.querySelector(trackSel); if(!track) return;
-          function update(){
-            if(!mq.matches){ track.style.transform=''; return; }
-            var rect=sec.getBoundingClientRect();
-            var dist=sec.offsetHeight-window.innerHeight;
-            if(dist<=0){ track.style.transform=''; return; }
-            var p=Math.min(1,Math.max(0,-rect.top/dist));
-            var max=track.scrollWidth-track.clientWidth; if(max<0)max=0;
-            track.style.transform='translateX(-'+(p*max).toFixed(2)+'px)';
+          var dist=0, max=0, ticking=false;
+
+          /* Тяжёлые чтения layout (offsetHeight, scrollWidth) делаем ТОЛЬКО при
+             ресайзе/смене брейкпоинта, а не на каждом кадре скролла — иначе reflow
+             каждый кадр = тряска. dist основан на кэше, поэтому дёрганье адресной
+             строки телефона не сдвигает трек. */
+          function measure(){
+            if(!mq.matches){ dist=0; max=0; track.style.transform=''; track.style.willChange=''; return; }
+            dist=sec.offsetHeight-window.innerHeight; if(dist<0)dist=0;
+            max=track.scrollWidth-track.clientWidth; if(max<0)max=0;
+            track.style.willChange='transform';
+            apply();
           }
-          window.addEventListener('scroll',update,{passive:true});
-          window.addEventListener('resize',update);
-          if(mq.addEventListener)mq.addEventListener('change',update);
-          update();
+          /* На кадре скролла — одно чтение (rect.top) и одна запись (transform). */
+          function apply(){
+            if(dist<=0||max<=0) return;
+            var p=-sec.getBoundingClientRect().top/dist;
+            if(p<0)p=0; else if(p>1)p=1;
+            track.style.transform='translate3d(-'+(p*max).toFixed(1)+'px,0,0)';
+          }
+          function onScroll(){
+            if(ticking) return;
+            ticking=true;
+            requestAnimationFrame(function(){ apply(); ticking=false; });
+          }
+          window.addEventListener('scroll',onScroll,{passive:true});
+          window.addEventListener('resize',measure);
+          if(mq.addEventListener)mq.addEventListener('change',measure);
+          measure();
         }
         jack('homeBlog','.home-blog__grid');
         jack('categories','.home-categories__grid');
