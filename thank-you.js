@@ -48,6 +48,18 @@
     (order.paid || order.payment === "payment_on_receipt")
   ) {
     if (window.palomaGoal) window.palomaGoal("purchase");
+    if (window.palomaEcommerce && window.palomaEcomProduct) {
+      window.palomaEcommerce(
+        "purchase",
+        order.items.map(function (i) {
+          return window.palomaEcomProduct(i, { quantity: i.qty || 1 });
+        }),
+        {
+          id: order.id || "ORD-" + Date.now(),
+          revenue: Number(order.total) || undefined,
+        }
+      );
+    }
     order.goalPurchaseSent = true;
     try {
       localStorage.setItem(STORAGE_ORDER, JSON.stringify(order));

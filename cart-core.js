@@ -21,6 +21,47 @@ window.PalomaCart = (function () {
   }
   window.palomaGoal = palomaGoal;
 
+  /* ── Яндекс.Метрика: электронная коммерция (ecommerce dataLayer) ──
+     Счётчик инициализирован с ecommerce:"dataLayer" на всех страницах,
+     поэтому Метрика читает изменения window.dataLayer. Пушим события
+     detail / add / remove / purchase. Никогда не ломаем основную логику. */
+  function ecomProduct(src, extra) {
+    src = src || {};
+    var p = {
+      id: String(src.id != null ? src.id : src.slug || ""),
+      name: src.name || "Товар",
+      brand: "PALOMA",
+    };
+    var price = Number(src.price);
+    if (!isNaN(price) && price > 0) p.price = price;
+    var cat =
+      src.category || (Array.isArray(src.categories) ? src.categories[0] : "");
+    if (cat) p.category = String(cat);
+    if (src.size) p.variant = String(src.size);
+    if (extra) {
+      for (var k in extra) {
+        if (extra[k] != null) p[k] = extra[k];
+      }
+    }
+    return p;
+  }
+  window.palomaEcomProduct = ecomProduct;
+
+  function palomaEcommerce(actionType, products, actionField) {
+    try {
+      if (!actionType || !Array.isArray(products) || !products.length) return;
+      window.dataLayer = window.dataLayer || [];
+      var block = { products: products };
+      if (actionField) block.actionField = actionField;
+      var ecom = { currencyCode: "RUB" };
+      ecom[actionType] = block;
+      window.dataLayer.push({ ecommerce: ecom });
+    } catch {
+      /* ecommerce не должен ломать основную логику */
+    }
+  }
+  window.palomaEcommerce = palomaEcommerce;
+
   try {
     if (!localStorage.getItem(STORAGE_KEY) && localStorage.getItem(LEGACY_KEY)) {
       localStorage.setItem(STORAGE_KEY, localStorage.getItem(LEGACY_KEY));
@@ -144,6 +185,7 @@ window.PalomaCart = (function () {
     _update();
     /* Цель: товар реально добавлен в корзину (после сохранения). */
     palomaGoal("add_to_cart");
+    palomaEcommerce("add", [ecomProduct(clean, { quantity: qtyAdd })]);
     if (
       !document.body.classList.contains("cart-page") &&
       !document.body.classList.contains("checkout-page")
@@ -153,8 +195,15 @@ window.PalomaCart = (function () {
   }
 
   function removeById(id) {
-    saveItems(getItems().filter((i) => i.id !== String(id)));
+    const sid = String(id);
+    const gone = getItems().find((i) => i.id === sid);
+    saveItems(getItems().filter((i) => i.id !== sid));
     _update();
+    if (gone) {
+      palomaEcommerce("remove", [
+        ecomProduct(gone, { quantity: gone.qty || 1 }),
+      ]);
+    }
   }
 
   function remove(id) {

@@ -771,6 +771,9 @@
     renderProduct();
     /* Цель: просмотр карточки товара (только для реально найденного товара). */
     if (window.palomaGoal) window.palomaGoal("view_product");
+    if (window.palomaEcommerce && window.palomaEcomProduct) {
+      window.palomaEcommerce("detail", [window.palomaEcomProduct(product)]);
+    }
     renderAddons();
     renderSimilar();
     initGiftAndFulfill();
