@@ -113,6 +113,9 @@
   #top.ea-panel,
   #philosophy.ea-panel,
   #top .ea-hero__left { overflow: visible !important; }
+  /* Фокус кадра невесты: она в ЛЕВОЙ части квадратного фото, поэтому центрированный
+     cover её вырезал (оставался шлейф). Сдвигаем видимую область влево-вверх. */
+  #philosophy .ea-philo__media img { object-position: 30% 28% !important; }
 
   /* ─── БЛОГ ПОЛЬЗЫ: карточки едут вбок сами при вертикальном скролле ───
      #homeBlog делаем высоким (запас на прокрутку), .home-blog__pin прилипает
