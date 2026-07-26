@@ -278,20 +278,20 @@ body.cf-modal-open{overflow:hidden}
   /* Цветки у заголовка меню — компактнее, чтобы заголовок читался */
   .cf-menu-flower{width:clamp(26px,8vw,40px)!important}
 
-  /* ── ЭТАПЫ: горизонтальный скролл-джек КАК НА ПК ──
-     Секция высокая, .ea-proc__sticky пиннится, JS (coffee-ea.js) двигает
-     трек по горизонтали по мере вертикального скролла. Каждая панель —
-     на весь экран телефона; внутри — фото-ряд, заголовок, описание. */
-  #cf-steps{height:400vh!important;background:var(--paper2)}
-  #cf-steps .ea-proc__sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center}
-  #cf-steps .ea-proc__track{display:flex;flex-wrap:nowrap;align-items:stretch;height:100%;will-change:transform}
+  /* ── ЭТАПЫ (Вариант 2): вертикальная лента, фото на всю ширину стопкой ──
+     На телефоне НЕ пиннимся и НЕ едем вбок (JS сбрасывает transform). Каждый
+     шаг — обычная секция в потоке: сверху текст, под ним фото на всю ширину,
+     одно под другим. */
+  #cf-steps{height:auto!important;background:var(--paper2);padding:6vh 0}
+  #cf-steps .ea-proc__sticky{position:static!important;top:auto!important;height:auto!important;overflow:visible!important;display:block!important;align-items:stretch}
+  #cf-steps .ea-proc__track{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch;width:100%;height:auto!important;transform:none!important;will-change:auto;gap:9vh}
   #cf-steps .ea-proc__panel,
   #cf-steps .ea-proc-step,
   #cf-steps .ea-proc-step:last-child{
-    flex:0 0 100vw!important;width:100vw!important;height:100%!important;
-    display:flex;flex-flow:row wrap;align-content:center;justify-content:center;
-    gap:12px 2.5%;padding:0 12px;box-sizing:border-box}
-  /* интро-панель — колонка слева */
+    flex:0 0 auto!important;width:100%!important;height:auto!important;
+    display:flex;flex-flow:column nowrap;align-content:stretch;justify-content:flex-start;
+    gap:14px;padding:0 16px;box-sizing:border-box}
+  /* интро-панель */
   #cf-steps .ea-proc__intro{flex-flow:column nowrap;justify-content:center;text-align:left;gap:0}
   #cf-steps .ea-proc__intro .ea-title{font-size:clamp(30px,9vw,42px);line-height:1.1;margin:0 0 14px}
   #cf-steps .ea-proc__lead{max-width:none;font-size:clamp(15px,4vw,17px)}
@@ -300,31 +300,30 @@ body.cf-modal-open{overflow:hidden}
   #cf-steps .ea-step__t--top,
   #cf-steps .ea-step__t--mid,
   #cf-steps .ea-proc-step:last-child .ea-step__t--top{position:static!important;left:auto!important;top:auto!important;
-    order:1;flex:0 0 100%;text-align:center;margin:0 0 6px;font-size:clamp(23px,6.4vw,32px)}
+    order:1;text-align:center;margin:0;font-size:clamp(24px,6.6vw,34px)}
   #cf-steps .ea-step__body,
   #cf-steps .ea-step__body--lo,
   #cf-steps .ea-step__body--mid,
   #cf-steps .ea-step__body--hi{position:static!important;left:auto!important;top:auto!important;
-    order:2;flex:0 0 100%;width:100%!important;max-width:none!important;text-align:center;margin:0 0 14px}
-  #cf-steps .ea-step__d{font-size:clamp(14px,3.7vw,15.5px);line-height:1.5}
+    order:2;width:100%!important;max-width:none!important;text-align:center;margin:0 0 2px}
+  #cf-steps .ea-step__d{font-size:clamp(15px,4vw,16.5px);line-height:1.55}
   #cf-steps .ea-step__script{font-size:1.4em}
-  /* фото этапов — крупная пара в один ряд ПОД текстом (шаги 01 и 03) */
+  /* фото этапов — на всю ширину, стопкой (шаги 01 и 03) */
   #cf-steps .ea-proc__ph,
   #cf-steps .ea-proc__ph--a,
   #cf-steps .ea-proc__ph--b,
   #cf-steps .ea-proc__ph--d,
   #cf-steps .ea-proc__ph--e{position:static!important;left:auto!important;top:auto!important;
-    order:3;flex:0 0 48.75%!important;width:48.75%!important;max-width:48.75%!important;
-    height:min(56vh,440px);aspect-ratio:auto;margin:0;display:block;
-    object-fit:cover!important;border-radius:14px}
-  /* одиночное видео (шаг 02) — крупное, на всю ширину */
+    order:3;flex:0 0 auto!important;width:100%!important;max-width:100%!important;
+    height:min(64vh,540px);aspect-ratio:auto;margin:0;display:block;
+    object-fit:cover!important;border-radius:16px}
+  /* видео (шаг 02) — тоже на всю ширину */
   #cf-steps .ea-proc__ph--c{position:static!important;left:auto!important;top:auto!important;
-    order:3;flex:0 0 100%!important;width:100%!important;max-width:100%!important;
-    height:min(58vh,460px);aspect-ratio:auto;border-radius:14px}
-  /* декоративные стрелки прячем; тонкий прогресс-бар снизу — виден горизонтальный ход */
+    order:3;flex:0 0 auto!important;width:100%!important;max-width:100%!important;
+    height:min(64vh,540px);aspect-ratio:auto;border-radius:16px}
+  /* стрелки и горизонтальный прогресс-бар в вертикальном режиме не нужны */
   #cf-steps .ea-proc__arrow{display:none!important}
-  #cf-steps .ea-proc__progress{display:block;position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(27,26,24,.1);z-index:5}
-  #cf-steps .ea-proc__progress-bar{height:100%;background:#E7385A}
+  #cf-steps .ea-proc__progress{display:none!important}
 }
 
 /* Сладкие разделы («Десерты», «Корпусные», «ChokoMe») — оранжевая активная кнопка-фильтр */

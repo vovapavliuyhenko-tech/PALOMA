@@ -584,10 +584,16 @@
       var track = document.getElementById("cfStepsTrack");
       var bar = document.getElementById("cfStepsBar");
       if (!sec || !track) return;
-      /* Горизонтальный скролл-джек работает и на телефоне: CSS ≤900px делает
-         панели на весь экран, а этот код двигает трек по горизонтали по мере
-         вертикального скролла (как на ПК). */
+      /* На ПК — горизонтальный скролл-джек. На телефоне (≤900px) блок
+         становится вертикальной лентой (фото на всю ширину стопкой), поэтому
+         горизонтальный сдвиг отключаем и сбрасываем transform. */
+      var mqMobile = window.matchMedia("(max-width: 900px)");
       function update() {
+        if (mqMobile.matches) {
+          track.style.transform = "";
+          if (bar) bar.style.width = "";
+          return;
+        }
         var rect = sec.getBoundingClientRect();
         var dist = sec.offsetHeight - window.innerHeight;
         if (dist <= 0) return;
