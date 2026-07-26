@@ -584,27 +584,10 @@
       var track = document.getElementById("cfStepsTrack");
       var bar = document.getElementById("cfStepsBar");
       if (!sec || !track) return;
-      /* На ПК — горизонтальный скролл-джек. На телефоне (≤900px) блок
-         становится вертикальной лентой (фото на всю ширину стопкой), поэтому
-         горизонтальный сдвиг отключаем и сбрасываем transform. */
-      var mqMobile = window.matchMedia("(max-width: 900px)");
-      var barWired = false;
-      function wireBar() {
-        if (barWired) return;
-        barWired = true;
-        track.addEventListener("scroll", function () {
-          if (!bar) return;
-          var max = track.scrollWidth - track.clientWidth;
-          bar.style.width =
-            (max > 0 ? (track.scrollLeft / max) * 100 : 0).toFixed(1) + "%";
-        }, { passive: true });
-      }
+      /* Горизонтальный скролл-джек одинаково на ПК и на телефоне: двигаем трек
+         по горизонтали по мере вертикального скролла (мобильной вёрстки нет —
+         используется тот же ПК-макет). */
       function update() {
-        if (mqMobile.matches) {
-          track.style.transform = "";
-          wireBar();
-          return;
-        }
         var rect = sec.getBoundingClientRect();
         var dist = sec.offsetHeight - window.innerHeight;
         if (dist <= 0) return;
