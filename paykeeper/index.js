@@ -63,16 +63,62 @@ async function tgCall(method, payload) {
   }
 }
 
-/* Отправка сообщения менеджеру в Telegram. Не роняет заказ при ошибке:
-   любые сбои проглатываем и логируем — оплата важнее уведомления. */
+/* Один запрос sendMessage с разбором ответа (нужен status и parameters,
+   чтобы обработать миграцию супергруппы и flood-лимит 429). */
+async function sendMessageOnce(chatId, text) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+      signal: ctrl.signal,
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { /* ignore */ }
+    if (!res.ok) console.error("[telegram] sendMessage", chatId, res.status, JSON.stringify(data));
+    return { ok: res.ok, status: res.status, data };
+  } catch (e) {
+    console.error("[telegram] sendMessage error", chatId, e && e.message);
+    return { ok: false, status: 0, data: null };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/* Надёжная отправка текста в один чат: обработка миграции группы→супергруппы,
+   flood-лимита (429 retry_after) и одна обычная повторная попытка. */
+async function sendMessageResilient(chatId, text) {
+  let r = await sendMessageOnce(chatId, text);
+  if (r.ok) return true;
+  const params = (r.data && r.data.parameters) || {};
+  /* группа превратилась в супергруппу — у неё новый chat_id */
+  if (params.migrate_to_chat_id) {
+    r = await sendMessageOnce(params.migrate_to_chat_id, text);
+    if (r.ok) return true;
+  }
+  /* превышен лимит частоты — ждём и повторяем */
+  if (r.status === 429 && params.retry_after) {
+    await new Promise((res) => setTimeout(res, Math.min(params.retry_after, 6) * 1000 + 250));
+    r = await sendMessageOnce(chatId, text);
+    if (r.ok) return true;
+  }
+  /* транзиентный сбой — одна обычная повторная попытка */
+  await new Promise((res) => setTimeout(res, 500));
+  r = await sendMessageOnce(chatId, text);
+  return r.ok;
+}
+
+/* Уведомление менеджеру в Telegram. Шлём ПОСЛЕДОВАТЕЛЬНО (не Promise.all),
+   чтобы не ловить flood-лимит на втором чате (из-за него в группу приходило
+   только фото, а текст — нет). Не роняет заказ при ошибке. */
 async function notifyManager(text) {
   if (!TG_BOT_TOKEN || !TG_CHAT_ID) return;
   const payload = String(text).slice(0, 4000);
-  await Promise.all(
-    tgChatIds().map((chatId) =>
-      tgCall("sendMessage", { chat_id: chatId, text: payload, disable_web_page_preview: true }),
-    ),
-  );
+  for (const chatId of tgChatIds()) {
+    await sendMessageResilient(chatId, payload);
+  }
 }
 
 /* Отправка одного фото ЗАГРУЗКОЙ БАЙТОВ (multipart), а не ссылкой.
