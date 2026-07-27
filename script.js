@@ -598,6 +598,15 @@
     const panel = document.getElementById("mobileNav");
     if (!toggle || !backdrop || !panel) return;
 
+    /* iOS/WebKit: у .site-header есть backdrop-filter (frosted-эффект), а он
+       делает элемент «containing block» для position:fixed потомков. Панель
+       мобильного меню лежит ВНУТРИ шапки — из-за этого на телефонах и планшетах
+       она обрезалась по высоте шапки и «не открывалась полностью». Выносим
+       панель и подложку в конец <body>, чтобы они позиционировались от вьюпорта,
+       а не от шапки. CSS-селекторы у них по классам — от переноса не ломаются. */
+    if (panel.parentElement !== document.body) document.body.appendChild(panel);
+    if (backdrop.parentElement !== document.body) document.body.appendChild(backdrop);
+
     let previouslyFocused = null;
     let navScrollY = 0;
 
