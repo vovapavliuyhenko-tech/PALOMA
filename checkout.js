@@ -698,6 +698,9 @@
       form: collectFormData(),
     };
 
+    /* Онлайн-заказ уходит менеджеру только после оплаты (со страницы thank-you).
+       Сохраняем готовый текст заказа, чтобы thank-you отправил его без пересборки. */
+    orderData.managerText = buildManagerText(orderData);
     try {
       localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
     } catch {

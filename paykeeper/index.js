@@ -495,14 +495,11 @@ async function createInvoice(body, origin) {
 
   console.log("[paykeeper] invoice", orderId, cart.total, invoiceId);
 
-  /* Заказ уходит менеджеру сразу — со всеми деталями, что собрал сайт.
-     Оплату подтвердит отдельное сообщение из webhook. */
-  const details = String(body.managerText || cart.names.join(", ")).slice(0, 3500);
-  await notifyManager(
-    "🆕 НОВЫЙ ЗАКАЗ (ожидает оплаты)\n№ " + orderId + "\nСумма: " +
-      cart.total.toLocaleString("ru-RU") + " ₽\n\n" + details,
-  );
-  await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
+  /* На этом шаге менеджеру НИЧЕГО не шлём: онлайн-заказ должен попадать в бот
+     ТОЛЬКО после оплаты. Полное уведомление с пометкой «ОПЛАЧЕН» отправит
+     страница thank-you (при возврате с ?paid=1 → ?a=notify, payment:"online_paid").
+     Webhook PayKeeper — серверная подстраховка того же факта оплаты.
+     Так в группе видны только оплаченные заказы, без «ожидает оплаты». */
 
   return reply(
     200,
@@ -528,8 +525,10 @@ async function handleNotify(body, origin) {
   const cart = verifyCart(body); /* только ради суммы в шапке — не блокирует */
   const totalStr = cart && !cart.error ? cart.total.toLocaleString("ru-RU") + " ₽" : "";
   const header =
-    "🆕 НОВЫЙ ЗАКАЗ" +
-    (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
+    body.payment === "online_paid"
+      ? "✅ ОПЛАЧЕН (онлайн картой)"
+      : "🆕 НОВЫЙ ЗАКАЗ" +
+        (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
 
   await notifyManager(
     header + "\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details,

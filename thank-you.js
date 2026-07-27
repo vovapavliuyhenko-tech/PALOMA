@@ -72,6 +72,19 @@
   renderSummary(order, f);
   if (order.paid) applyPaidCopy();
 
+  /* Онлайн-заказ уходит менеджеру в бот/группу ТОЛЬКО после оплаты — отсюда,
+     когда PayKeeper вернул клиента с подтверждённой оплатой (order.paid).
+     Флаг managerNotified защищает от повтора при обновлении страницы. */
+  if (order.paid && !order.managerNotified) {
+    notifyGroupPaid(order, f);
+    order.managerNotified = true;
+    try {
+      localStorage.setItem(STORAGE_ORDER, JSON.stringify(order));
+    } catch {
+      /* ignore */
+    }
+  }
+
   /* Спец-заказ со свободной суммой (подписка/сертификат/копилка) приносит
      готовый текст в order.message — показываем его как есть, дописав про
      оплату. Обычный заказ из корзины собираем из полей формы. */
@@ -128,6 +141,39 @@
   });
 
   /* ── helpers ── */
+
+  /* Отправка оплаченного заказа менеджеру в бот/группу через облачную функцию.
+     Для спец-заказов (подписка/сертификат/копилка) готовый текст лежит в
+     order.message; для обычной корзины берём order.managerText (собран в
+     checkout.js) или строим тем же шаблоном. payment:"online_paid" → функция
+     ставит в шапку «✅ ОПЛАЧЕН». keepalive — на случай быстрого ухода со страницы. */
+  function notifyGroupPaid(order, f) {
+    const ep = (window.PALOMA_PAYMENT_CONFIG?.PAYMENT_ENDPOINT || "").trim();
+    if (!ep) return;
+    const managerText = order.custom
+      ? String(order.message || "").trim()
+      : order.managerText || buildMessage(order, f);
+    fetch(ep + "?a=notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        orderId: order.id,
+        payment: "online_paid",
+        items: (order.items || []).map((i) => ({
+          id: i.id,
+          name: i.name,
+          price: i.price,
+          qty: i.qty || 1,
+        })),
+        delivery: order.delivery || 0,
+        clientName: f.name || order.clientName || "",
+        phone: f.phone || "",
+        email: f.email || "",
+        managerText: managerText,
+      }),
+    }).catch(() => {});
+  }
 
   function loadOrder() {
     try {
