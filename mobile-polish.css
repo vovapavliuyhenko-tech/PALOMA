@@ -135,25 +135,22 @@
     border-bottom: none !important;
   }
 
-  /* ─── БЛОГ ПОЛЬЗЫ: карточки едут вбок сами при вертикальном скролле ───
-     #homeBlog делаем высоким (запас на прокрутку), .home-blog__pin прилипает
-     на весь экран, а JS (в index.html) двигает .home-blog__grid по горизонтали
-     пропорционально прокрутке — как этапы на кофейне. */
+  /* ─── БЛОГ ПОЛЬЗЫ: нативный горизонтальный свайп ───
+     Убрали скролл-джек (высокая секция + sticky-pin + JS-трансформ трека):
+     на телефоне он давал вертикальную тряску из-за динамической адресной строки
+     и перерисовок sticky-слоя. Теперь карточки — обычная лента, которую листаешь
+     пальцем вбок; вертикальный скролл страницы плавный и без дёрганья. */
   #homeBlog {
-    height: 210vh !important;
+    height: auto !important;
     overflow: visible !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
   .home-blog__pin {
-    position: sticky !important;
-    top: 0 !important;
-    height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    overflow: hidden !important;
-    contain: paint;               /* изолируем перерисовку движущегося трека */
+    position: static !important;
+    height: auto !important;
+    display: block !important;
+    overflow: visible !important;
   }
   #homeBlog .home-blog__head {
     padding-left: 20px !important;
@@ -164,35 +161,36 @@
     display: flex !important;
     flex-wrap: nowrap !important;
     grid-template-columns: none !important;
-    overflow: visible !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
     gap: 14px !important;
-    padding: 0 20px !important;
-    will-change: transform;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    padding: 0 20px 6px !important;
+    transform: none !important;
+    will-change: auto !important;
+    scrollbar-width: none !important;
   }
-  #homeBlog .home-blog__grid > .home-article-card { flex: 0 0 82% !important; }
-  /* карточки, уехавшие за экран, не должны остаться невидимыми из-за reveal-анимации */
+  #homeBlog .home-blog__grid::-webkit-scrollbar { display: none !important; }
+  #homeBlog .home-blog__grid > .home-article-card {
+    flex: 0 0 82% !important;
+    scroll-snap-align: start !important;
+  }
+  /* карточки не должны остаться невидимыми из-за reveal-анимации */
   #homeBlog .home-reveal { opacity: 1 !important; transform: none !important; }
 
-  /* ─── КАТЕГОРИИ «Выберите по поводу и настроению» — тот же скролл-джек ───
-     #categories высокий, .home-categories__pin прилипает, JS (index.html)
-     двигает .home-categories__grid по горизонтали при вертикальном скролле. */
+  /* ─── КАТЕГОРИИ «Выберите по поводу и настроению» — тоже нативный свайп ─── */
   #categories {
-    height: 320vh !important;
+    height: auto !important;
     overflow: visible !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
   .home-categories__pin {
-    position: sticky !important;
-    top: 0 !important;
-    height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    overflow: hidden !important;
-    contain: paint;               /* изолируем перерисовку движущегося трека */
+    position: static !important;
+    height: auto !important;
+    display: block !important;
+    overflow: visible !important;
   }
   #categories .home-categories__head {
     padding-left: 20px !important;
@@ -200,15 +198,26 @@
     margin-bottom: 20px !important;
   }
   #categories .home-categories__grid {
-    overflow: visible !important;
-    padding: 0 20px !important;
-    scroll-snap-type: none !important;
-    will-change: transform;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    grid-template-columns: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    gap: 12px !important;
+    padding: 0 20px 6px !important;
+    transform: none !important;
+    will-change: auto !important;
+    scrollbar-width: none !important;
   }
-  /* элементы не должны остаться невидимыми из-за reveal-анимации категорий */
-  #categories .home-categories__item { opacity: 1 !important; transform: none !important; }
+  #categories .home-categories__grid::-webkit-scrollbar { display: none !important; }
+  #categories .home-categories__item {
+    flex: 0 0 46% !important;
+    scroll-snap-align: start !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 @media (max-width: 600px) {

@@ -107,7 +107,7 @@
   <meta name="twitter:title" content="PALOMA — авторские букеты и кофе в Новороссийске">
   <meta name="twitter:description" content="Авторские букеты и specialty-кофе в Новороссийске. Фото букета перед отправкой, доставка день-в-день по Новороссийску, Геленджику и Анапе.">
   <meta name="twitter:image" content="https://paloma.website/images/paloma/hero/hero-main.jpg">
-  <link rel="stylesheet" href="mobile-polish.css?v=30">
+  <link rel="stylesheet" href="mobile-polish.css?v=31">
   <script src="paloma-schema.js?v=1"></script>
 </head>
 <body class="is-home">
@@ -1263,49 +1263,10 @@
 
       </div><!-- /.home-blog__pin -->
 
-      <script>
-      /* Скролл-джек: карточки едут вбок сами при вертикальном скролле (как этапы
-         кофейни). Только телефон (≤900px); на десктопе выключено. Один драйвер
-         на несколько блоков (Блог пользы, Категории). */
-      (function(){
-        var mq=window.matchMedia('(max-width:900px)');
-        function jack(secId, trackSel){
-          var sec=document.getElementById(secId); if(!sec) return;
-          var track=sec.querySelector(trackSel); if(!track) return;
-          var dist=0, max=0, ticking=false;
+      <!-- Скролл-джек убран: на телефоне «Блог пользы» и «Категории» теперь
+           листаются пальцем вбок нативно (CSS overflow-x + scroll-snap в
+           mobile-polish.css). Это убрало вертикальную тряску при прокрутке. -->
 
-          /* Тяжёлые чтения layout (offsetHeight, scrollWidth) делаем ТОЛЬКО при
-             ресайзе/смене брейкпоинта, а не на каждом кадре скролла — иначе reflow
-             каждый кадр = тряска. dist основан на кэше, поэтому дёрганье адресной
-             строки телефона не сдвигает трек. */
-          function measure(){
-            if(!mq.matches){ dist=0; max=0; track.style.transform=''; track.style.willChange=''; return; }
-            dist=sec.offsetHeight-window.innerHeight; if(dist<0)dist=0;
-            max=track.scrollWidth-track.clientWidth; if(max<0)max=0;
-            track.style.willChange='transform';
-            apply();
-          }
-          /* На кадре скролла — одно чтение (rect.top) и одна запись (transform). */
-          function apply(){
-            if(dist<=0||max<=0) return;
-            var p=-sec.getBoundingClientRect().top/dist;
-            if(p<0)p=0; else if(p>1)p=1;
-            track.style.transform='translate3d(-'+(p*max).toFixed(1)+'px,0,0)';
-          }
-          function onScroll(){
-            if(ticking) return;
-            ticking=true;
-            requestAnimationFrame(function(){ apply(); ticking=false; });
-          }
-          window.addEventListener('scroll',onScroll,{passive:true});
-          window.addEventListener('resize',measure);
-          if(mq.addEventListener)mq.addEventListener('change',measure);
-          measure();
-        }
-        jack('homeBlog','.home-blog__grid');
-        jack('categories','.home-categories__grid');
-      })();
-      </script>
 
     </section>
 
@@ -1618,5 +1579,41 @@
     </div>
   </div>
   <script src="maintenance-banner.js?v=1"></script>
+  <script>
+  /* Бегущие строки: гоним их через requestAnimationFrame, а не только CSS-анимацией.
+     На телефоне режим энергосбережения (iOS Low Power / Android Battery Saver) и
+     «Уменьшение движения» ставят CSS @keyframes на паузу — строка замирает.
+     rAF-драйвер продолжает работать, поэтому строка едет всегда. Скорость берём
+     из ширины (половина трека = один дубль контента), чтобы темп совпадал с CSS. */
+  (function(){
+    function drive(track, durSec){
+      if(!track) return;
+      track.style.animation='none';
+      var half=0, speed=0, x=0, last=null;
+      function measure(){ half=track.scrollWidth/2; speed=half>0?half/durSec:0; if(x<=-half)x=0; }
+      function frame(t){
+        if(last===null)last=t;
+        var dt=(t-last)/1000; last=t;
+        if(dt>0.1)dt=0.1;                 /* после сворачивания вкладки не прыгаем */
+        if(speed>0){
+          x-=speed*dt;
+          if(x<=-half)x+=half;
+          track.style.transform='translate3d('+x.toFixed(2)+'px,0,0)';
+        }
+        requestAnimationFrame(frame);
+      }
+      measure();
+      window.addEventListener('resize',measure,{passive:true});
+      window.addEventListener('load',measure);
+      requestAnimationFrame(frame);
+    }
+    function init(){
+      document.querySelectorAll('.home-marquee__track').forEach(function(t){ drive(t,34); });
+      document.querySelectorAll('.top-marquee__track').forEach(function(t){ drive(t,38); });
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+    else init();
+  })();
+  </script>
 </body>
 </html>
