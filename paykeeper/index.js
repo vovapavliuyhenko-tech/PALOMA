@@ -172,6 +172,59 @@ async function notifyPhotos(urls, caption) {
   await Promise.all(tgChatIds().map((chatId) => sendPhotosToChat(chatId, urls, caption)));
 }
 
+/* ── Хранилище деталей онлайн-заказа между «создан счёт» и «оплачено» ──
+   Webhook об оплате приходит с сервера PayKeeper АВТОМАТИЧЕСКИ (без действий
+   клиента), но в нём только сумма и номер — нет состава. Поэтому при создании
+   счёта складываем полный текст + фото сюда, а webhook достаёт их и отправляет
+   менеджеру сам. Живёт в той же базе Neon (переменная DATABASE_URL). */
+let pendingReady = false;
+async function pendingEnsure(db) {
+  if (pendingReady) return;
+  await db.query(
+    "CREATE TABLE IF NOT EXISTS pending_orders (" +
+      " order_id text PRIMARY KEY," +
+      " manager_text text NOT NULL," +
+      " photos jsonb NOT NULL DEFAULT '[]'::jsonb," +
+      " total integer NOT NULL DEFAULT 0," +
+      " created_at timestamptz NOT NULL DEFAULT now())",
+  );
+  pendingReady = true;
+}
+async function pendingStore(orderId, managerText, photos, total) {
+  if (!process.env.DATABASE_URL) return false;
+  const db = require("./db");
+  await pendingEnsure(db);
+  await db.query(
+    "INSERT INTO pending_orders(order_id, manager_text, photos, total)" +
+      " VALUES ($1,$2,$3::jsonb,$4)" +
+      " ON CONFLICT (order_id) DO UPDATE SET" +
+      " manager_text=EXCLUDED.manager_text, photos=EXCLUDED.photos, total=EXCLUDED.total",
+    [orderId, String(managerText || "").slice(0, 3500), JSON.stringify(photos || []), Math.round(Number(total) || 0)],
+  );
+  return true;
+}
+/* Атомарно забирает и удаляет строку: кто первый (webhook или thank-you), тот и
+   шлёт уведомление — второй получит null и не продублирует. */
+async function pendingTake(orderId) {
+  if (!process.env.DATABASE_URL) return null;
+  const db = require("./db");
+  await pendingEnsure(db);
+  const res = await db.query(
+    "DELETE FROM pending_orders WHERE order_id=$1 RETURNING manager_text, photos, total",
+    [orderId],
+  );
+  return res.rows && res.rows[0] ? res.rows[0] : null;
+}
+function normPhotos(photos) {
+  if (Array.isArray(photos)) return photos;
+  try {
+    const a = JSON.parse(photos || "[]");
+    return Array.isArray(a) ? a : [];
+  } catch (e) {
+    return [];
+  }
+}
+
 /* ── прайс-лист: тот же, что на сайте (файлы копирует sync.js) ── */
 global.window = global.window || {};
 require("./paloma-products.js");
@@ -495,11 +548,25 @@ async function createInvoice(body, origin) {
 
   console.log("[paykeeper] invoice", orderId, cart.total, invoiceId);
 
-  /* На этом шаге менеджеру НИЧЕГО не шлём: онлайн-заказ должен попадать в бот
-     ТОЛЬКО после оплаты. Полное уведомление с пометкой «ОПЛАЧЕН» отправит
-     страница thank-you (при возврате с ?paid=1 → ?a=notify, payment:"online_paid").
-     Webhook PayKeeper — серверная подстраховка того же факта оплаты.
-     Так в группе видны только оплаченные заказы, без «ожидает оплаты». */
+  /* Онлайн-заказ уходит менеджеру ТОЛЬКО после оплаты. Детали (полный текст +
+     фото) складываем в pending_orders — webhook об оплате достанет их и отправит
+     АВТОМАТИЧЕСКИ, без действий клиента (не нужно жать «Продолжить»). Если БД
+     недоступна — не теряем заказ: шлём сразу, пометив, что он ещё не оплачен. */
+  const details = String(body.managerText || cart.names.join(", ")).slice(0, 3500);
+  const photos = bouquetPhotos(body);
+  let stashed = false;
+  try {
+    stashed = await pendingStore(orderId, details, photos, cart.total);
+  } catch (e) {
+    console.error("[pending] store error", orderId, e && e.message);
+  }
+  if (!stashed) {
+    await notifyManager(
+      "🆕 НОВЫЙ ЗАКАЗ (⏳ ещё не оплачен)\n№ " + orderId + "\nСумма: " +
+        cart.total.toLocaleString("ru-RU") + " ₽\n\n" + details,
+    );
+    await notifyPhotos(photos, "🖼 Букеты по заказу № " + orderId);
+  }
 
   return reply(
     200,
@@ -524,11 +591,40 @@ async function handleNotify(body, origin) {
 
   const cart = verifyCart(body); /* только ради суммы в шапке — не блокирует */
   const totalStr = cart && !cart.error ? cart.total.toLocaleString("ru-RU") + " ₽" : "";
+
+  /* Онлайн-оплата: страница thank-you — ЗАПАСНОЙ путь к webhook (на случай, если
+     webhook по какой-то причине не дошёл). Берём детали из pending_orders
+     атомарно: если строку уже забрал webhook — здесь ничего не шлём (без дублей).
+     Если БД недоступна — отправляем из того, что прислала страница. */
+  if (body.payment === "online_paid") {
+    try {
+      const row = await pendingTake(orderId);
+      if (!row) {
+        console.log("[paykeeper] notify online_paid dup-skip", orderId);
+        return reply(200, { ok: true, orderId, skipped: true }, origin);
+      }
+      await notifyManager(
+        "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + "\nСумма: " +
+          (row.total ? row.total.toLocaleString("ru-RU") + " ₽" : totalStr) + "\n\n" + row.manager_text,
+      );
+      const ph = normPhotos(row.photos);
+      if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderId);
+      console.log("[paykeeper] notify online_paid", orderId);
+      return reply(200, { ok: true, orderId }, origin);
+    } catch (e) {
+      console.error("[pending] notify take error", orderId, e && e.message);
+      await notifyManager(
+        "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details,
+      );
+      await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
+      console.log("[paykeeper] notify online_paid fallback", orderId);
+      return reply(200, { ok: true, orderId }, origin);
+    }
+  }
+
   const header =
-    body.payment === "online_paid"
-      ? "✅ ОПЛАЧЕН (онлайн картой)"
-      : "🆕 НОВЫЙ ЗАКАЗ" +
-        (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
+    "🆕 НОВЫЙ ЗАКАЗ" +
+    (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
 
   await notifyManager(
     header + "\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details,
@@ -575,12 +671,29 @@ async function handleWebhook(event) {
     }
   }
 
-  /* Подтверждаем менеджеру оплату (детали заказа он уже получил при оформлении). */
-  await notifyManager(
-    "✅ ОПЛАЧЕН\n№ " + orderid + "\nСумма: " +
-      (Number.isFinite(amount) ? amount.toLocaleString("ru-RU") : sum) + " ₽\n" +
-      "Клиент: " + (clientid || "—"),
-  );
+  /* Полное уведомление о заказе — АВТОМАТИЧЕСКИ после оплаты. Детали брали из
+     pending_orders (положили при создании счёта). pendingTake удаляет строку и
+     возвращает её атомарно: кто первый (webhook или страница thank-you), тот и
+     шлёт — дублей не будет. Клиенту НЕ нужно жать «Продолжить». */
+  const amountStr = Number.isFinite(amount) ? amount.toLocaleString("ru-RU") : sum;
+  try {
+    const row = await pendingTake(orderid);
+    if (row) {
+      await notifyManager(
+        "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderid + "\nСумма: " + amountStr + " ₽\n\n" + row.manager_text,
+      );
+      const ph = normPhotos(row.photos);
+      if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderid);
+    }
+    /* row === null → детали уже отправил другой путь (thank-you) либо их не
+       сохраняли (заказ ушёл при создании как «не оплачен») — не дублируем. */
+  } catch (e) {
+    /* БД недоступна — шлём хотя бы короткое подтверждение, чтобы факт оплаты не потерялся. */
+    console.error("[pending] webhook take error", orderid, e && e.message);
+    await notifyManager(
+      "✅ ОПЛАЧЕН\n№ " + orderid + "\nСумма: " + amountStr + " ₽\nКлиент: " + (clientid || "—"),
+    );
+  }
 
   return {
     statusCode: 200,
