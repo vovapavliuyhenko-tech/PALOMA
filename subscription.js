@@ -120,6 +120,13 @@ function initSubscriptionPage() {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     if (consent && !consent.checked) return;
+
+    /* Способ связи обязателен — без него менеджеру некому подтвердить заказ */
+    const contact = window.PalomaContact
+      ? window.PalomaContact.collect()
+      : { ok: true, summary: "" };
+    if (!contact.ok) return;
+
     if (!last) recalc();
 
     const lbl = last ? last.labels : {};
@@ -141,6 +148,7 @@ function initSubscriptionPage() {
       "Получение: " + (lbl.fulfillment || "—"),
       "Сумма: " + fmt(money),
     );
+    if (contact.summary) lines.push("Связь для подтверждения: " + contact.summary);
 
     window.palomaPayOnline({
       id: "subscription",

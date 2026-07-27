@@ -1,0 +1,130 @@
+/* contact-method.css — блок «Удобный способ связи»
+   для страниц подписки, подарочного сертификата и свадебной копилки.
+   Самодостаточный, префикс .pcm; тема совпадает с формами (роза #E7385A). */
+
+.pcm__hint {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-style: italic;
+  color: #8A8A8A;
+}
+
+.pcm__options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.pcm-option {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.pcm-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.pcm-option__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 10px 12px;
+  text-align: center;
+  border: 1.5px solid #E7E7E7;
+  border-radius: 14px;
+  background: #FFFFFF;
+  font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+  font-size: 18px;
+  font-style: italic;
+  color: #1A1A1A;
+  transition: border-color .18s ease, background-color .18s ease,
+    box-shadow .18s ease, color .18s ease;
+}
+
+.pcm-option:hover .pcm-option__label {
+  border-color: #E7385A;
+}
+
+.pcm-option input:checked + .pcm-option__label {
+  border-color: #E7385A;
+  background: #FCEDF1;
+  box-shadow: 0 0 0 1px #E7385A inset;
+  color: #E7385A;
+}
+
+.pcm-option input:focus-visible + .pcm-option__label {
+  outline: 2px solid #E7385A;
+  outline-offset: 2px;
+}
+
+/* Поле контакта скрыто, пока не выбран мессенджер. Управляем через :has(),
+   а не через атрибут hidden — на этих страницах reveal-скрипт снимает hidden
+   с элементов, поэтому на него полагаться нельзя. */
+.pcm__field {
+  display: none;
+  margin-top: 14px;
+}
+
+[data-contact-method]:has([data-pcm-radio]:checked) .pcm__field {
+  display: block;
+}
+
+.pcm__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: #6A6A6A;
+}
+
+.pcm__input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 50px;
+  padding: 12px 16px;
+  border: 1.5px solid #E7E7E7;
+  border-radius: 14px;
+  background: #FFFFFF;
+  font-size: 16px;
+  color: #1A1A1A;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.pcm__input:focus {
+  outline: none;
+  border-color: #E7385A;
+  box-shadow: 0 0 0 3px rgba(231, 56, 90, .12);
+}
+
+.pcm__input.pcm-err,
+.pcm__options.pcm-err .pcm-option__label {
+  border-color: #E7385A;
+  animation: pcmShake .4s ease;
+}
+
+.pcm__error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #E7385A;
+}
+
+@keyframes pcmShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (max-width: 520px) {
+  .pcm__options { gap: 8px; }
+  .pcm-option__label { min-height: 46px; font-size: 16px; padding: 8px; }
+}

@@ -199,6 +199,12 @@
         addressInput && addressInput.focus();
         return;
       }
+      /* Способ связи обязателен — без него менеджеру некому подтвердить заказ */
+      var contact = window.PalomaContact
+        ? window.PalomaContact.collect()
+        : { ok: true, summary: "" };
+      if (!contact.ok) return;
+
       var message = (messageInput && messageInput.value.trim()) || "";
 
       var formatText =
@@ -218,6 +224,7 @@
       if (state.format === "electronic") lines.push("Email для отправки: " + email);
       if (state.format === "delivery") lines.push("Адрес доставки: " + address);
       if (message) lines.push("Поздравление: " + message);
+      if (contact.summary) lines.push("Связь для подтверждения: " + contact.summary);
 
       window.palomaPayOnline({
         id: "gift-certificate",

@@ -136,6 +136,12 @@
         return;
       }
 
+      /* Способ связи обязателен — без него менеджеру некому подтвердить заказ */
+      const contact = window.PalomaContact
+        ? window.PalomaContact.collect()
+        : { ok: true, summary: "" };
+      if (!contact.ok) return;
+
       const wish = (wishInput && wishInput.value.trim()) || "";
 
       /* оплата только онлайн картой → thank-you, где клиент выберет мессенджер */
@@ -147,6 +153,7 @@
         "Сумма сертификата: " + fmt(state.amount),
       ];
       if (wish) lines.push("Пожелание для открытки: " + wish);
+      if (contact.summary) lines.push("Связь для подтверждения: " + contact.summary);
 
       window.palomaPayOnline({
         id: "wedding-piggy",
