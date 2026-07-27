@@ -8,6 +8,14 @@
    уходили за экран и меню «не показывалось полностью». Подтягиваем контент
    под крестик, уплотняем пункты и включаем плавный скролл. */
 @media (max-width: 1024px) {
+  /* Убираем blur у шапки на телефонах/планшетах: размытие фона под фиксированной
+     шапкой пересчитывается на каждом кадре скролла — дорогая перерисовка и лаги.
+     Фон шапки и так почти непрозрачный, визуально почти не меняется. */
+  .site-header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   .site-header__mobile-panel {
     padding-top: calc(108px + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: 22px !important;

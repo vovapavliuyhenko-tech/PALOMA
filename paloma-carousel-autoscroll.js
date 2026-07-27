@@ -8,6 +8,11 @@
   'use strict';
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  /* На телефонах и планшетах авто-прокрутку каруселей выключаем: непрерывный
+     requestAnimationFrame, пишущий scrollLeft каждый кадр, грузит основной поток
+     и «дерётся» с пальцем пользователя — прокрутка ощущается негладкой. Карусели
+     остаются листаемыми свайпом и стрелками. Десктоп не трогаем. */
+  if (window.matchMedia('(max-width: 1024px)').matches) return;
 
   function init() {
     var carousels = document.querySelectorAll('[data-product-carousel]');

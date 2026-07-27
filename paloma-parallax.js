@@ -9,6 +9,10 @@
   'use strict';
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  /* На телефонах и планшетах параллакс выключаем: он двигает большое фоновое
+     фото на каждом кадре скролла — это главный источник «тряски» и лагов при
+     прокрутке на мобильных. Десктоп не трогаем. */
+  if (window.matchMedia('(max-width: 1024px)').matches) return;
 
   function init() {
 

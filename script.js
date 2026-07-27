@@ -1,6 +1,24 @@
 (function () {
   "use strict";
 
+  /* Мобильные/планшеты: не грузим и не проигрываем тяжёлые фоновые видео —
+     оставляем постер. autoplay заставляет браузер скачать весь файл (до ~4 МБ),
+     а это главный тормоз загрузки на телефоне. Десктоп не трогаем. */
+  if (window.matchMedia && window.matchMedia("(max-width: 1024px)").matches) {
+    var _vids = document.querySelectorAll("video[autoplay]");
+    for (var _vi = 0; _vi < _vids.length; _vi++) {
+      var _v = _vids[_vi];
+      _v.removeAttribute("autoplay");
+      _v.setAttribute("preload", "none");
+      var _src = _v.getAttribute("src");
+      if (_src) {
+        _v.dataset.mobileSrc = _src;
+        _v.removeAttribute("src");
+      }
+      try { _v.load(); } catch (e) {}
+    }
+  }
+
   function syncBodyOverflow() {
     const modalOpen = document
       .getElementById("productModal")
