@@ -210,10 +210,11 @@
      (класс .is-flipped ставит JS). Фото услуги → тап → текст услуги. */
   .ea-svc {
     position: relative !important;
-    min-height: 0 !important;
+    min-height: 100vh !important;   /* высокое фоновое фото — как было */
     height: auto !important;
-    padding: 34px 0 !important;
-    align-items: stretch !important;
+    padding: 0 !important;
+    justify-content: center !important;  /* карточка по центру по вертикали */
+    align-items: stretch !important;     /* но во всю ширину (минус поля) */
     box-shadow: none !important;
   }
   .ea-serv__card--flip {
