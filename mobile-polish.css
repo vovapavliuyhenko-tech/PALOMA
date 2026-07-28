@@ -103,6 +103,12 @@
      высотой, а непрозрачная карточка со скруглённым верхом наплывает поверх при
      скролле. Тот же приём, что на главной и на карточке товара. */
 
+  /* event-author.css задаёт .event-decoration-page .ea-hero/.ea-philo{height:100vh}
+     БЕЗ медиазапроса, и по специфичности (2 класса) это перебивает мобильное
+     height:auto → секция ужата до экрана, а фото+текст вылезают вниз и наезжают на
+     следующий блок. ID-селектор (специфичнее) снимает фикс-высоту. */
+  #top, #philosophy { height: auto !important; min-height: 0 !important; }
+
   /* Hero */
   #top.ea-panel { overflow: visible !important; }
   #top .ea-hero__left {

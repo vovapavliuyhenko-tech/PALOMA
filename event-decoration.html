@@ -42,8 +42,36 @@
   <meta name="twitter:title" content="Цветочное оформление свадеб и событий в Новороссийске — студия PALOMA">
   <meta name="twitter:description" content="Студия PALOMA: цветочное оформление свадеб, ужинов и съёмок в Новороссийске. Авторская концепция, сборка и монтаж под ключ.">
   <meta name="twitter:image" content="https://paloma.website/images/paloma/hero/hero-main.jpg">
-  <link rel="stylesheet" href="mobile-polish.css?v=33">
+  <link rel="stylesheet" href="mobile-polish.css?v=34">
   <script src="paloma-schema.js?v=1"></script>
+  <style>
+  /* Кастомный дропдаун «Тип площадки» — вместо системного <select>, чтобы
+     выпадающий список был в стиле сайта и с нормальным размером строк на телефоне.
+     Нативный select остаётся в DOM (источник значения) — скрыт визуально. */
+  .evd-native-hidden{position:absolute!important;width:1px!important;height:1px!important;
+    padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;
+    white-space:nowrap!important;border:0!important;opacity:0!important;pointer-events:none!important}
+  .evd-sel{position:relative;font-family:'Montserrat',Arial,sans-serif}
+  .evd-sel__btn{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+    background:#fff;border:1px solid #e4ddcc;border-radius:14px;padding:17px 22px;
+    font-size:16px;color:#1b1a18;text-align:left;cursor:pointer;line-height:1.2;
+    box-shadow:0 1px 2px rgba(40,24,12,.03);transition:border-color .25s,box-shadow .25s}
+  .evd-sel__btn:hover{border-color:#E7385A}
+  .evd-sel.is-open .evd-sel__btn{border-color:#E7385A;box-shadow:0 0 0 2px rgba(231,56,90,.15)}
+  .evd-sel__val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .evd-sel__val.is-placeholder{color:#9b9385}
+  .evd-sel__chev{flex:none;width:14px;height:9px;color:#9b9385;transition:transform .3s ease}
+  .evd-sel.is-open .evd-sel__chev{transform:rotate(180deg);color:#E7385A}
+  .evd-sel__list{list-style:none;margin:6px 0 0;padding:6px;position:absolute;left:0;right:0;top:100%;z-index:40;
+    background:#fff;border:1px solid #e4ddcc;border-radius:14px;box-shadow:0 18px 44px rgba(40,24,12,.16);
+    max-height:min(52vh,320px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+    opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+  .evd-sel.is-open .evd-sel__list{opacity:1;transform:none;pointer-events:auto}
+  .evd-sel__opt{padding:13px 16px;border-radius:10px;font-size:15px;line-height:1.3;color:#1b1a18;cursor:pointer;
+    transition:background .18s ease,color .18s ease}
+  .evd-sel__opt:hover{background:rgba(231,56,90,.08)}
+  .evd-sel__opt.is-sel{background:rgba(231,56,90,.12);color:#E7385A;font-weight:500}
+  </style>
 </head>
 <body class="event-decoration-page">
   <a href="#main" class="skip-link">К содержимому</a>
@@ -997,6 +1025,41 @@
     function eaSyncConsent(){if(!eaSubmit)return;var on=!!eaConsent&&eaConsent.checked;eaSubmit.disabled=!on;eaSubmit.classList.toggle('is-disabled',!on);}
     if(eaConsent)eaConsent.addEventListener('change',eaSyncConsent);
     eaSyncConsent();
+
+    /* Кастомный дропдаун вместо системного <select> «Тип площадки» */
+    (function(){
+      var sel=document.getElementById('ea-venue'); if(!sel)return;
+      var opts=[].slice.call(sel.options);
+      var wrap=document.createElement('div'); wrap.className='evd-sel';
+      var btn=document.createElement('button'); btn.type='button'; btn.className='evd-sel__btn';
+      btn.setAttribute('aria-haspopup','listbox'); btn.setAttribute('aria-expanded','false');
+      var val=document.createElement('span'); val.className='evd-sel__val';
+      btn.appendChild(val);
+      btn.insertAdjacentHTML('beforeend','<svg class="evd-sel__chev" viewBox="0 0 14 9" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M1 1l6 6 6-6"/></svg>');
+      var list=document.createElement('ul'); list.className='evd-sel__list'; list.setAttribute('role','listbox');
+      opts.forEach(function(o){
+        var li=document.createElement('li'); li.className='evd-sel__opt'; li.setAttribute('role','option');
+        li.textContent=o.textContent; li.dataset.value=o.value;
+        li.addEventListener('click',function(){ pick(o.value); close(); });
+        list.appendChild(li);
+      });
+      function render(){
+        var cur=opts.filter(function(o){return o.value===sel.value;})[0]||opts[0];
+        val.textContent=cur.textContent;
+        val.classList.toggle('is-placeholder', cur.value==='');
+        [].forEach.call(list.children,function(li){li.classList.toggle('is-sel', li.dataset.value===sel.value);});
+      }
+      function pick(v){ if(sel.value!==v){ sel.value=v; sel.dispatchEvent(new Event('change',{bubbles:true})); } render(); }
+      function open(){ wrap.classList.add('is-open'); btn.setAttribute('aria-expanded','true'); }
+      function close(){ wrap.classList.remove('is-open'); btn.setAttribute('aria-expanded','false'); }
+      btn.addEventListener('click',function(e){ e.stopPropagation(); wrap.classList.contains('is-open')?close():open(); });
+      document.addEventListener('click',function(e){ if(!wrap.contains(e.target))close(); });
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape')close(); });
+      sel.classList.add('evd-native-hidden');
+      sel.parentNode.insertBefore(wrap, sel);
+      wrap.appendChild(btn); wrap.appendChild(list); wrap.appendChild(sel);
+      render();
+    })();
   })();
   </script>
 
