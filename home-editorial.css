@@ -193,7 +193,10 @@
 
 @media (max-width: 390px) {
   .home-subscription__giraffe {
-    display: none;
+    width: 88px;
+    right: 8px;
+    bottom: 0;
+    max-height: 48%;
   }
 }
 
