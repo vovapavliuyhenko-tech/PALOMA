@@ -727,22 +727,37 @@ module.exports.handler = async function handler(event) {
   }
 
   if (method === "OPTIONS") return { statusCode: 204, headers: cors(origin), body: "" };
+
+  // ── Публичный каталог из базы (для сайта). GET и POST, без токена. ──
+  if (action === "products") {
+    try {
+      const products = require("./products.js");
+      return reply(200, { ok: true, products: await products.listActive() }, origin);
+    } catch (e) {
+      console.error("[products] list error", e && e.stack);
+      return reply(500, { error: "Ошибка каталога" }, origin);
+    }
+  }
+
   // Часть админ-маршрутов разрешаем и по GET — чтобы можно было «просто открыть ссылку».
   const ADMIN_ACTIONS = [
     "migrate", "release-expired", "codes-stats",
     "import-codes", "void-code", "selftest",
+    "products-migrate", "products-all", "product-save", "product-delete", "product-active",
   ];
   const ADMIN_GET_OK =
     action === "migrate" || action === "release-expired" ||
-    action === "codes-stats" || action === "selftest";
+    action === "codes-stats" || action === "selftest" ||
+    action === "products-migrate" || action === "products-all";
   if (method !== "POST" && !ADMIN_GET_OK)
     return reply(405, { error: "Только POST" }, origin);
 
   // ── Админские маршруты маркировки (защищены токеном ADMIN_TOKEN) ──
   if (ADMIN_ACTIONS.includes(action)) {
     const qs = event.queryStringParameters || {};
-    // import-codes и void-code приходят с телом — разбираем заранее (там же token).
-    const needsBody = action === "import-codes" || action === "void-code";
+    // действия с телом — разбираем заранее (там же token).
+    const needsBody = action === "import-codes" || action === "void-code" ||
+      action === "product-save" || action === "product-delete" || action === "product-active";
     let bodyObj = {};
     if (needsBody) {
       try { bodyObj = JSON.parse(rawBody(event) || "{}"); }
@@ -751,6 +766,29 @@ module.exports.handler = async function handler(event) {
     const token = qs.token || bodyObj.token;
     if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN)
       return reply(403, { error: "Нет доступа" }, origin);
+    // ── Каталог товаров (админка) ──
+    if (action.indexOf("product") === 0) {
+      try {
+        const products = require("./products.js");
+        if (action === "products-migrate") {
+          require("./paloma-products.js"); // наполняем global.window.PALOMA_PRODUCTS
+          const seed = (global.window && global.window.PALOMA_PRODUCTS) || [];
+          return reply(200, { ok: true, ...(await products.seedIfEmpty(seed)) }, origin);
+        }
+        if (action === "products-all")
+          return reply(200, { ok: true, products: await products.listAll() }, origin);
+        if (action === "product-save")
+          return reply(200, { ok: true, product: await products.save(bodyObj.product || bodyObj) }, origin);
+        if (action === "product-delete")
+          return reply(200, { ok: true, ...(await products.remove(bodyObj.id)) }, origin);
+        if (action === "product-active")
+          return reply(200, { ok: true, ...(await products.setActive(bodyObj.id, bodyObj.active)) }, origin);
+      } catch (e) {
+        console.error("[products] admin action error", e && e.stack);
+        return reply(500, { error: "Ошибка: " + (e && e.message) }, origin);
+      }
+    }
+
     try {
       const marking = require("./marking");
       if (action === "migrate")
