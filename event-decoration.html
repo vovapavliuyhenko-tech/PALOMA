@@ -42,7 +42,7 @@
   <meta name="twitter:title" content="Цветочное оформление свадеб и событий в Новороссийске — студия PALOMA">
   <meta name="twitter:description" content="Студия PALOMA: цветочное оформление свадеб, ужинов и съёмок в Новороссийске. Авторская концепция, сборка и монтаж под ключ.">
   <meta name="twitter:image" content="https://paloma.website/images/paloma/hero/hero-main.jpg">
-  <link rel="stylesheet" href="mobile-polish.css?v=34">
+  <link rel="stylesheet" href="mobile-polish.css?v=35">
   <script src="paloma-schema.js?v=1"></script>
   <style>
   /* Кастомный дропдаун «Тип площадки» — вместо системного <select>, чтобы
@@ -1025,6 +1025,19 @@
     function eaSyncConsent(){if(!eaSubmit)return;var on=!!eaConsent&&eaConsent.checked;eaSubmit.disabled=!on;eaSubmit.classList.toggle('is-disabled',!on);}
     if(eaConsent)eaConsent.addEventListener('change',eaSyncConsent);
     eaSyncConsent();
+
+    /* Услуги: на телефоне/планшете (нет hover) карточка переворачивается по тапу */
+    (function(){
+      if(window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+      document.querySelectorAll('.ea-serv__card--flip').forEach(function(card){
+        var hint=card.querySelector('.ea-serv__hint');
+        if(hint) hint.innerHTML=hint.innerHTML.replace('Наведите','Нажмите');
+        card.addEventListener('click',function(e){
+          if(e.target.closest('a')) return; /* тап по ссылке на обороте — не переворачиваем */
+          card.classList.toggle('is-flipped');
+        });
+      });
+    })();
 
     /* Кастомный дропдаун вместо системного <select> «Тип площадки» */
     (function(){

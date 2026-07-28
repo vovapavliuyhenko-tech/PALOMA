@@ -203,6 +203,31 @@
     box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.12);
   }
 
+  /* ─── ОФОРМЛЕНИЕ: блоки услуг (.ea-svc) ───
+     На десктопе это «шторки» на весь экран с узкой карточкой-переворотом (по
+     hover). На телефоне hover нет и карточка терялась. Делаем: секция по высоте
+     контента (не 100vh), карточка во всю ширину поверх фото, переворот — по тапу
+     (класс .is-flipped ставит JS). Фото услуги → тап → текст услуги. */
+  .ea-svc {
+    position: relative !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 34px 0 !important;
+    align-items: stretch !important;
+    box-shadow: none !important;
+  }
+  .ea-serv__card--flip {
+    width: auto !important;
+    margin: 0 clamp(16px, 5vw, 26px) !important;
+    perspective: 1600px !important;
+  }
+  .ea-serv__flip { height: clamp(430px, 66vh, 560px) !important; }
+  /* переворот только по тапу: отключаем focus-within (иначе фокус после тапа
+     держит карточку перевёрнутой и обратно не вернуть) */
+  .ea-serv__card--flip:focus-within .ea-serv__flip { transform: none; }
+  .ea-serv__card--flip.is-flipped .ea-serv__flip { transform: rotateY(180deg) !important; }
+  .ea-serv__hint { opacity: .95 !important; }
+
   /* ─── БЛОГ ПОЛЬЗЫ: нативный горизонтальный свайп ───
      Убрали скролл-джек (высокая секция + sticky-pin + JS-трансформ трека):
      на телефоне он давал вертикальную тряску из-за динамической адресной строки
