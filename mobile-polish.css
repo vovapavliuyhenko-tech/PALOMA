@@ -221,7 +221,10 @@
     margin: 0 clamp(16px, 5vw, 26px) !important;
     perspective: 1600px !important;
   }
-  .ea-serv__flip { height: clamp(430px, 66vh, 560px) !important; }
+  /* высота ≈ ширина карточки → почти квадрат, а не вытянутый прямоугольник */
+  .ea-serv__flip { height: min(96vw, 440px) !important; }
+  /* компактнее отступы на обороте, чтобы текст помещался в более низкую карточку */
+  .ea-serv__face--back { padding: 26px 24px !important; }
   /* переворот только по тапу: отключаем focus-within (иначе фокус после тапа
      держит карточку перевёрнутой и обратно не вернуть) */
   .ea-serv__card--flip:focus-within .ea-serv__flip { transform: none; }
