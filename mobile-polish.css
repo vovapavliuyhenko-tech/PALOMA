@@ -97,33 +97,42 @@
   #ea-home-philo.ea-panel,
   #ea-home-hero .ea-hero__left { overflow: visible !important; }
 
-  /* ─── ОФОРМЛЕНИЕ (event-decoration): тот же эффект наложения на первых
-     блоках — hero (#top) и «философия» (#philosophy). Медиа прилипает,
-     текстовая карточка со скруглённым верхом наплывает поверх. Структура
-     идентична главной (ea-hero__left/__right, ea-philo__media/__text). */
-  /* Hero: медиа прилипает, текстовая карточка со скруглённым верхом наплывает
-     поверх (динамический эффект наложения). */
-  #top .ea-hero__left { position: sticky !important; top: 0 !important; z-index: 1 !important; }
+  /* ─── ОФОРМЛЕНИЕ (event-decoration): единый эффект наложения на трёх блоках —
+     hero (#top), «философия» (#philosophy) и «Оформить событие» (#contact).
+     Механика одна: МЕДИА во всю ширину экрана «прилипает» (sticky) с заданной
+     высотой, а непрозрачная карточка со скруглённым верхом наплывает поверх при
+     скролле. Тот же приём, что на главной и на карточке товара. */
+
+  /* Hero */
+  #top.ea-panel { overflow: visible !important; }
+  #top .ea-hero__left {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1 !important;
+    min-height: 0 !important;
+    height: 72vh !important;
+    overflow: hidden !important;
+  }
   #top .ea-hero__right {
     position: relative;
     z-index: 3;
+    margin-top: -30px !important;
     background: #FFFFFF;
     border-radius: 28px 28px 0 0;
-    padding-top: 34px;
+    padding: 38px 28px 44px !important;
     box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.12);
   }
-  #top.ea-panel,
-  #top .ea-hero__left { overflow: visible !important; }
-  /* Философия: фото невесты СТАТИЧНО (без пиннинга) и в ПОЛНУЮ ВЫСОТУ — показываем
-     ВЕСЬ кадр без обрезки. Делаем <img> обычным потоковым (не absolute), тогда он
-     сам задаёт высоту по своей пропорции (квадрат) и виден целиком, а текст идёт
-     строго ПОД фото. */
+
+  /* Философия: фото невесты во всю ширину прилипает, текст наплывает поверх */
+  #philosophy.ea-panel { overflow: visible !important; }
   #philosophy .ea-philo__media {
-    position: relative !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1 !important;
     order: -1 !important;
     min-height: 0 !important;
-    height: 0 !important;
-    padding-bottom: 100% !important;   /* квадрат: высота = ширина, строка резервируется */
+    height: 72vh !important;
+    padding-bottom: 0 !important;
     overflow: hidden !important;
   }
   #philosophy .ea-philo__media img {
@@ -131,16 +140,61 @@
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important;      /* квадрат в квадрате — весь кадр, без обрезки */
-    object-position: center !important;
+    object-fit: cover !important;
+    object-position: center 28% !important;
     display: block !important;
   }
   #philosophy .ea-philo__text {
     position: relative;
-    z-index: 2;
+    z-index: 3;
+    margin-top: -30px !important;
     background: #FFFFFF;
-    margin-top: 0 !important;
+    border-radius: 28px 28px 0 0;
+    padding: 38px 28px 44px !important;
+    box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.12);
     border-bottom: none !important;
+  }
+
+  /* «Оформить событие» (#contact): фото и поля меняются местами (фото сверху во
+     всю ширину, без рамки), поля формы наплывают на фото при скролле. */
+  #contact.ea-panel {
+    overflow: visible !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+  }
+  #contact .ea-cta__inner {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    max-width: none !important;
+  }
+  #contact .ea-cta__media {
+    order: -1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1 !important;
+    min-height: 0 !important;
+    height: 72vh !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+    overflow: hidden !important;
+  }
+  #contact .ea-cta__media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  #contact .ea-cta__formcol {
+    position: relative;
+    z-index: 3;
+    margin-top: -30px !important;
+    background: #FFFFFF;
+    border-radius: 28px 28px 0 0;
+    padding: 38px 24px 40px !important;
+    box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.12);
   }
 
   /* ─── БЛОГ ПОЛЬЗЫ: нативный горизонтальный свайп ───
@@ -274,7 +328,43 @@
   .catalog-corporate__title { font-size: 24px !important; line-height: 1.18 !important; }
   .catalog-grid { gap: 12px !important; }
 
-  /* ─── КАРТОЧКА ТОВАРА (PDP) ────────────────────────────── */
+  /* ─── КАРТОЧКА ТОВАРА (PDP) ──────────────────────────────
+     Фото товара — во всю ширину экрана и «прилипает» сверху, а карточка с
+     названием/составом/размером наплывает поверх фото при скролле (как на
+     главной). Галерея-миниатюры на телефоне скрыты — фото занимает весь кадр. */
+  /* styles.css задаёт main{overflow-x:hidden}, из-за чего overflow-y становится
+     auto — main превращается в скролл-контейнер и position:sticky не «прилипает».
+     clip убирает горизонт. вылет, но НЕ создаёт скролл-контейнер (как на Оформлении). */
+  main.pdp {
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+  }
+  .pdp-layout {
+    display: block !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    max-width: none !important;
+  }
+  .pdp-gallery {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1 !important;
+    gap: 0 !important;
+  }
+  .pdp-gallery__main {
+    aspect-ratio: 4 / 5 !important;
+    border-radius: 0 !important;
+  }
+  .pdp-gallery__thumbs { display: none !important; }
+  .pdp-info {
+    position: relative;
+    z-index: 3;
+    margin-top: -30px;
+    background: #FFFFFF;
+    border-radius: 28px 28px 0 0;
+    padding: 30px 20px 36px;
+    box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.12);
+  }
   #pdpAddToCart { font-size: 13px !important; }
   .pdp-size-btn { min-height: 42px; }
 

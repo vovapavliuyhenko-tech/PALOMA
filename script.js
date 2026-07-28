@@ -1,11 +1,21 @@
 (function () {
   "use strict";
 
-  /* Мобильные/планшеты: не грузим и не проигрываем тяжёлые фоновые видео —
-     оставляем постер. autoplay заставляет браузер скачать весь файл (до ~4 МБ),
-     а это главный тормоз загрузки на телефоне. Десктоп не трогаем. */
+  /* Мобильные/планшеты: тяжёлые фоновые видео не грузим ЗАРАНЕЕ (autoplay качает
+     весь файл сразу — главный тормоз первой загрузки), а подгружаем ЛЕНИВО, когда
+     пользователь долистывает до них. Так и быстрая загрузка, и видео реально
+     проигрываются (портфолио на «Оформлении», фоны на главной). Десктоп не трогаем. */
   if (window.matchMedia && window.matchMedia("(max-width: 1024px)").matches) {
     var _vids = document.querySelectorAll("video[autoplay]");
+    var _restoreVid = function (v) {
+      var s = v.dataset.mobileSrc;
+      if (s && !v.getAttribute("src")) {
+        v.setAttribute("src", s);
+        try { v.load(); } catch (e) {}
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+    };
     for (var _vi = 0; _vi < _vids.length; _vi++) {
       var _v = _vids[_vi];
       _v.removeAttribute("autoplay");
@@ -16,6 +26,19 @@
         _v.removeAttribute("src");
       }
       try { _v.load(); } catch (e) {}
+    }
+    if ("IntersectionObserver" in window) {
+      var _vio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            _restoreVid(en.target);
+            _vio.unobserve(en.target);
+          }
+        });
+      }, { rootMargin: "250px 0px" });
+      for (var _vj = 0; _vj < _vids.length; _vj++) _vio.observe(_vids[_vj]);
+    } else {
+      for (var _vk = 0; _vk < _vids.length; _vk++) _restoreVid(_vids[_vk]);
     }
   }
 
