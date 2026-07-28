@@ -232,6 +232,45 @@
   .ea-serv__card--flip.is-flipped .ea-serv__flip { transform: rotateY(180deg) !important; }
   .ea-serv__hint { opacity: .95 !important; }
 
+  /* ─── ЭТАПЫ ПРОЦЕССА (#process на «Оформлении», #cf-steps в кофейне) ───
+     Было: очень высокая секция (250vh) + JS двигает трек translateX по
+     вертикальному скроллу (scroll-jack) — на телефоне тряслось и лагало из-за
+     динамической адресной строки. Стало: секция по высоте одного экрана, лента
+     листается пальцем вбок (нативный горизонтальный скролл со snap). JS-драйвер
+     выключен в coffee-ea.js / инлайне event-decoration.html. */
+  #process, #cf-steps { height: auto !important; }
+  #process .ea-proc__sticky, #cf-steps .ea-proc__sticky {
+    position: static !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  #process .ea-proc__track, #cf-steps .ea-proc__track {
+    transform: none !important;
+    will-change: auto !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    height: 86vh !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    scrollbar-width: none !important;
+  }
+  #process .ea-proc__track::-webkit-scrollbar,
+  #cf-steps .ea-proc__track::-webkit-scrollbar { display: none !important; }
+  #process .ea-proc__panel, #cf-steps .ea-proc__panel {
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    scroll-snap-align: center !important;
+  }
+  /* прогресс-бар был absolute внутри sticky — переносим под ленту обычным потоком */
+  #process .ea-proc__progress, #cf-steps .ea-proc__progress {
+    position: static !important;
+    left: auto !important; right: auto !important; bottom: auto !important;
+    margin: 14px 6vw 0 !important;
+  }
+
   /* ─── БЛОГ ПОЛЬЗЫ: нативный горизонтальный свайп ───
      Убрали скролл-джек (высокая секция + sticky-pin + JS-трансформ трека):
      на телефоне он давал вертикальную тряску из-за динамической адресной строки

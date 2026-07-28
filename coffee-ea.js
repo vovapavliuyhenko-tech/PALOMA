@@ -584,9 +584,21 @@
       var track = document.getElementById("cfStepsTrack");
       var bar = document.getElementById("cfStepsBar");
       if (!sec || !track) return;
-      /* Горизонтальный скролл-джек одинаково на ПК и на телефоне: двигаем трек
-         по горизонтали по мере вертикального скролла (мобильной вёрстки нет —
-         используется тот же ПК-макет). */
+      /* Телефон/планшет: нативный горизонтальный свайп (вёрстка — в CSS). JS-скролл-
+         джек выключен — на мобильном он давал тряску из-за динамической адресной
+         строки. Прогресс-бар обновляем по горизонтальному скроллу самой ленты. */
+      if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) {
+        if (bar) {
+          var updBar = function () {
+            var mx = track.scrollWidth - track.clientWidth;
+            bar.style.width = ((mx > 0 ? track.scrollLeft / mx : 0) * 100).toFixed(1) + "%";
+          };
+          track.addEventListener("scroll", updBar, { passive: true });
+          updBar();
+        }
+        return;
+      }
+      /* ПК: горизонтальный скролл-джек по вертикальному скроллу. */
       function update() {
         var rect = sec.getBoundingClientRect();
         var dist = sec.offsetHeight - window.innerHeight;

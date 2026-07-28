@@ -925,6 +925,19 @@
       var track=document.getElementById('eaProcTrack');
       var bar=document.getElementById('eaProcBar');
       if(!sec||!track)return;
+      /* Телефон/планшет: нативный горизонтальный свайп (вёрстка — в CSS), JS-скролл-
+         джек выключен (давал тряску). Прогресс-бар — по горизонтальному скроллу ленты. */
+      if(window.matchMedia && window.matchMedia('(max-width: 900px)').matches){
+        if(bar){
+          var updBar=function(){
+            var mx=track.scrollWidth-track.clientWidth;
+            bar.style.width=((mx>0?track.scrollLeft/mx:0)*100).toFixed(1)+'%';
+          };
+          track.addEventListener('scroll',updBar,{passive:true});
+          updBar();
+        }
+        return;
+      }
       function update(){
         var rect=sec.getBoundingClientRect();
         var dist=sec.offsetHeight-window.innerHeight;
