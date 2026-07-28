@@ -976,7 +976,9 @@
 
     /* бюджет — ползунок с подсказкой */
     var budget=document.getElementById('ea-budget'),bubble=document.getElementById('budgetBubble'),budgetNum=document.getElementById('ea-budget-num');
-    function updBudget(){if(!budget||!bubble)return;bubble.textContent=Number(budget.value).toLocaleString('ru-RU');var min=+budget.min,max=+budget.max;var pct=(budget.value-min)/(max-min);bubble.style.left=(pct*100)+'%';}
+    function updBudget(){if(!budget||!bubble)return;bubble.textContent=Number(budget.value).toLocaleString('ru-RU');var min=+budget.min,max=+budget.max;var pct=(budget.value-min)/(max-min);
+      /* центр бабла = позиция бегунка, но зажимаем в пределах трека, чтобы цифры не вылезали за края */
+      var tw=budget.offsetWidth,bw=bubble.offsetWidth,half=bw/2;var px=pct*tw;px=Math.max(half,Math.min(tw-half,px));bubble.style.left=px+'px';}
     if(budget){budget.addEventListener('input',function(){updBudget();if(budgetNum)budgetNum.value=Number(budget.value).toLocaleString('ru-RU');});updBudget();}
     /* ручной ввод суммы: синхронизируем ползунок (в пределах его диапазона) */
     if(budgetNum&&budget){budgetNum.addEventListener('input',function(){var n=parseInt(budgetNum.value.replace(/\D/g,''),10);if(isNaN(n)){return;}var clamped=Math.min(+budget.max,Math.max(+budget.min,n));budget.value=clamped;updBudget();});
