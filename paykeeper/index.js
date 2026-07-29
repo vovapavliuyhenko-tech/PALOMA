@@ -589,6 +589,14 @@ async function handleNotify(body, origin) {
   const details = String(body.managerText || "").slice(0, 3500);
   if (!details) return reply(400, { error: "Пустой заказ" }, origin);
 
+  /* Заявка со страницы «Оформление» (не заказ из корзины): без корзины/фото,
+     свой заголовок уже внутри managerText — шлём как есть + номер. */
+  if (body.kind === "event_lead") {
+    await notifyManager(details + "\n№ " + orderId);
+    console.log("[paykeeper] notify event_lead", orderId);
+    return reply(200, { ok: true, orderId }, origin);
+  }
+
   const cart = verifyCart(body); /* только ради суммы в шапке — не блокирует */
   const totalStr = cart && !cart.error ? cart.total.toLocaleString("ru-RU") + " ₽" : "";
 
