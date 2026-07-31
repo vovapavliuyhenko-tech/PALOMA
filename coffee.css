@@ -518,6 +518,14 @@
   background: linear-gradient(160deg, #1B1A18, #1B1A18);
 }
 
+/* Банки «Лапочка» (lemon-*.jpg) — высокие, при object-fit:cover обрезалась
+   нижняя часть с названием бренда. Показываем банку целиком (contain) везде,
+   где встречается её фото: карточка, всплывающее фото, попап. Только банки —
+   напитки в стаканах (lemonade-*.jpg) не затрагиваются. */
+img[src*="lemon-"] {
+  object-fit: contain !important;
+}
+
 @media (max-width: 640px) {
   .menu-item {
     grid-template-columns: 1fr;
