@@ -142,15 +142,10 @@ body.coffee-page{overflow-x:clip!important}
   background:var(--paper2);box-shadow:0 50px 120px rgba(20,12,8,.5);overflow:hidden;border-radius:22px;animation:cfPop .4s var(--eease)}
 @keyframes cfPop{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 .cf-modal__img{background-size:cover;background-position:center;background-color:#FFFFFF;min-height:340px}
-/* бутылочные напитки — бутылку/банку показываем целиком (не обрезая верх/низ).
-   Поля по краям заполняем ТЕМ ЖЕ фото, растянутым и размытым («продолжение фона»),
-   чтобы не было плоских цветных полос. ::before — размытый фон-cover, ::after —
-   резкая бутылка-contain поверх. Фото берётся из inline background-image (inherit). */
-.cf-modal__img--full{position:relative;overflow:hidden;background-color:#1f3f66!important}
-.cf-modal__img--full::before,
-.cf-modal__img--full::after{content:"";position:absolute;inset:0;background-image:inherit;background-repeat:no-repeat}
-.cf-modal__img--full::before{inset:-8%;background-size:cover;background-position:center;filter:blur(26px) saturate(1.08) brightness(.96)}
-.cf-modal__img--full::after{background-size:contain;background-position:center}
+/* бутылочные напитки (лимонады «Лапочка», соки) сняты в кадре 3:4. Делаем
+   фото-область такой же пропорции — фотография заполняет её край в край своим
+   собственным синим фоном: нет пустых полей по бокам И нет обрезки бутылки. */
+.cf-modal__img--full{aspect-ratio:3/4;width:100%;height:auto;align-self:start;background-size:cover!important;background-position:center!important}
 /* позиции без своего фото — попап одноколоночный, без фото-заглушки */
 .cf-modal__panel--noimg{grid-template-columns:1fr;max-width:520px}
 .cf-modal__panel--noimg .cf-modal__img{display:none}
@@ -263,9 +258,8 @@ body.cf-modal-open{overflow:hidden}
   .cf-menu__desc{grid-column:1/-1}
   .cf-modal__panel{grid-template-columns:1fr;max-height:92vh;overflow-y:auto}
   .cf-modal__img{min-height:230px}
-  /* бутылочные напитки на телефоне: фото-область выше (портрет), чтобы бутылка
-     показывалась целиком и крупно, без широких синих полей по бокам */
-  .cf-modal__img--full{min-height:56vh}
+  /* бутылочные напитки: пропорция 3:4 задаёт высоту, min-height не нужен */
+  .cf-modal__img--full{min-height:0}
 }
 
 /* FAQ кофейни: класс .ea-panel делает секцию sticky/100vh — из-за этого блок
