@@ -142,6 +142,9 @@ body.coffee-page{overflow-x:clip!important}
   background:var(--paper2);box-shadow:0 50px 120px rgba(20,12,8,.5);overflow:hidden;border-radius:22px;animation:cfPop .4s var(--eease)}
 @keyframes cfPop{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 .cf-modal__img{background-size:cover;background-position:center;background-color:#FFFFFF;min-height:340px}
+/* бутылочные напитки — показываем бутылку/банку целиком (не обрезая верх/низ),
+   подложка под синий фон фото, чтобы поля по краям не бросались в глаза */
+.cf-modal__img--full{background-size:contain!important;background-position:center!important;background-color:#274f7c!important}
 /* позиции без своего фото — попап одноколоночный, без фото-заглушки */
 .cf-modal__panel--noimg{grid-template-columns:1fr;max-width:520px}
 .cf-modal__panel--noimg .cf-modal__img{display:none}
@@ -254,6 +257,9 @@ body.cf-modal-open{overflow:hidden}
   .cf-menu__desc{grid-column:1/-1}
   .cf-modal__panel{grid-template-columns:1fr;max-height:92vh;overflow-y:auto}
   .cf-modal__img{min-height:230px}
+  /* бутылочные напитки на телефоне: фото-область выше (портрет), чтобы бутылка
+     показывалась целиком и крупно, без широких синих полей по бокам */
+  .cf-modal__img--full{min-height:56vh}
 }
 
 /* FAQ кофейни: класс .ea-panel делает секцию sticky/100vh — из-за этого блок

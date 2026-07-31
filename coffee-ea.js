@@ -472,6 +472,11 @@
         imgEl.style.backgroundImage = 'url("' + img + '")';
         imgEl.style.display = "";
         panel.classList.remove("cf-modal__panel--noimg");
+        /* Бутылочные напитки (лимонады «Лапочка», соки) — высокие: при cover
+           обрезались верх/низ. Показываем целиком (contain) с подложкой под
+           синий фон фото. Кофе в стаканах остаётся как есть (cover). */
+        var fullFit = it.category === "lemonade" || it.category === "juice";
+        imgEl.classList.toggle("cf-modal__img--full", !!fullFit);
       } else {
         /* нет своего фото — без фото-колонки (не показываем градиент-заглушку) */
         imgEl.style.display = "none";
