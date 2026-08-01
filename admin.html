@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>PALOMA — коды маркировки (админка)</title>
+  <title>PALOMA — админка</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
@@ -29,10 +29,16 @@
     .ok { color: #4caf7d; } .err { color: #ff7a7a; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
     th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid #eee; }
+    .order { background: #faf8f5; border: 1px solid #e6e0d8; border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 10px; }
+    .order__head { font-size: 14px; margin-bottom: 4px; }
+    .order__kind { font-size: 11px; color: #8a857c; text-transform: uppercase;
+      letter-spacing: .04em; margin-bottom: 8px; }
+    .order__text { white-space: pre-wrap; font-size: 14px; line-height: 1.45; }
   </style>
 </head>
 <body>
-  <h1>Коды маркировки «Честный ЗНАК»</h1>
+  <h1>PALOMA — админка</h1>
   <p class="hint">Внутренняя страница. Открывать на боевом сайте
     (<b>paloma.website/admin.html</b>) — иначе браузер не пустит запрос к серверу.</p>
 
@@ -40,6 +46,25 @@
     <label for="token">Админ-пароль (ADMIN_TOKEN)</label>
     <input id="token" type="password" placeholder="вставьте секретный токен" autocomplete="off">
     <p class="hint">Тот самый, что вписан в переменные окружения функции. Здесь не сохраняется.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:17px;margin-top:0">📋 Журнал заказов</h2>
+    <p class="hint">Все заказы из базы — на случай, если что-то не дошло в Telegram.
+      «✓ в Telegram» — заказ доставлен в бот; «✗» — сохранён в базе, но в бот не ушёл.</p>
+    <div class="row">
+      <div style="flex:0 0 auto;min-width:130px">
+        <label for="ordersLimit" style="margin-top:0">Сколько показать</label>
+        <select id="ordersLimit">
+          <option value="50">последние 50</option>
+          <option value="100">последние 100</option>
+          <option value="200">последние 200</option>
+        </select>
+      </div>
+    </div>
+    <button id="btnOrders">Показать заказы</button>
+    <button id="btnOrdersRefresh" class="secondary">Обновить</button>
+    <div id="ordersBox" style="margin-top:16px"></div>
   </div>
 
   <div class="card">
@@ -103,6 +128,51 @@
       out.className = cls || "";
     }
     function token() { return document.getElementById("token").value.trim(); }
+    function esc(s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // ── Журнал заказов ──
+    var ordersBox = document.getElementById("ordersBox");
+    var ORDER_KIND = {
+      online_paid: "оплачен онлайн",
+      payment_on_receipt: "оплата при получении",
+      event_lead: "заявка · оформление события",
+      order: "заказ"
+    };
+    async function loadOrders() {
+      if (!token()) return show("Введите админ-пароль сверху.", "err");
+      var limit = document.getElementById("ordersLimit").value || "50";
+      show("Загружаю заказы…"); ordersBox.innerHTML = "";
+      try {
+        var res = await fetch(FN + "?a=orders&token=" + encodeURIComponent(token()) +
+                              "&limit=" + encodeURIComponent(limit));
+        var data = await res.json();
+        if (!res.ok || data.error) return show(data.error || "Ошибка", "err");
+        var orders = data.orders || [];
+        if (!orders.length) { show("Пока нет заказов.", "ok"); return; }
+        show("Показано заказов: " + orders.length, "ok");
+        ordersBox.innerHTML = orders.map(function (o) {
+          var d = new Date(o.created_at);
+          var when = isNaN(d.getTime()) ? esc(o.created_at) : d.toLocaleString("ru-RU");
+          var deliv = o.tg_delivered
+            ? "<span class='ok'>✓ в Telegram</span>"
+            : "<span class='err'>✗ не ушёл в TG</span>";
+          var kind = ORDER_KIND[o.kind] || o.kind || "заказ";
+          return "<div class='order'>" +
+              "<div class='order__head'><b>№ " + esc(o.order_id || "—") + "</b> · " +
+                when + " · " + deliv + "</div>" +
+              "<div class='order__kind'>" + esc(kind) + "</div>" +
+              "<div class='order__text'>" + esc(o.text || "") + "</div>" +
+            "</div>";
+        }).join("");
+      } catch (e) {
+        show("Сеть/сервер недоступны: " + e.message, "err");
+      }
+    }
+    document.getElementById("btnOrders").addEventListener("click", loadOrders);
+    document.getElementById("btnOrdersRefresh").addEventListener("click", loadOrders);
 
     // Загрузка файла в текстовое поле
     document.getElementById("file").addEventListener("change", function (e) {
