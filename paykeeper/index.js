@@ -244,17 +244,32 @@ async function ordersLogEnsure(db) {
   );
   ordersLogReady = true;
 }
-async function logOrder(orderId, kind, text, tgDelivered) {
-  if (!process.env.DATABASE_URL) return;
+/* Пишем заказ В БАЗУ ДО попытки отправки в Telegram — тогда даже если отправка
+   зависнет и функцию убьёт по таймауту, заказ уже сохранён и не потеряется.
+   Возвращает id записи (для последующей отметки о доставке). */
+async function logOrder(orderId, kind, text) {
+  if (!process.env.DATABASE_URL) return null;
   try {
     const db = require("./db");
     await ordersLogEnsure(db);
-    await db.query(
-      "INSERT INTO orders_log(order_id, kind, text, tg_delivered) VALUES ($1,$2,$3,$4)",
-      [String(orderId || "").slice(0, 64), String(kind || ""), String(text || "").slice(0, 3800), !!tgDelivered],
+    const r = await db.query(
+      "INSERT INTO orders_log(order_id, kind, text) VALUES ($1,$2,$3) RETURNING id",
+      [String(orderId || "").slice(0, 64), String(kind || ""), String(text || "").slice(0, 3800)],
     );
+    return r.rows && r.rows[0] ? r.rows[0].id : null;
   } catch (e) {
     console.error("[orders_log] error", e && e.message);
+    return null;
+  }
+}
+/* Отмечаем, что заказ успешно ушёл в Telegram (best-effort). */
+async function markDelivered(logId) {
+  if (!logId || !process.env.DATABASE_URL) return;
+  try {
+    const db = require("./db");
+    await db.query("UPDATE orders_log SET tg_delivered = true WHERE id = $1", [logId]);
+  } catch (e) {
+    console.error("[orders_log] mark error", e && e.message);
   }
 }
 async function ordersRecent(limit) {
@@ -645,8 +660,9 @@ async function handleNotify(body, origin) {
      свой заголовок уже внутри managerText — шлём как есть + номер. */
   if (body.kind === "event_lead") {
     const msg = details + "\n№ " + orderId;
+    const logId = await logOrder(orderId, "event_lead", msg);
     const ok = await notifyManager(msg);
-    await logOrder(orderId, "event_lead", msg, ok);
+    if (ok) await markDelivered(logId);
     console.log("[paykeeper] notify event_lead", orderId, ok);
     return reply(200, { ok: true, orderId, delivered: ok }, origin);
   }
@@ -667,8 +683,9 @@ async function handleNotify(body, origin) {
       }
       const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + "\nСумма: " +
         (row.total ? row.total.toLocaleString("ru-RU") + " ₽" : totalStr) + "\n\n" + row.manager_text;
+      const logId = await logOrder(orderId, "online_paid", msg);
       const ok = await notifyManager(msg);
-      await logOrder(orderId, "online_paid", msg, ok);
+      if (ok) await markDelivered(logId);
       const ph = normPhotos(row.photos);
       if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderId);
       console.log("[paykeeper] notify online_paid", orderId, ok);
@@ -676,8 +693,9 @@ async function handleNotify(body, origin) {
     } catch (e) {
       console.error("[pending] notify take error", orderId, e && e.message);
       const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details;
+      const logId = await logOrder(orderId, "online_paid", msg);
       const ok = await notifyManager(msg);
-      await logOrder(orderId, "online_paid", msg, ok);
+      if (ok) await markDelivered(logId);
       await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
       console.log("[paykeeper] notify online_paid fallback", orderId, ok);
       return reply(200, { ok: true, orderId, delivered: ok }, origin);
@@ -689,8 +707,9 @@ async function handleNotify(body, origin) {
     (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
 
   const msg = header + "\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details;
+  const logId = await logOrder(orderId, body.payment || "order", msg);
   const ok = await notifyManager(msg);
-  await logOrder(orderId, body.payment || "order", msg, ok);
+  if (ok) await markDelivered(logId);
   await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
   console.log("[paykeeper] notify", orderId, body.payment || "", ok);
   return reply(200, { ok: true, orderId, delivered: ok }, origin);
@@ -742,8 +761,9 @@ async function handleWebhook(event) {
     const row = await pendingTake(orderid);
     if (row) {
       const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderid + "\nСумма: " + amountStr + " ₽\n\n" + row.manager_text;
+      const logId = await logOrder(orderid, "online_paid", msg);
       const ok = await notifyManager(msg);
-      await logOrder(orderid, "online_paid", msg, ok);
+      if (ok) await markDelivered(logId);
       const ph = normPhotos(row.photos);
       if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderid);
     }
