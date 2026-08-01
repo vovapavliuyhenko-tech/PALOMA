@@ -29,6 +29,10 @@ const SITE = (process.env.PK_SITE || "https://paloma.website").replace(/\/+$/, "
    того, отправит ли клиент сообщение сам. Пусто → уведомления выключены. */
 const TG_BOT_TOKEN = process.env.TG_BOT_TOKEN || "";
 const TG_CHAT_ID = process.env.TG_CHAT_ID || "";
+/* База Telegram Bot API. По умолчанию — официальный api.telegram.org. Если из
+   региона функции Telegram недоступен (блокировка), задаём TG_API_BASE = адрес
+   прокси-релея (напр. Cloudflare Worker), который сам достучится до Telegram. */
+const TG_API_BASE = (process.env.TG_API_BASE || "https://api.telegram.org").replace(/\/+$/, "");
 
 const ORIGINS = [SITE, "https://www.paloma.website", "http://localhost:5500", "http://127.0.0.1:5500"];
 const AUTH = "Basic " + Buffer.from(`${PK_USER}:${PK_PASSWORD}`).toString("base64");
@@ -47,7 +51,7 @@ async function tgCall(method, payload) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/${method}`, {
+    const res = await fetch(`${TG_API_BASE}/bot${TG_BOT_TOKEN}/${method}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -69,7 +73,7 @@ async function sendMessageOnce(chatId, text) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+    const res = await fetch(`${TG_API_BASE}/bot${TG_BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
@@ -92,6 +96,10 @@ async function sendMessageOnce(chatId, text) {
 async function sendMessageResilient(chatId, text) {
   let r = await sendMessageOnce(chatId, text);
   if (r.ok) return true;
+  /* status 0 = сеть недоступна (таймаут/abort): повтор не поможет и только
+     «съест» время до 504 всей функции. Быстро выходим — доставку восстановит
+     прокси через TG_API_BASE. */
+  if (r.status === 0) return false;
   const params = (r.data && r.data.parameters) || {};
   /* группа превратилась в супергруппу — у неё новый chat_id */
   if (params.migrate_to_chat_id) {
@@ -114,11 +122,13 @@ async function sendMessageResilient(chatId, text) {
    чтобы не ловить flood-лимит на втором чате (из-за него в группу приходило
    только фото, а текст — нет). Не роняет заказ при ошибке. */
 async function notifyManager(text) {
-  if (!TG_BOT_TOKEN || !TG_CHAT_ID) return;
+  if (!TG_BOT_TOKEN || !TG_CHAT_ID) return false;
   const payload = String(text).slice(0, 4000);
+  let anyOk = false;
   for (const chatId of tgChatIds()) {
-    await sendMessageResilient(chatId, payload);
+    if (await sendMessageResilient(chatId, payload)) anyOk = true;
   }
+  return anyOk;
 }
 
 /* Отправка одного фото ЗАГРУЗКОЙ БАЙТОВ (multipart), а не ссылкой.
@@ -147,7 +157,7 @@ async function sendPhotoUpload(chatId, url, caption) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendPhoto`, {
+    const res = await fetch(`${TG_API_BASE}/bot${TG_BOT_TOKEN}/sendPhoto`, {
       method: "POST",
       body: form, /* fetch сам проставит multipart Content-Type с boundary */
       signal: ctrl.signal,
@@ -215,6 +225,48 @@ async function pendingTake(orderId) {
   );
   return res.rows && res.rows[0] ? res.rows[0] : null;
 }
+/* ── Страховочный журнал заказов ──
+   Каждый заказ/заявку пишем в БД (Neon доступен, даже когда Telegram — нет),
+   чтобы НИ ОДИН заказ не потерялся при сбое доставки. Помечаем, ушёл ли он в TG.
+   Посмотреть последние: GET ?a=orders&token=ADMIN_TOKEN. Всё best-effort — сбой
+   журнала никогда не роняет заказ. */
+let ordersLogReady = false;
+async function ordersLogEnsure(db) {
+  if (ordersLogReady) return;
+  await db.query(
+    "CREATE TABLE IF NOT EXISTS orders_log (" +
+      " id bigserial PRIMARY KEY," +
+      " order_id text," +
+      " kind text," +
+      " text text NOT NULL," +
+      " tg_delivered boolean NOT NULL DEFAULT false," +
+      " created_at timestamptz NOT NULL DEFAULT now())",
+  );
+  ordersLogReady = true;
+}
+async function logOrder(orderId, kind, text, tgDelivered) {
+  if (!process.env.DATABASE_URL) return;
+  try {
+    const db = require("./db");
+    await ordersLogEnsure(db);
+    await db.query(
+      "INSERT INTO orders_log(order_id, kind, text, tg_delivered) VALUES ($1,$2,$3,$4)",
+      [String(orderId || "").slice(0, 64), String(kind || ""), String(text || "").slice(0, 3800), !!tgDelivered],
+    );
+  } catch (e) {
+    console.error("[orders_log] error", e && e.message);
+  }
+}
+async function ordersRecent(limit) {
+  const db = require("./db");
+  await ordersLogEnsure(db);
+  const res = await db.query(
+    "SELECT order_id, kind, text, tg_delivered, created_at FROM orders_log ORDER BY id DESC LIMIT $1",
+    [Math.min(Math.max(Number(limit) || 50, 1), 200)],
+  );
+  return res.rows || [];
+}
+
 function normPhotos(photos) {
   if (Array.isArray(photos)) return photos;
   try {
@@ -592,9 +644,11 @@ async function handleNotify(body, origin) {
   /* Заявка со страницы «Оформление» (не заказ из корзины): без корзины/фото,
      свой заголовок уже внутри managerText — шлём как есть + номер. */
   if (body.kind === "event_lead") {
-    await notifyManager(details + "\n№ " + orderId);
-    console.log("[paykeeper] notify event_lead", orderId);
-    return reply(200, { ok: true, orderId }, origin);
+    const msg = details + "\n№ " + orderId;
+    const ok = await notifyManager(msg);
+    await logOrder(orderId, "event_lead", msg, ok);
+    console.log("[paykeeper] notify event_lead", orderId, ok);
+    return reply(200, { ok: true, orderId, delivered: ok }, origin);
   }
 
   const cart = verifyCart(body); /* только ради суммы в шапке — не блокирует */
@@ -611,22 +665,22 @@ async function handleNotify(body, origin) {
         console.log("[paykeeper] notify online_paid dup-skip", orderId);
         return reply(200, { ok: true, orderId, skipped: true }, origin);
       }
-      await notifyManager(
-        "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + "\nСумма: " +
-          (row.total ? row.total.toLocaleString("ru-RU") + " ₽" : totalStr) + "\n\n" + row.manager_text,
-      );
+      const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + "\nСумма: " +
+        (row.total ? row.total.toLocaleString("ru-RU") + " ₽" : totalStr) + "\n\n" + row.manager_text;
+      const ok = await notifyManager(msg);
+      await logOrder(orderId, "online_paid", msg, ok);
       const ph = normPhotos(row.photos);
       if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderId);
-      console.log("[paykeeper] notify online_paid", orderId);
-      return reply(200, { ok: true, orderId }, origin);
+      console.log("[paykeeper] notify online_paid", orderId, ok);
+      return reply(200, { ok: true, orderId, delivered: ok }, origin);
     } catch (e) {
       console.error("[pending] notify take error", orderId, e && e.message);
-      await notifyManager(
-        "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details,
-      );
+      const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details;
+      const ok = await notifyManager(msg);
+      await logOrder(orderId, "online_paid", msg, ok);
       await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
-      console.log("[paykeeper] notify online_paid fallback", orderId);
-      return reply(200, { ok: true, orderId }, origin);
+      console.log("[paykeeper] notify online_paid fallback", orderId, ok);
+      return reply(200, { ok: true, orderId, delivered: ok }, origin);
     }
   }
 
@@ -634,12 +688,12 @@ async function handleNotify(body, origin) {
     "🆕 НОВЫЙ ЗАКАЗ" +
     (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
 
-  await notifyManager(
-    header + "\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details,
-  );
+  const msg = header + "\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details;
+  const ok = await notifyManager(msg);
+  await logOrder(orderId, body.payment || "order", msg, ok);
   await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
-  console.log("[paykeeper] notify", orderId, body.payment || "");
-  return reply(200, { ok: true, orderId }, origin);
+  console.log("[paykeeper] notify", orderId, body.payment || "", ok);
+  return reply(200, { ok: true, orderId, delivered: ok }, origin);
 }
 
 /* ── POST-оповещение об оплате ──
@@ -687,9 +741,9 @@ async function handleWebhook(event) {
   try {
     const row = await pendingTake(orderid);
     if (row) {
-      await notifyManager(
-        "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderid + "\nСумма: " + amountStr + " ₽\n\n" + row.manager_text,
-      );
+      const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderid + "\nСумма: " + amountStr + " ₽\n\n" + row.manager_text;
+      const ok = await notifyManager(msg);
+      await logOrder(orderid, "online_paid", msg, ok);
       const ph = normPhotos(row.photos);
       if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderid);
     }
@@ -752,11 +806,12 @@ module.exports.handler = async function handler(event) {
     "migrate", "release-expired", "codes-stats",
     "import-codes", "void-code", "selftest",
     "products-migrate", "products-all", "product-save", "product-delete", "product-active",
+    "orders",
   ];
   const ADMIN_GET_OK =
     action === "migrate" || action === "release-expired" ||
     action === "codes-stats" || action === "selftest" ||
-    action === "products-migrate" || action === "products-all";
+    action === "products-migrate" || action === "products-all" || action === "orders";
   if (method !== "POST" && !ADMIN_GET_OK)
     return reply(405, { error: "Только POST" }, origin);
 
@@ -774,6 +829,15 @@ module.exports.handler = async function handler(event) {
     const token = qs.token || bodyObj.token;
     if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN)
       return reply(403, { error: "Нет доступа" }, origin);
+    // ── Страховочный журнал заказов: последние заказы, даже если TG не доходил ──
+    if (action === "orders") {
+      try {
+        return reply(200, { ok: true, orders: await ordersRecent(qs.limit) }, origin);
+      } catch (e) {
+        console.error("[orders] list error", e && e.message);
+        return reply(500, { error: "Ошибка журнала: " + (e && e.message) }, origin);
+      }
+    }
     // ── Каталог товаров (админка) ──
     if (action.indexOf("product") === 0) {
       try {
