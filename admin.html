@@ -141,19 +141,22 @@
       event_lead: "заявка · оформление события",
       order: "заказ"
     };
+    function ordersMsg(html, cls) {
+      ordersBox.innerHTML = "<p class='" + (cls || "hint") + "' style='margin:0'>" + html + "</p>";
+    }
     async function loadOrders() {
-      if (!token()) return show("Введите админ-пароль сверху.", "err");
+      if (!token()) return ordersMsg("Сначала вставьте админ-пароль в поле сверху.", "err");
       var limit = document.getElementById("ordersLimit").value || "50";
-      show("Загружаю заказы…"); ordersBox.innerHTML = "";
+      ordersMsg("Загружаю заказы…");
       try {
         var res = await fetch(FN + "?a=orders&token=" + encodeURIComponent(token()) +
                               "&limit=" + encodeURIComponent(limit));
         var data = await res.json();
-        if (!res.ok || data.error) return show(data.error || "Ошибка", "err");
+        if (!res.ok || data.error) return ordersMsg(esc(data.error || "Ошибка"), "err");
         var orders = data.orders || [];
-        if (!orders.length) { show("Пока нет заказов.", "ok"); return; }
-        show("Показано заказов: " + orders.length, "ok");
-        ordersBox.innerHTML = orders.map(function (o) {
+        if (!orders.length) return ordersMsg("Пока нет заказов.", "ok");
+        ordersBox.innerHTML = "<p class='ok' style='margin:0 0 10px'>Показано заказов: " +
+          orders.length + "</p>" + orders.map(function (o) {
           var d = new Date(o.created_at);
           var when = isNaN(d.getTime()) ? esc(o.created_at) : d.toLocaleString("ru-RU");
           var deliv = o.tg_delivered
@@ -168,7 +171,7 @@
             "</div>";
         }).join("");
       } catch (e) {
-        show("Сеть/сервер недоступны: " + e.message, "err");
+        ordersMsg("Сеть/сервер недоступны: " + esc(e.message), "err");
       }
     }
     document.getElementById("btnOrders").addEventListener("click", loadOrders);
