@@ -476,3 +476,47 @@
   .sf2-socials { gap: 12px !important; flex-wrap: nowrap !important; }
   .sf2-soc { font-size: 13px !important; white-space: nowrap; }
 }
+
+/* ─── ПОДПИСКА / СЕРТИФИКАТЫ / КОПИЛКА (общий layout .subscription-page) ───
+   Тот же эффект наложения, что на оформлении/кофейне: фото/видео во всю ширину
+   «прилипает» сверху, а форма ввода со скруглённым верхом наплывает поверх при
+   скролле. Работает на всех трёх страницах (у них main.subscription-page). */
+@media (max-width: 1024px) {
+  /* main{overflow-x:hidden} делает main скролл-контейнером и ломает sticky —
+     на сертификатах/копилке этого фикса нет (он был только у подписки). */
+  main.subscription-page {
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+  }
+  .subscription-page .subscription-hero {
+    display: block !important;
+    padding-top: 0 !important;
+  }
+  .subscription-page .subscription-hero__media {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1 !important;
+    margin-top: 0 !important;
+    min-height: 0 !important;
+    height: 70vh !important;
+    overflow: hidden !important;
+  }
+  .subscription-page .subscription-hero__media > img,
+  .subscription-page .subscription-hero__media > video,
+  .subscription-page .subscription-hero__img,
+  .subscription-page .subscription-hero__video,
+  .subscription-page .subscription-hero__placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+  .subscription-page .subscription-hero__content {
+    position: relative;
+    z-index: 3;
+    margin-top: -30px !important;
+    background: #FFFFFF;
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.12);
+  }
+}
