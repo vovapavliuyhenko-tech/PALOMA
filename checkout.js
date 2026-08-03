@@ -822,6 +822,13 @@
       if (addr) lines.push("Адрес: " + addr);
     }
     if (f.delivery_date) lines.push("Дата: " + f.delivery_date);
+    /* Время доставки: точное («к 14:30») или интервал («09:00–12:00»). Раньше
+       не попадало в текст заказа — менеджер не видел выбранное время. */
+    const timeStr =
+      f.time_type === "exact"
+        ? (f.exact_time ? "к " + f.exact_time : "")
+        : (f.time_from && f.time_to ? f.time_from + "–" + f.time_to : "");
+    if (timeStr) lines.push("Время: " + timeStr);
     if (f.recipient_type === "other") {
       lines.push("", "Получатель: " + (f.recipient_name || "—") + ", " + (f.recipient_phone || "—"));
     }
