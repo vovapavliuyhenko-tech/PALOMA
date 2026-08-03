@@ -632,17 +632,6 @@
         <param name="Состав">Толстый фарфор, покрытие золотом 24 карата</param>
         <description>Тарелка SELETTI Kintsugi. Размеры 27.5 × 3 см.</description>
       </offer>
-      <offer id="acc9" available="true">
-        <url>https://paloma.website/product.html?slug=seletti-hybrid-stakany</url>
-        <price>13200</price>
-        <currencyId>RUR</currencyId>
-        <categoryId>6</categoryId>
-        <picture>https://paloma.website/images/paloma/catalog/acc9.jpg</picture>
-        <name>Набор стаканов SELETTI Hybrid</name>
-        <vendor>PALOMA</vendor>
-        <param name="Состав">Стекло</param>
-        <description>Набор из 3 стаканов SELETTI Hybrid. Размеры 8 × 9 и 8 × 10.7 см.</description>
-      </offer>
       <offer id="acc10" available="true">
         <url>https://paloma.website/product.html?slug=seletti-love-in-bloom</url>
         <price>36500</price>
