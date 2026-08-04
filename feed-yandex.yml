@@ -808,6 +808,39 @@
         <param name="Масса">150 г</param>
         <description>Три плитки горького шоколада: с лепестками фиалки, фисташками Бронте и вишней. 3 × 50 г.</description>
       </offer>
+      <offer id="acc26" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-carre-brusnika-chili</url>
+        <price>1000</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc26.jpg</picture>
+        <name>Горький шоколад chocoMe «Брусника и чили»</name>
+        <vendor>chocoMe</vendor>
+        <param name="Масса">50 г</param>
+        <description>Горький шоколад ручной работы с сушёной брусникой, чёрной смородиной и волокнами перца чили. Масса 50 г.</description>
+      </offer>
+      <offer id="acc27" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-mindal-dikiy-perets</url>
+        <price>1950</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc27.jpg</picture>
+        <name>Конфеты chocoMe «Миндаль с диким перцем»</name>
+        <vendor>chocoMe</vendor>
+        <param name="Масса">120 г</param>
+        <description>Миндаль из Сицилии в горьком шоколаде с диким мадагаскарским перцем. Масса 120 г.</description>
+      </offer>
+      <offer id="n34" available="true">
+        <url>https://paloma.website/product.html?slug=flamenko</url>
+        <price>10710</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n34.jpg</picture>
+        <name>Фламенко</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Леукодендрон, целозия, сангисорба, каллы, орнитогалум, французская роза сорта Нина, лист стрелиции, циперус, кроксомия</param>
+        <description>Насыщенный красный авторский букет с французской розой Нина, целозией, каллами и кроксомией.</description>
+      </offer>
     </offers>
   </shop>
 </yml_catalog>
