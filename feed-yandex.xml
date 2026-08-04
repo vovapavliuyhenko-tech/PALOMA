@@ -528,10 +528,10 @@
         <currencyId>RUR</currencyId>
         <categoryId>6</categoryId>
         <picture>https://paloma.website/images/paloma/catalog/acc1.jpg</picture>
-        <name>Блюдо SELETTI Kintsugi Tray</name>
+        <name>Блюдо SELETTI Kintsugi</name>
         <vendor>PALOMA</vendor>
         <param name="Состав">Толстый фарфор, покрытие золотом 24 карата</param>
-        <description>Декоративное блюдо SELETTI Kintsugi Tray. Размеры 42.5 × 29.5 × 3.5 см.</description>
+        <description>Декоративное блюдо SELETTI Kintsugi. Размеры 42.5 × 29.5 × 3.5 см.</description>
       </offer>
       <offer id="acc2" available="true">
         <url>https://paloma.website/product.html?slug=seletti-love-in-a-box</url>
@@ -620,6 +620,149 @@
         <vendor>PALOMA</vendor>
         <param name="Состав">Толстый фарфор, покрытие золотом 24 карата</param>
         <description>Ваза SELETTI Love in Bloom. Размеры 16.5 × 9 × 25 см.</description>
+      </offer>
+      <offer id="n33" available="true">
+        <url>https://paloma.website/product.html?slug=harper</url>
+        <price>9435</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n33.jpg</picture>
+        <name>Харпер</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Пионовидная роза Харпер, орнитогалум, коробочка лотоса, циния, каллы, эустома, амми, гортензия, диантус, паникум, львиный зев</param>
+        <description>Насыщенный авторский букет с пионовидной розой Харпер, цинниями, коробочками лотоса и каллами.</description>
+      </offer>
+      <offer id="w5" available="true">
+        <url>https://paloma.website/product.html?slug=nerine</url>
+        <price>12080</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>3</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/w5.jpg</picture>
+        <name>Нерине</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Антуриум, каллы, пионовидная роза, стабилизированный амарант, нерине</param>
+        <description>Нежный персиковый свадебный букет с антуриумом, каллами и струящимся амарантом.</description>
+      </offer>
+      <offer id="acc11" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-kintsugi-piala</url>
+        <price>7000</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc11.jpg</picture>
+        <name>Пиала SELETTI Kintsugi</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Толстый фарфор</param>
+        <description>Пиала SELETTI Kintsugi. Размеры 11.5 × 6 см.</description>
+      </offer>
+      <offer id="acc12" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-kintsugi-salatnik</url>
+        <price>17300</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc12.jpg</picture>
+        <name>Салатник SELETTI Kintsugi</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Толстый фарфор</param>
+        <description>Салатник SELETTI Kintsugi. Размеры 19 × 7.2 см.</description>
+      </offer>
+      <offer id="acc13" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-chaynaya-para</url>
+        <price>9200</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc13.jpg</picture>
+        <name>Чайная пара SELETTI</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Толстый фарфор</param>
+        <description>Чайная пара SELETTI: чашка, блюдце и ложка.</description>
+      </offer>
+      <offer id="acc14" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-hybrid-kruzhka</url>
+        <price>7600</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc14.jpg</picture>
+        <name>Кружка SELETTI Hybrid</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Толстый фарфор</param>
+        <description>Кружка SELETTI Hybrid. Размеры 8.5 × 10.2 см.</description>
+      </offer>
+      <offer id="acc15" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-toiletpaper-salatnik-eye</url>
+        <price>3000</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc15.jpg</picture>
+        <name>Салатник SELETTI Toiletpaper «Eye»</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Алюминий</param>
+        <description>Салатник SELETTI Toiletpaper «Eye». Размеры 17 × 8 см.</description>
+      </offer>
+      <offer id="acc16" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-toiletpaper-kruzhka-eye</url>
+        <price>3000</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc16.jpg</picture>
+        <name>Кружка SELETTI Toiletpaper «Eye»</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Алюминий</param>
+        <description>Кружка SELETTI Toiletpaper «Eye». Размеры 10 × 9 см.</description>
+      </offer>
+      <offer id="acc17" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-toiletpaper-kruzhka-plunger</url>
+        <price>3000</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc17.jpg</picture>
+        <name>Кружка SELETTI Toiletpaper «Plunger»</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Алюминий</param>
+        <description>Кружка SELETTI Toiletpaper «Plunger». Размеры 10 × 9 см.</description>
+      </offer>
+      <offer id="acc18" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-toiletpaper-kruzhka-bird</url>
+        <price>3000</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc18.jpg</picture>
+        <name>Кружка SELETTI Toiletpaper «Bird»</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Алюминий</param>
+        <description>Кружка SELETTI Toiletpaper «Bird». Размеры 10 × 9 см.</description>
+      </offer>
+      <offer id="acc19" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-svecha-hands-with-snakes</url>
+        <price>7900</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc19.jpg</picture>
+        <name>Ароматическая свеча SELETTI «Hands with snakes»</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Стекло, растительный воск, эфирные масла</param>
+        <description>Ароматическая свеча SELETTI Toiletpaper «Hands with snakes». Размеры 8 × 8.5 × 8.5 см.</description>
+      </offer>
+      <offer id="acc20" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-svecha-snakes</url>
+        <price>7900</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc20.jpg</picture>
+        <name>Ароматическая свеча SELETTI «Snakes»</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Стекло, растительный воск, эфирные масла</param>
+        <description>Ароматическая свеча SELETTI Toiletpaper «Snakes». Размеры 8 × 8.5 × 8.5 см.</description>
+      </offer>
+      <offer id="acc21" available="true">
+        <url>https://paloma.website/product.html?slug=seletti-svecha-shit</url>
+        <price>7900</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc21.jpg</picture>
+        <name>Ароматическая свеча SELETTI «Shit»</name>
+        <vendor>PALOMA</vendor>
+        <param name="Состав">Стекло, растительный воск, эфирные масла</param>
+        <description>Ароматическая свеча SELETTI Toiletpaper «Shit». Размеры 8 × 8.5 × 8.5 см.</description>
       </offer>
     </offers>
   </shop>
