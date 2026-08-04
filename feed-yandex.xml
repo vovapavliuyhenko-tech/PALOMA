@@ -390,28 +390,6 @@
         <param name="Состав">Гортензия (81 шт)</param>
         <description>Большая корзина из 81 голубой гортензии.</description>
       </offer>
-      <offer id="n19" available="true">
-        <url>https://paloma.website/product.html?slug=karmen</url>
-        <price>8530</price>
-        <currencyId>RUR</currencyId>
-        <categoryId>4</categoryId>
-        <picture>https://paloma.website/images/paloma/catalog/n19.jpg</picture>
-        <name>Кармен</name>
-        <vendor>PALOMA</vendor>
-        <param name="Состав">Французская красная роза, амариллис, олеандр, протея, илекс</param>
-        <description>Красный букет с французской розой, амариллисом, протеей и илексом.</description>
-      </offer>
-      <offer id="n20" available="true">
-        <url>https://paloma.website/product.html?slug=magnoliya</url>
-        <price>13575</price>
-        <currencyId>RUR</currencyId>
-        <categoryId>4</categoryId>
-        <picture>https://paloma.website/images/paloma/catalog/n20.jpg</picture>
-        <name>Магнолия</name>
-        <vendor>PALOMA</vendor>
-        <param name="Состав">Фрезия, пионовидная лилия, магнолия</param>
-        <description>Нежная композиция из фрезии, пионовидной лилии и магнолии.</description>
-      </offer>
       <offer id="n21" available="true">
         <url>https://paloma.website/product.html?slug=utrenniy-svet</url>
         <price>13860</price>
