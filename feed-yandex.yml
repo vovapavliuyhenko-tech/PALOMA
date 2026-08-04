@@ -764,6 +764,50 @@
         <param name="Состав">Стекло, растительный воск, эфирные масла</param>
         <description>Ароматическая свеча SELETTI Toiletpaper «Shit». Размеры 8 × 8.5 × 8.5 см.</description>
       </offer>
+      <offer id="acc22" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-makadamia-white</url>
+        <price>2250</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc22.jpg</picture>
+        <name>Конфеты chocoMe «Макадамия в белом шоколаде»</name>
+        <vendor>chocoMe</vendor>
+        <param name="Масса">120 г</param>
+        <description>Макадамия в белом шоколаде ручной работы с какао-порошком и бобами тонка. Масса 120 г.</description>
+      </offer>
+      <offer id="acc23" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-mindal-tryufel</url>
+        <price>2500</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc23.jpg</picture>
+        <name>Конфеты chocoMe «Миндаль с трюфелем»</name>
+        <vendor>chocoMe</vendor>
+        <param name="Масса">120 г</param>
+        <description>Миндаль из Валенсии в молочном шоколаде с трюфельным грибом. Масса 120 г.</description>
+      </offer>
+      <offer id="acc24" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-piemontskiy-oreh-kofe</url>
+        <price>1950</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc24.jpg</picture>
+        <name>Конфеты chocoMe «Пьемонтский орех с кофе»</name>
+        <vendor>chocoMe</vendor>
+        <param name="Масса">120 г</param>
+        <description>Пьемонтский орех в орехово-молочном шоколаде с дроблёным кофе Харар. Масса 120 г.</description>
+      </offer>
+      <offer id="acc25" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-carre-assorti</url>
+        <price>3150</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc25.jpg</picture>
+        <name>Ассорти плиток chocoMe Carré</name>
+        <vendor>chocoMe</vendor>
+        <param name="Масса">150 г</param>
+        <description>Три плитки горького шоколада: с лепестками фиалки, фисташками Бронте и вишней. 3 × 50 г.</description>
+      </offer>
     </offers>
   </shop>
 </yml_catalog>
