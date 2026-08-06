@@ -12,9 +12,12 @@ permissions:
   pages: write
   id-token: write
 
+# Новый деплой отменяет предыдущий: шаг deploy-pages периодически зависает
+# на публикации, и при cancel-in-progress: false очередь встаёт целиком —
+# свежий пуш не может доехать до сайта, пока висяк не отвалится по таймауту.
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -22,6 +25,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}
     runs-on: ubuntu-latest
+    # Успешный деплой укладывается в ~30 секунд; всё, что дольше 10 минут —
+    # зависший шаг, его нужно валить быстро, а не ждать 6-часовой лимит GitHub.
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
