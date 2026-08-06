@@ -25,9 +25,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}
     runs-on: ubuntu-latest
-    # Успешный деплой укладывается в ~30 секунд; всё, что дольше 10 минут —
-    # зависший шаг, его нужно валить быстро, а не ждать 6-часовой лимит GitHub.
-    timeout-minutes: 10
+    # Успешный деплой укладывается в ~30 секунд. Лимит с запасом на три
+    # попытки ниже: у deploy-pages свой внутренний таймаут ~10 минут, поэтому
+    # при 10 минутах на job повторы просто не успевали запуститься.
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
