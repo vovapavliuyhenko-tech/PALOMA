@@ -841,6 +841,158 @@
         <param name="Состав">Леукодендрон, целозия, сангисорба, каллы, орнитогалум, французская роза сорта Нина, лист стрелиции, циперус, кроксомия</param>
         <description>Насыщенный красный авторский букет с французской розой Нина, целозией, каллами и кроксомией.</description>
       </offer>
+      <offer id="acc28" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-carre-fialka-vino</url>
+        <price>1000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc28.jpg</picture>
+        <name>Горький шоколад chocoMe «Фиалка и вино»</name><vendor>chocoMe</vendor>
+        <param name="Масса">50 г</param>
+        <description>Горький шоколад ручной работы с засахаренными лепестками фиалки, чёрной смородиной и морской солью с красным вином. 50 г.</description>
+      </offer>
+      <offer id="acc29" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-carre-pekan-brusnika</url>
+        <price>1000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc29.jpg</picture>
+        <name>Горький шоколад chocoMe «Пекан и брусника»</name><vendor>chocoMe</vendor>
+        <param name="Масса">50 г</param>
+        <description>Горький шоколад ручной работы с орехом пекан, сушёной брусникой, фисташками Бронте и корицей. 50 г.</description>
+      </offer>
+      <offer id="acc30" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-carre-moloch-pekan-krasnaya-smorodina</url>
+        <price>1000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc30.jpg</picture>
+        <name>Молочный шоколад chocoMe «Пекан и красная смородина»</name><vendor>chocoMe</vendor>
+        <param name="Масса">50 г</param>
+        <description>Молочный шоколад ручной работы с орехом пекан, фисташками Бронте и красной смородиной. 50 г.</description>
+      </offer>
+      <offer id="acc31" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-carre-white-mindal-kunzhut</url>
+        <price>1200</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc31.jpg</picture>
+        <name>Белый шоколад chocoMe «Миндаль и кунжут»</name><vendor>chocoMe</vendor>
+        <param name="Масса">50 г</param>
+        <description>Белый «светлый» шоколад ручной работы с миндалём из Сицилии, чёрным кунжутом и солью. 50 г.</description>
+      </offer>
+      <offer id="acc32" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-carre-moloch-piemont-sol</url>
+        <price>970</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc32.jpg</picture>
+        <name>Молочный шоколад chocoMe «Пьемонтский орех и соль»</name><vendor>chocoMe</vendor>
+        <param name="Масса">50 г</param>
+        <description>Молочный шоколад ручной работы с пьемонтским орехом и солью. 50 г.</description>
+      </offer>
+      <offer id="acc33" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-moloch-tri-oreha</url>
+        <price>1700</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc33.jpg</picture>
+        <name>Молочный шоколад chocoMe «Три ореха»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Молочный шоколад ручной работы с орехом пекан, миндалём из Сицилии и фисташками Бронте. 110 г.</description>
+      </offer>
+      <offer id="acc34" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-moloch-fistashki-yagody</url>
+        <price>1600</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc34.jpg</picture>
+        <name>Молочный шоколад chocoMe «Фисташки и ягоды»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Молочный шоколад ручной работы с фисташками Бронте, малиной и ежевикой. 110 г.</description>
+      </offer>
+      <offer id="acc35" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-fialka-fistashki</url>
+        <price>1700</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc35.jpg</picture>
+        <name>Горький шоколад chocoMe «Фиалка и фисташки»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Горький шоколад ручной работы с засахаренными лепестками фиалки, фисташками Бронте и чёрной смородиной. 110 г.</description>
+      </offer>
+      <offer id="acc36" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-tri-oreha</url>
+        <price>1700</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc36.jpg</picture>
+        <name>Горький шоколад chocoMe «Три ореха»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Горький шоколад ручной работы с орехом пекан, миндалём из Сицилии и пьемонтским орехом. 110 г.</description>
+      </offer>
+      <offer id="acc37" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-roza-yagody</url>
+        <price>1700</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc37.jpg</picture>
+        <name>Горький шоколад chocoMe «Роза и ягоды»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Горький шоколад ручной работы с засахаренными лепестками розы, клубникой и малиной. 110 г.</description>
+      </offer>
+      <offer id="acc38" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-orehi-smorodina</url>
+        <price>1600</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc38.jpg</picture>
+        <name>Горький шоколад chocoMe «Орехи и смородина»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Горький шоколад ручной работы с орехом пекан, миндалём из Сицилии и чёрной смородиной. 110 г.</description>
+      </offer>
+      <offer id="acc39" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-tri-yagody</url>
+        <price>1700</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc39.jpg</picture>
+        <name>Горький шоколад chocoMe «Три ягоды»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Горький шоколад ручной работы с чёрной смородиной, клубникой и малиной. 110 г.</description>
+      </offer>
+      <offer id="acc40" available="true">
+        <url>https://paloma.website/product.html?slug=chocome-entree-roza-zoloto</url>
+        <price>2400</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc40.jpg</picture>
+        <name>Горький шоколад chocoMe «Роза и золото»</name><vendor>chocoMe</vendor>
+        <param name="Масса">110 г</param>
+        <description>Горький шоколад ручной работы с фисташками Бронте, лепестками розы, вишней и хлопьями 23-каратного золота. 110 г.</description>
+      </offer>
+      <offer id="n35" available="true">
+        <url>https://paloma.website/product.html?slug=toskana</url>
+        <price>15500</price><currencyId>RUR</currencyId><categoryId>5</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n35.jpg</picture>
+        <name>Тоскана</name><vendor>PALOMA</vendor>
+        <param name="Состав">Пионовидные розы, циния, оксипеталум, диантус, львиный зев, книфофия, гортензия</param>
+        <description>Яркая летняя композиция в корзине с пионовидными розами, цинниями, книфофией и гортензией.</description>
+      </offer>
+      <offer id="n36" available="true">
+        <url>https://paloma.website/product.html?slug=avrora</url>
+        <price>5830</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n36.jpg</picture>
+        <name>Аврора</name><vendor>PALOMA</vendor>
+        <param name="Состав">Кустовая пионовидная роза, гортензия, эустома, диантус</param>
+        <description>Нежный букет-бестселлер с кустовой пионовидной розой, гортензией и эустомой.</description>
+      </offer>
+      <offer id="n37" available="true">
+        <url>https://paloma.website/product.html?slug=margo</url>
+        <price>3360</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n37.jpg</picture>
+        <name>Марго</name><vendor>PALOMA</vendor>
+        <param name="Состав">Хризантема, бархатцы, паникум, циния</param>
+        <description>Тёплый букет-бестселлер с хризантемой, бархатцами и цинниями.</description>
+      </offer>
+      <offer id="n38" available="true">
+        <url>https://paloma.website/product.html?slug=luara</url>
+        <price>5330</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n38.jpg</picture>
+        <name>Луара</name><vendor>PALOMA</vendor>
+        <param name="Состав">Гортензия, листья малины, эустома, кустовая пионовидная роза, матрикария</param>
+        <description>Воздушный букет-бестселлер с гортензией, пионовидной розой и матрикарией.</description>
+      </offer>
+      <offer id="n39" available="true">
+        <url>https://paloma.website/product.html?slug=melon</url>
+        <price>5480</price><currencyId>RUR</currencyId><categoryId>1</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n39.jpg</picture>
+        <name>Мелон</name><vendor>PALOMA</vendor>
+        <param name="Состав">Пионовидная роза Мелон Экспрешн</param>
+        <description>Монобукет из пионовидной розы Мелон Экспрешн. Размеры от S (11 шт) до XL (25 шт).</description>
+      </offer>
+      <offer id="n40" available="true">
+        <url>https://paloma.website/product.html?slug=gelios</url>
+        <price>4945</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n40.jpg</picture>
+        <name>Гелиос</name><vendor>PALOMA</vendor>
+        <param name="Состав">Подсолнух, эустома, амми, листья малины</param>
+        <description>Солнечный букет-бестселлер с подсолнухами, эустомой и амми.</description>
+      </offer>
     </offers>
   </shop>
 </yml_catalog>
