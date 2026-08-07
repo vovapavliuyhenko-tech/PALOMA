@@ -11,8 +11,8 @@ window.PALOMA_BLOG = [
     readTime: "4 мин",
     featured: true,
     bg: "linear-gradient(155deg, #c9b79a 0%, #7d5a44 50%, #3a2820 100%)",
-    alt: "Корпоративные букеты PALOMA",
-    image: "images/paloma/catalog/c18.jpg",
+    alt: "Партия корпоративных букетов гортензии с фирменными лентами PALOMA",
+    image: "images/paloma/blog/korporativnye-bukety.jpg",
     gallery: [
       "images/paloma/catalog/c13.jpg",
       "images/paloma/catalog/c19.jpg",
