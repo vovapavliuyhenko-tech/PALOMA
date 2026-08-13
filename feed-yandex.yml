@@ -946,10 +946,10 @@
         <description>Горький шоколад ручной работы с фисташками Бронте, лепестками розы, вишней и хлопьями 23-каратного золота. 110 г.</description>
       </offer>
       <offer id="n35" available="true">
-        <url>https://paloma.website/product.html?slug=toskana</url>
+        <url>https://paloma.website/product.html?slug=siena</url>
         <price>15500</price><currencyId>RUR</currencyId><categoryId>5</categoryId>
         <picture>https://paloma.website/images/paloma/catalog/n35.jpg</picture>
-        <name>Тоскана</name><vendor>PALOMA</vendor>
+        <name>Сиена</name><vendor>PALOMA</vendor>
         <param name="Состав">Пионовидные розы, циния, оксипеталум, диантус, львиный зев, книфофия, гортензия</param>
         <description>Яркая летняя композиция в корзине с пионовидными розами, цинниями, книфофией и гортензией.</description>
       </offer>
@@ -992,6 +992,270 @@
         <name>Гелиос</name><vendor>PALOMA</vendor>
         <param name="Состав">Подсолнух, эустома, амми, листья малины</param>
         <description>Солнечный букет-бестселлер с подсолнухами, эустомой и амми.</description>
+      </offer>
+          <offer id="acc41" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-volna-zheltaya</url>
+        <price>4200</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc41.jpg</picture>
+        <name>Ваза «Волна» жёлтая</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Фигурная ваза из жёлтого стекла с волнистым силуэтом. Узкое горлышко — для одного цветка или тонкого букета. Размеры 15 × 32 см, горлышко 2.5 × 4 см.</description>
+      </offer>
+      <offer id="acc42" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-kenzan-keramika</url>
+        <price>2100</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc42.jpg</picture>
+        <name>Ваза под кензан, керамика</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Низкая керамическая чаша под кензан для икебаны и композиций в японском стиле. Размеры 17 × 4 см.</description>
+      </offer>
+      <offer id="acc43" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-interernaya-volan</url>
+        <price>18000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc43.jpg</picture>
+        <name>Интерьерная ваза «Волан»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Крупная интерьерная ваза для сухоцветов со скульптурными складками. Матовая белая керамика. Размеры 17 × 17 × 26 см.</description>
+      </offer>
+      <offer id="acc44" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-interernaya-vihr</url>
+        <price>18000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc44.jpg</picture>
+        <name>Интерьерная ваза «Вихрь»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Интерьерная ваза для сухоцветов с закрученным рельефом. Матовая белая керамика. Размеры 16 × 16 × 27 см.</description>
+      </offer>
+      <offer id="acc45" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-mramor-zelenaya</url>
+        <price>5600</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc45.jpg</picture>
+        <name>Ваза «Мрамор» зелёная</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Пузатая ваза из молочного стекла с зелёно-оливковыми разводами ручной работы. Размеры 16.5 × 18 см, горлышко 8 × 8 см.</description>
+      </offer>
+      <offer id="acc46" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-dym-seraya</url>
+        <price>3600</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc46.jpg</picture>
+        <name>Ваза «Дым» серая</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Ваза из дымчатого стекла со смятой фактурой — свет играет на неровных гранях. Размеры 22 × 22 см.</description>
+      </offer>
+      <offer id="acc47" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-yantar-shirokaya</url>
+        <price>5000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc47.jpg</picture>
+        <name>Ваза «Янтарь» широкая</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Широкая ваза из янтарного стекла с рельефной поверхностью. Просторное горлышко под пышный букет. Размеры 24 × 17 см, горлышко 11 × 7.5 см.</description>
+      </offer>
+      <offer id="acc48" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-biryuza-shar</url>
+        <price>4000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc48.jpg</picture>
+        <name>Ваза «Бирюза» шар</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Шарообразная ваза с фактурной бирюзово-белой глазурью под состаренный камень. Размеры 18 × 20 см.</description>
+      </offer>
+      <offer id="acc49" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-dyuny-shar</url>
+        <price>3000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc49.jpg</picture>
+        <name>Ваза «Дюны» шар</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Округлая ваза с песочно-белой глазурью и кратерной фактурой. Размеры 17 × 20 см.</description>
+      </offer>
+      <offer id="acc50" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-mokh-vysokaya</url>
+        <price>6500</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc50.jpg</picture>
+        <name>Ваза «Мох» высокая</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Высокая ваза с бело-зелёной фактурной глазурью под замшелый камень. Размеры 33 × 17 см.</description>
+      </offer>
+      <offer id="acc51" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-zakat-vysokaya</url>
+        <price>5000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc51.jpg</picture>
+        <name>Ваза «Закат» высокая</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Высокая ваза с переходом от белого к тёплому оранжевому и кратерной фактурой. Размеры 32 × 16 см.</description>
+      </offer>
+      <offer id="acc52" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-shinuazri-popugay</url>
+        <price>11000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc52.jpg</picture>
+        <name>Ваза «Шинуазри» с попугаем</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Высокая ваза в стиле шинуазри: синяя роспись по белому фарфору с попугаем и цветущими ветвями. Размеры 40 × 18 см, горлышко 8 × 8 см.</description>
+      </offer>
+      <offer id="acc53" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-seletti-hybrid-adelma</url>
+        <price>26000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc53.jpg</picture>
+        <name>Ваза SELETTI Hybrid</name><vendor>PALOMA</vendor>
+        <param name="Материал">Толстый фарфор</param>
+        <description>Ваза SELETTI Hybrid: две половины разных культур, соединённые золотой линией. Толстый фарфор. Размеры 14 × 32.5 см.</description>
+      </offer>
+      <offer id="acc54" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-sota-vysokaya</url>
+        <price>17000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc54.jpg</picture>
+        <name>Ваза «Соты» высокая</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Высокая ваза из янтарного стекла с гранёной огранкой «соты» и переходом в бордо. Размеры 45 × 14 см, горлышко 4.5 × 4.5 см.</description>
+      </offer>
+      <offer id="acc55" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-seletti-seagirl</url>
+        <price>10500</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc55.jpg</picture>
+        <name>Ваза SELETTI Toiletpaper «Seagirl»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Ваза SELETTI Toiletpaper «Seagirl» — стекло с золотым кантом и фирменным сюрреалистичным принтом. Размеры 10 × 8 × 14 см.</description>
+      </offer>
+      <offer id="acc56" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-ruchnaya-rabota-len</url>
+        <price>7700</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc56.jpg</picture>
+        <name>Ваза ручной работы «Лён»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Крупная ваза ручной работы: белая глазурь мазками поверх тёплой глины, круговой рельеф от гончарного круга. Размеры 30 × 26 см, горлышко 8 × 8 см.</description>
+      </offer>
+      <offer id="acc57" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-terrakota-drapirovka</url>
+        <price>10000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc57.jpg</picture>
+        <name>Ваза «Терракота» с драпировкой</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Скульптурная ваза цвета терракоты со струящимся рельефом, похожим на ткань. Размеры 19 × 18 × 32 см.</description>
+      </offer>
+      <offer id="acc58" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-interernaya-organ</url>
+        <price>18500</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc58.jpg</picture>
+        <name>Интерьерная ваза «Орган»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Керамика</param>
+        <description>Интерьерная ваза для сухоцветов с вертикальными рёбрами и мягким силуэтом. Матовая белая керамика. Размеры 17.5 × 27 см, горлышко 7 × 7 см.</description>
+      </offer>
+      <offer id="acc59" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-seletti-snakes</url>
+        <price>10500</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc59.jpg</picture>
+        <name>Ваза SELETTI Toiletpaper «Snakes»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Ваза SELETTI Toiletpaper «Snakes» — прозрачное стекло с золотым кантом и принтом со змеями. Размеры 10 × 8 × 14 см.</description>
+      </offer>
+      <offer id="acc60" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-grani-dymchataya</url>
+        <price>13000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc60.jpg</picture>
+        <name>Ваза «Грани» дымчатая</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Ваза из дымчатого стекла с матовой гранёной огранкой, мягко рассеивающей свет. Размеры 22 × 10 × 8 см, горлышко 7.5 × 7.5 см.</description>
+      </offer>
+      <offer id="acc61" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-leopard</url>
+        <price>7000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc61.jpg</picture>
+        <name>Ваза «Леопард»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Ваза из янтарного стекла с чёрными пятнами и тёмным основанием — эффектный акцент. Размеры 20 × 25.5 см.</description>
+      </offer>
+      <offer id="acc62" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-kenzan-steklo</url>
+        <price>2100</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc62.jpg</picture>
+        <name>Ваза под кензан, стекло</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Низкий стеклянный цилиндр под кензан — для икебаны и плавающих композиций. Размеры 19.5 × 9 см.</description>
+      </offer>
+      <offer id="acc63" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-zhemchug</url>
+        <price>6100</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc63.jpg</picture>
+        <name>Ваза «Жемчуг»</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Ваза из молочного стекла с бежевым крапом и узким горлышком. Размеры 20 × 21.5 см.</description>
+      </offer>
+      <offer id="acc64" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-izumrud-shar</url>
+        <price>2550</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc64.jpg</picture>
+        <name>Ваза «Изумруд» шар</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Шарообразная ваза из изумрудного стекла с рельефными рёбрами. Размеры 18 × 15 см, горлышко 7 × 7 см.</description>
+      </offer>
+      <offer id="acc65" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-cilindr-30</url>
+        <price>2600</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc65.jpg</picture>
+        <name>Ваза-цилиндр, 30 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Высокий стеклянный цилиндр — универсальная база под длинные стебли. Размеры 30 × 10 см.</description>
+      </offer>
+      <offer id="acc66" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-cilindr-25</url>
+        <price>2500</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc66.jpg</picture>
+        <name>Ваза-цилиндр, 25 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Стеклянный цилиндр средней высоты — подойдёт почти любому букету. Размеры 25 × 10 см.</description>
+      </offer>
+      <offer id="acc67" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-cilindr-20</url>
+        <price>2400</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc67.jpg</picture>
+        <name>Ваза-цилиндр, 20 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Невысокий стеклянный цилиндр для компактных букетов. Размеры 20 × 10 см.</description>
+      </offer>
+      <offer id="acc68" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-uzkaya-10-25</url>
+        <price>1500</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc68.jpg</picture>
+        <name>Ваза узкая, 25 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Узкая стеклянная ваза — для одного цветка или тонкой ветки. Размеры 10 × 25 см.</description>
+      </offer>
+      <offer id="acc69" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-steklo-18-21</url>
+        <price>2600</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc69.jpg</picture>
+        <name>Ваза стеклянная, 21 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Стеклянная ваза с широким горлышком — удобна для круглых букетов. Размеры 18 × 21 см, горлышко 8 × 8 см.</description>
+      </offer>
+      <offer id="acc70" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-steklo-18-16</url>
+        <price>2500</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc70.jpg</picture>
+        <name>Ваза стеклянная, 16 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Невысокая стеклянная ваза для небольших и средних букетов. Размеры 18 × 16 см, горлышко 7 × 7 см.</description>
+      </offer>
+      <offer id="acc71" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-steklo-13-26</url>
+        <price>6600</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc71.jpg</picture>
+        <name>Ваза стеклянная, 26 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Стройная стеклянная ваза — вытянутый силуэт для высоких композиций. Размеры 13 × 26 см.</description>
+      </offer>
+      <offer id="acc72" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-steklo-16-34</url>
+        <price>9000</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc72.jpg</picture>
+        <name>Ваза стеклянная, 34 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Высокая стеклянная ваза для крупных и длинных букетов. Размеры 16 × 34 см.</description>
+      </offer>
+      <offer id="acc73" available="true">
+        <url>https://paloma.website/product.html?slug=vaza-steklo-14-20</url>
+        <price>2300</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/acc73.jpg</picture>
+        <name>Ваза стеклянная, 20 см</name><vendor>PALOMA</vendor>
+        <param name="Материал">Стекло</param>
+        <description>Компактная стеклянная ваза на каждый день. Размеры 14 × 20 см.</description>
       </offer>
     </offers>
   </shop>
