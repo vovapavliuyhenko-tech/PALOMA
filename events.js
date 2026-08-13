@@ -499,8 +499,25 @@
         "Заявка сформирована. Мы свяжемся с вами, чтобы уточнить детали оформления.";
     }
 
+    /* Заявку сохраняем у себя ДО перехода в мессенджер. Раньше единственным
+       следом заявки было сообщение, которое клиент должен был отправить сам:
+       передумал или закрыл вкладку — заявки не существовало. */
+    function recordLead() {
+      if (!window.palomaSendLead) return;
+      window.palomaSendLead({
+        name: getValue("name"),
+        phone: getValue("phone"),
+        messenger: getMessenger(),
+        eventType: getValue("type"),
+        date: getValue("date"),
+        comment: getValue("comment"),
+        page: "events",
+      });
+    }
+
     function openWhatsApp() {
       if (!validateForm()) return;
+      recordLead();
       var text = encodeURIComponent(buildRequestText());
       var url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + text;
       showSuccess();
@@ -509,6 +526,7 @@
 
     function openTelegram() {
       if (!validateForm()) return;
+      recordLead();
       var text = encodeURIComponent(buildRequestText());
       /*
         Telegram deep links do not reliably prefill messages to a username

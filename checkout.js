@@ -643,6 +643,30 @@
     return data;
   }
 
+  /* Доставка отдельными полями — для CRM в админке. В managerText то же самое
+     есть, но строкой: по строке нельзя ни отфильтровать заказы на завтра,
+     ни отсортировать по дате. */
+  function deliveryInfo(orderData) {
+    const f = (orderData && orderData.form) || {};
+    const exact = f.time_type === "exact";
+    return {
+      type: f.delivery_type || "",
+      date: f.delivery_date || "",
+      time: exact
+        ? f.exact_time || ""
+        : [f.time_from, f.time_to].filter(Boolean).join("–"),
+      timeType: f.time_type || "",
+      address:
+        f.delivery_type === "pickup"
+          ? "Самовывоз · ул. Энгельса, 74/82"
+          : [f.city, f.address, f.apt].filter(Boolean).join(", "),
+      courierNote: f.courier_note || "",
+      recipient: f.recipient_type === "other" ? f.recipient_name || "" : "",
+      recipientPhone: f.recipient_type === "other" ? f.recipient_phone || "" : "",
+      comment: f.comment || "",
+    };
+  }
+
   async function handleSubmit() {
     if (submitting) return; /* защита от двойного клика/повторной отправки */
     const cart = getCart();
@@ -753,9 +777,11 @@
           qty: i.qty || 1,
         })),
         delivery: orderData.delivery,
+        deliveryInfo: deliveryInfo(orderData),
         clientName: f.name || "",
         phone: f.phone || "",
         email: f.email || "",
+        messengerContact: orderData.messengerContact || "",
         managerText: buildManagerText(orderData),
       }),
     }).catch(() => {}); /* уведомление не должно мешать оформлению заказа */
@@ -861,9 +887,11 @@
             qty: i.qty || 1,
           })),
           delivery: orderData.delivery,
+          deliveryInfo: deliveryInfo(orderData),
           clientName: f.name || "",
           phone: f.phone || "",
           email: f.email || "",
+          messengerContact: orderData.messengerContact || "",
           managerText: buildManagerText(orderData),
         }),
       });

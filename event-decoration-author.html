@@ -449,8 +449,20 @@ document.querySelectorAll('.ea-faq__item').forEach(item=>{
 });
 
 /* форма */
-document.getElementById('eaForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('eaOk').hidden=false;e.target.querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);});
+document.getElementById('eaForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  /* Раньше форма только показывала «спасибо» — заявка никуда не уходила. */
+  const v=id=>{const el=document.getElementById(id);return el?String(el.value||'').trim():'';};
+  if(window.palomaSendLead)window.palomaSendLead({
+    name:v('ea-name'),phone:v('ea-phone'),date:v('ea-date'),
+    eventType:'авторское оформление',comment:v('ea-comment'),page:'event-decoration'
+  });
+  document.getElementById('eaOk').hidden=false;
+  e.target.querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);
+});
 </script>
+  <script src="payment-config.js?v=1"></script>
+  <script src="lead-send.js?v=1"></script>
   <script src="maintenance-banner.js?v=2"></script>
 </body>
 </html>

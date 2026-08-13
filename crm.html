@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>PALOMA — заказы и заявки</title>
+  <link rel="icon" type="image/png" href="assets/icons/favicon-giraffe.png?v=2">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --bg: #f6f3ef; --card: #fff; --line: #e4ddd3; --ink: #1b1a18;
+      --muted: #8a857c; --accent: #1b1a18;
+      --new: #c2410c; --work: #1d4ed8; --done: #15803d; --cancelled: #8a857c;
+    }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 15px;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px 80px; }
+
+    /* ── Экран входа ── */
+    .gate { min-height: 100dvh; display: grid; place-items: center; padding: 20px; }
+    .gate__box {
+      background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+      padding: 32px 28px; width: 100%; max-width: 380px;
+      box-shadow: 0 18px 40px rgba(27,26,24,.07);
+    }
+    .gate__logo {
+      font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
+      color: var(--muted); text-align: center; margin: 0 0 6px;
+    }
+    .gate__title { font-size: 21px; margin: 0 0 20px; text-align: center; }
+
+    label { display: block; font-weight: 600; font-size: 13px; margin: 0 0 6px; color: var(--muted); }
+    input, select, textarea {
+      width: 100%; padding: 11px 12px; border: 1px solid #cfc7bb; border-radius: 10px;
+      font-size: 15px; font-family: inherit; background: #fff; color: var(--ink);
+    }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+    button {
+      padding: 11px 18px; border: none; border-radius: 10px; background: var(--accent);
+      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    button.ghost { background: #fff; color: var(--ink); border: 1px solid #cfc7bb; }
+    button.ghost.is-on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    button.wide { width: 100%; margin-top: 18px; }
+
+    /* ── Шапка ── */
+    .top {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .top h1 { font-size: 20px; margin: 0; flex: 1 1 auto; }
+    .top .sub { color: var(--muted); font-size: 13px; }
+
+    /* ── Плашки статусов ── */
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tab {
+      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line);
+      background: #fff; cursor: pointer; font-size: 14px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 7px; font-family: inherit; color: var(--ink);
+    }
+    .tab.is-on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .tab__n {
+      font-size: 12px; padding: 1px 7px; border-radius: 999px;
+      background: rgba(27,26,24,.09); color: inherit;
+    }
+    .tab.is-on .tab__n { background: rgba(255,255,255,.22); }
+
+    /* ── Фильтры ── */
+    .filters {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px; margin-bottom: 16px;
+      display: grid; gap: 12px; grid-template-columns: 2fr 1fr 1fr auto;
+      align-items: end;
+    }
+    @media (max-width: 760px) { .filters { grid-template-columns: 1fr 1fr; } .filters .span2 { grid-column: 1 / -1; } }
+
+    /* ── Карточка заказа ── */
+    .order {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 16px; margin-bottom: 12px;
+    }
+    .order__top { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+    .order__id { font-weight: 700; font-size: 16px; }
+    .order__when { color: var(--muted); font-size: 13px; }
+    .order__total { margin-left: auto; font-weight: 700; font-size: 17px; white-space: nowrap; }
+    .badge {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      padding: 3px 9px; border-radius: 999px; color: #fff;
+    }
+    .badge--new { background: var(--new); }
+    .badge--work { background: var(--work); }
+    .badge--done { background: var(--done); }
+    .badge--cancelled { background: var(--cancelled); }
+    .kind { font-size: 12px; color: var(--muted); }
+
+    .who { margin: 10px 0 0; display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; }
+    .who a { color: var(--ink); }
+    .deliv {
+      margin-top: 8px; font-size: 14px; color: var(--ink);
+      background: #faf8f5; border-radius: 10px; padding: 9px 12px;
+    }
+    .items { margin: 10px 0 0; padding: 0; list-style: none; font-size: 14px; }
+    .items li { display: flex; gap: 8px; padding: 3px 0; border-bottom: 1px dashed #eee; }
+    .items li span:last-child { margin-left: auto; white-space: nowrap; color: var(--muted); }
+
+    details.raw { margin-top: 10px; }
+    details.raw summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+    details.raw pre {
+      white-space: pre-wrap; word-break: break-word; font-size: 13px; margin: 8px 0 0;
+      background: #faf8f5; padding: 12px; border-radius: 10px; font-family: inherit;
+    }
+
+    .actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+    .actions .sp { flex: 1 1 auto; }
+    .note { margin-top: 10px; }
+    .note textarea { min-height: 46px; resize: vertical; font-size: 14px; }
+
+    .msg { padding: 14px; border-radius: 12px; background: #fff; border: 1px solid var(--line); color: var(--muted); }
+    .msg.err { color: #b3261e; border-color: #f0c7c3; background: #fdf3f2; }
+    .msg.ok { color: var(--done); }
+    .tg-warn { font-size: 12px; color: #b3261e; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <!-- ────── Вход ────── -->
+  <div class="gate" id="gate">
+    <form class="gate__box" id="gateForm">
+      <p class="gate__logo">PALOMA</p>
+      <h1 class="gate__title">Заказы и заявки</h1>
+      <label for="pass">Пароль</label>
+      <input id="pass" type="password" autocomplete="current-password" required>
+      <button class="wide" type="submit" id="gateBtn">Войти</button>
+      <p class="msg err" id="gateErr" style="margin-top:14px;display:none"></p>
+    </form>
+  </div>
+
+  <!-- ────── Панель ────── -->
+  <div class="wrap" id="app" hidden>
+    <div class="top">
+      <h1>Заказы и заявки</h1>
+      <span class="sub" id="updated"></span>
+      <button class="ghost" id="btnReload">Обновить</button>
+      <button class="ghost" id="btnCsv">Выгрузить в Excel</button>
+      <button class="ghost" id="btnExit">Выйти</button>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="filters">
+      <div class="span2">
+        <label for="q">Поиск — номер, имя, телефон, состав</label>
+        <input id="q" type="search" placeholder="например: 9001234567 или Анна">
+      </div>
+      <div>
+        <label for="from">Заказы с</label>
+        <input id="from" type="date">
+      </div>
+      <div>
+        <label for="to">по</label>
+        <input id="to" type="date">
+      </div>
+      <div>
+        <button id="btnFind">Найти</button>
+      </div>
+    </div>
+
+    <div id="list"></div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="ghost" id="btnMore" hidden>Показать ещё</button>
+    </div>
+  </div>
+
+<script>
+(function PalomaCRM() {
+  "use strict";
+
+  var FN = "https://functions.yandexcloud.net/d4ek26aklvok10biu54h";
+  var KEY = "paloma_crm_token";   /* только на время вкладки */
+  var PAGE = 50;
+
+  var STATUS = {
+    new:       { label: "Новый",    cls: "new" },
+    work:      { label: "В работе", cls: "work" },
+    done:      { label: "Выполнен", cls: "done" },
+    cancelled: { label: "Отменён",  cls: "cancelled" }
+  };
+  var ORDER = ["new", "work", "done", "cancelled"];
+  var KIND = {
+    online_paid: "оплачен онлайн",
+    payment_on_receipt: "оплата при получении",
+    event_lead: "заявка на оформление",
+    order: "заказ"
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { status: "", offset: 0, rows: [] };
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function token() { try { return sessionStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
+  function money(n) { return (Number(n) || 0).toLocaleString("ru-RU") + " ₽"; }
+  function when(v) {
+    var d = new Date(v);
+    return isNaN(d.getTime()) ? esc(v) : d.toLocaleString("ru-RU", {
+      day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit"
+    });
+  }
+  function phoneFmt(d) {
+    var s = String(d || "");
+    if (s.length !== 11) return s;
+    return "+" + s[0] + " (" + s.slice(1, 4) + ") " + s.slice(4, 7) + "-" + s.slice(7, 9) + "-" + s.slice(9);
+  }
+
+  /* ── Запросы ────────────────────────────────────────────
+     Пароль шлём в теле POST, а не в адресной строке: строка
+     запроса попадает в логи сервера, тело — нет.            */
+  function api(action, params, body) {
+    var url = FN + "?a=" + action;
+    Object.keys(params || {}).forEach(function (k) {
+      if (params[k] !== "" && params[k] != null)
+        url += "&" + k + "=" + encodeURIComponent(params[k]);
+    });
+    var opts = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ token: token() }, body || {}))
+    };
+    return fetch(url, opts).then(function (r) {
+      return r.json().catch(function () { return { error: "Сервер вернул не JSON (" + r.status + ")" }; })
+        .then(function (d) {
+          if (!r.ok || d.error) throw new Error(d.error || ("Ошибка " + r.status));
+          return d;
+        });
+    });
+  }
+
+  /* ── Вход ── */
+  $("gateForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var pass = $("pass").value.trim();
+    if (!pass) return;
+    var btn = $("gateBtn"), err = $("gateErr");
+    btn.disabled = true; btn.textContent = "Проверяю…"; err.style.display = "none";
+    try { sessionStorage.setItem(KEY, pass); } catch (e2) { /* приватный режим */ }
+    api("crm-list", { limit: 1 })
+      .then(function () { showApp(); })
+      .catch(function (ex) {
+        try { sessionStorage.removeItem(KEY); } catch (e3) {}
+        err.textContent = /досту|403/i.test(ex.message) ? "Неверный пароль." : ex.message;
+        err.style.display = "block";
+      })
+      .then(function () { btn.disabled = false; btn.textContent = "Войти"; });
+  });
+
+  $("btnExit").addEventListener("click", function () {
+    try { sessionStorage.removeItem(KEY); } catch (e) {}
+    location.reload();
+  });
+
+  function showApp() {
+    $("gate").hidden = true;
+    $("gate").style.display = "none";
+    $("app").hidden = false;
+    load(true);
+  }
+
+  /* ── Плашки статусов ── */
+  function renderTabs(counts) {
+    var total = ORDER.reduce(function (s, k) { return s + (counts[k] || 0); }, 0);
+    var html = '<button class="tab' + (state.status === "" ? " is-on" : "") + '" data-status="">' +
+      'Все <span class="tab__n">' + total + "</span></button>";
+    html += ORDER.map(function (k) {
+      return '<button class="tab' + (state.status === k ? " is-on" : "") + '" data-status="' + k + '">' +
+        STATUS[k].label + ' <span class="tab__n">' + (counts[k] || 0) + "</span></button>";
+    }).join("");
+    $("tabs").innerHTML = html;
+  }
+  $("tabs").addEventListener("click", function (e) {
+    var b = e.target.closest(".tab");
+    if (!b) return;
+    state.status = b.dataset.status;
+    load(true);
+  });
+
+  /* ── Список ── */
+  function filters() {
+    return {
+      q: $("q").value.trim(),
+      status: state.status,
+      from: $("from").value,
+      to: $("to").value,
+      limit: PAGE,
+      offset: state.offset
+    };
+  }
+
+  function load(reset) {
+    if (reset) { state.offset = 0; state.rows = []; }
+    if (reset) $("list").innerHTML = '<p class="msg">Загружаю…</p>';
+    api("crm-list", filters())
+      .then(function (d) {
+        state.rows = state.rows.concat(d.orders || []);
+        renderTabs(d.counts || {});
+        render();
+        $("btnMore").hidden = (d.orders || []).length < PAGE;
+        $("updated").textContent = "обновлено в " +
+          new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+      })
+      .catch(function (ex) {
+        $("list").innerHTML = '<p class="msg err">' + esc(ex.message) + "</p>";
+      });
+  }
+
+  $("btnFind").addEventListener("click", function () { load(true); });
+  $("q").addEventListener("keydown", function (e) { if (e.key === "Enter") load(true); });
+  $("btnReload").addEventListener("click", function () { load(true); });
+  $("btnMore").addEventListener("click", function () {
+    state.offset += PAGE;
+    load(false);
+  });
+
+  function itemsHtml(items) {
+    if (!Array.isArray(items) || !items.length) return "";
+    return '<ul class="items">' + items.map(function (i) {
+      var qty = Number(i.qty) || 1;
+      return "<li><span>" + esc(i.name || i.id || "позиция") +
+        (qty > 1 ? " × " + qty : "") + "</span><span>" +
+        money((Number(i.price) || 0) * qty) + "</span></li>";
+    }).join("") + "</ul>";
+  }
+
+  function deliveryHtml(d) {
+    if (!d || typeof d !== "object") return "";
+    var parts = [];
+    if (d.date) parts.push("📅 " + esc(d.date) + (d.time ? ", " + esc(d.time) : ""));
+    if (d.address) parts.push("📍 " + esc(d.address));
+    if (d.recipient) parts.push("🎁 получатель: " + esc(d.recipient) +
+      (d.recipientPhone ? " · " + esc(d.recipientPhone) : ""));
+    if (d.eventType) parts.push("повод: " + esc(d.eventType));
+    if (d.comment) parts.push("💬 " + esc(d.comment));
+    if (d.courierNote) parts.push("курьеру: " + esc(d.courierNote));
+    return parts.length ? '<div class="deliv">' + parts.join("<br>") + "</div>" : "";
+  }
+
+  function render() {
+    if (!state.rows.length) {
+      $("list").innerHTML = '<p class="msg">Ничего не нашлось. Попробуйте снять фильтры.</p>';
+      return;
+    }
+    $("list").innerHTML = state.rows.map(cardHtml).join("");
+  }
+
+  function cardHtml(o) {
+    var st = STATUS[o.status] || STATUS.new;
+    var phone = phoneFmt(o.phone);
+    var who = [];
+    if (o.client_name) who.push("<b>" + esc(o.client_name) + "</b>");
+    if (phone) who.push('<a href="tel:+' + esc(o.phone) + '">' + esc(phone) + "</a>");
+    if (o.email) who.push('<a href="mailto:' + esc(o.email) + '">' + esc(o.email) + "</a>");
+    if (o.messenger) who.push(esc(o.messenger));
+    if (o.phone) who.push('<a href="https://wa.me/' + esc(o.phone) + '" target="_blank" rel="noopener">написать в WhatsApp</a>');
+
+    var buttons = ORDER.map(function (k) {
+      return '<button class="ghost' + (o.status === k ? " is-on" : "") +
+        '" data-set="' + k + '" data-id="' + esc(o.order_id) + '">' + STATUS[k].label + "</button>";
+    }).join("");
+
+    return '<div class="order" data-card="' + esc(o.order_id) + '">' +
+      '<div class="order__top">' +
+        '<span class="order__id">№ ' + esc(o.order_id) + "</span>" +
+        '<span class="badge badge--' + st.cls + '">' + st.label + "</span>" +
+        '<span class="order__when">' + when(o.created_at) + "</span>" +
+        (o.tg_delivered ? "" : '<span class="tg-warn">не ушёл в Telegram</span>') +
+        (o.total ? '<span class="order__total">' + money(o.total) + "</span>" : "") +
+      "</div>" +
+      '<div class="kind">' + esc(KIND[o.kind] || o.kind || "заказ") + "</div>" +
+      (who.length ? '<div class="who">' + who.join("<span>·</span>") + "</div>" : "") +
+      deliveryHtml(o.delivery) +
+      itemsHtml(o.items) +
+      '<div class="actions">' + buttons + "</div>" +
+      '<div class="note"><textarea data-note="' + esc(o.order_id) +
+        '" placeholder="Заметка менеджера — сохраняется при выходе из поля">' + esc(o.note || "") + "</textarea></div>" +
+      '<details class="raw"><summary>Полный текст заказа</summary><pre>' + esc(o.text || "") + "</pre></details>" +
+    "</div>";
+  }
+
+  /* ── Смена статуса ── */
+  $("list").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-set]");
+    if (!b) return;
+    var id = b.dataset.id, next = b.dataset.set;
+    var card = document.querySelector('[data-card="' + CSS.escape(id) + '"]');
+    card.querySelectorAll("[data-set]").forEach(function (x) { x.disabled = true; });
+    api("crm-update", {}, { orderId: id, status: next })
+      .then(function () {
+        var row = state.rows.filter(function (r) { return r.order_id === id; })[0];
+        if (row) row.status = next;
+        load(true);   /* перечитываем — счётчики и фильтр по статусу должны сойтись */
+      })
+      .catch(function (ex) {
+        alert("Не удалось изменить статус: " + ex.message);
+        card.querySelectorAll("[data-set]").forEach(function (x) { x.disabled = false; });
+      });
+  });
+
+  /* ── Заметка: сохраняем при уходе из поля, если текст изменился ── */
+  $("list").addEventListener("focusin", function (e) {
+    if (e.target.matches("[data-note]")) e.target.dataset.was = e.target.value;
+  });
+  $("list").addEventListener("focusout", function (e) {
+    var t = e.target;
+    if (!t.matches("[data-note]")) return;
+    if (t.value === t.dataset.was) return;
+    var id = t.dataset.note;
+    t.disabled = true;
+    api("crm-update", {}, { orderId: id, note: t.value })
+      .then(function () {
+        t.dataset.was = t.value;
+        var row = state.rows.filter(function (r) { return r.order_id === id; })[0];
+        if (row) row.note = t.value;
+      })
+      .catch(function (ex) { alert("Заметка не сохранилась: " + ex.message); })
+      .then(function () { t.disabled = false; t.focus(); });
+  });
+
+  /* ── Выгрузка в Excel (CSV с BOM — Excel открывает по-русски) ── */
+  $("btnCsv").addEventListener("click", function () {
+    if (!state.rows.length) return alert("Нечего выгружать.");
+    var head = ["Номер", "Дата", "Статус", "Тип", "Клиент", "Телефон", "Email",
+                "Сумма", "Дата доставки", "Время", "Адрес", "Заметка"];
+    var lines = [head].concat(state.rows.map(function (o) {
+      var d = o.delivery || {};
+      return [
+        o.order_id, when(o.created_at), (STATUS[o.status] || {}).label || o.status,
+        KIND[o.kind] || o.kind, o.client_name, phoneFmt(o.phone), o.email,
+        o.total, d.date || "", d.time || "", d.address || "", o.note || ""
+      ];
+    }));
+    var csv = "﻿" + lines.map(function (r) {
+      return r.map(function (c) { return '"' + String(c == null ? "" : c).replace(/"/g, '""') + '"'; }).join(";");
+    }).join("\r\n");
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.download = "paloma-zakazy-" + new Date().toISOString().slice(0, 10) + ".csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  /* Уже входили в этой вкладке — не спрашиваем пароль снова */
+  if (token()) showApp();
+})();
+</script>
+</body>
+</html>

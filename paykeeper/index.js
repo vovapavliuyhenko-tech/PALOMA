@@ -198,18 +198,32 @@ async function pendingEnsure(db) {
       " total integer NOT NULL DEFAULT 0," +
       " created_at timestamptz NOT NULL DEFAULT now())",
   );
+  /* meta — данные клиента и состав для CRM. Оплата приходит webhook'ом, где
+     кроме номера и суммы ничего нет, поэтому поля кладём здесь, при создании
+     счёта, и достаём вместе с текстом. Колонку добавляем отдельно: таблица
+     уже существует на боевой базе. */
+  await db.query(
+    "ALTER TABLE pending_orders ADD COLUMN IF NOT EXISTS meta jsonb NOT NULL DEFAULT '{}'::jsonb",
+  );
   pendingReady = true;
 }
-async function pendingStore(orderId, managerText, photos, total) {
+async function pendingStore(orderId, managerText, photos, total, meta) {
   if (!process.env.DATABASE_URL) return false;
   const db = require("./db");
   await pendingEnsure(db);
   await db.query(
-    "INSERT INTO pending_orders(order_id, manager_text, photos, total)" +
-      " VALUES ($1,$2,$3::jsonb,$4)" +
+    "INSERT INTO pending_orders(order_id, manager_text, photos, total, meta)" +
+      " VALUES ($1,$2,$3::jsonb,$4,$5::jsonb)" +
       " ON CONFLICT (order_id) DO UPDATE SET" +
-      " manager_text=EXCLUDED.manager_text, photos=EXCLUDED.photos, total=EXCLUDED.total",
-    [orderId, String(managerText || "").slice(0, 3500), JSON.stringify(photos || []), Math.round(Number(total) || 0)],
+      " manager_text=EXCLUDED.manager_text, photos=EXCLUDED.photos," +
+      " total=EXCLUDED.total, meta=EXCLUDED.meta",
+    [
+      orderId,
+      String(managerText || "").slice(0, 3500),
+      JSON.stringify(photos || []),
+      Math.round(Number(total) || 0),
+      JSON.stringify(meta || {}),
+    ],
   );
   return true;
 }
@@ -220,7 +234,7 @@ async function pendingTake(orderId) {
   const db = require("./db");
   await pendingEnsure(db);
   const res = await db.query(
-    "DELETE FROM pending_orders WHERE order_id=$1 RETURNING manager_text, photos, total",
+    "DELETE FROM pending_orders WHERE order_id=$1 RETURNING manager_text, photos, total, meta",
     [orderId],
   );
   return res.rows && res.rows[0] ? res.rows[0] : null;
@@ -247,7 +261,15 @@ async function ordersLogEnsure(db) {
 /* Пишем заказ В БАЗУ ДО попытки отправки в Telegram — тогда даже если отправка
    зависнет и функцию убьёт по таймауту, заказ уже сохранён и не потеряется.
    Возвращает id записи (для последующей отметки о доставке). */
-async function logOrder(orderId, kind, text) {
+async function logOrder(orderId, kind, text, meta) {
+  /* Параллельно кладём заказ в CRM (crm.js) — там те же данные, но полями,
+     чтобы админка умела искать и вести статус. Журнал остаётся как есть:
+     это страховка, и ломать её ради CRM нельзя. */
+  try {
+    await require("./crm").save(orderId, kind, text, meta);
+  } catch (e) {
+    console.error("[crm] save skipped", e && e.message);
+  }
   if (!process.env.DATABASE_URL) return null;
   try {
     const db = require("./db");
@@ -262,8 +284,16 @@ async function logOrder(orderId, kind, text) {
     return null;
   }
 }
-/* Отмечаем, что заказ успешно ушёл в Telegram (best-effort). */
-async function markDelivered(logId) {
+/* Отмечаем, что заказ успешно ушёл в Telegram (best-effort).
+   orderId нужен, чтобы та же отметка легла и в CRM. */
+async function markDelivered(logId, orderId) {
+  if (orderId) {
+    try {
+      await require("./crm").markDelivered(orderId);
+    } catch (e) {
+      console.error("[crm] mark skipped", e && e.message);
+    }
+  }
   if (!logId || !process.env.DATABASE_URL) return;
   try {
     const db = require("./db");
@@ -623,7 +653,15 @@ async function createInvoice(body, origin) {
   const photos = bouquetPhotos(body);
   let stashed = false;
   try {
-    stashed = await pendingStore(orderId, details, photos, cart.total);
+    /* meta — поля клиента для CRM: webhook об оплате приходит без них. */
+    stashed = await pendingStore(orderId, details, photos, cart.total, {
+      clientName: body.clientName || "",
+      phone: body.phone || "",
+      email: body.email || "",
+      messenger: body.messengerContact || body.messenger || "",
+      items: Array.isArray(body.items) ? body.items : [],
+      deliveryInfo: body.deliveryInfo || {},
+    });
   } catch (e) {
     console.error("[pending] store error", orderId, e && e.message);
   }
@@ -648,6 +686,27 @@ async function createInvoice(body, origin) {
    Намеренно устойчиво: если прайс на функции рассинхронён и verifyCart
    отклонил бы заказ — уведомление всё равно уходит (managerText уже собран
    сайтом и содержит сумму), потеря заказа хуже неточной суммы в шапке. */
+/* Поля заказа для CRM — из того, что прислала страница. Ничего не считаем
+   и не проверяем: сумма и состав уже посчитаны выше, здесь только раскладка
+   по полям, чтобы админка умела искать и фильтровать. */
+function crmMeta(body, extra) {
+  const b = body || {};
+  const m = {
+    clientName: b.clientName || "",
+    phone: b.phone || "",
+    email: b.email || "",
+    messenger: b.messengerContact || b.messenger || "",
+    items: Array.isArray(b.items) ? b.items : [],
+    /* b.delivery — это стоимость доставки (число). Адрес, дату и время
+       страница присылает отдельным объектом deliveryInfo. */
+    delivery: b.deliveryInfo && typeof b.deliveryInfo === "object" ? b.deliveryInfo : {},
+    payment: b.payment || "",
+    total: 0,
+  };
+  if (extra) Object.keys(extra).forEach((k) => { if (extra[k] != null) m[k] = extra[k]; });
+  return m;
+}
+
 async function handleNotify(body, origin) {
   const orderId = String(body.orderId || "").trim();
   if (!/^[A-Za-z0-9-]{6,64}$/.test(orderId)) {
@@ -660,9 +719,9 @@ async function handleNotify(body, origin) {
      свой заголовок уже внутри managerText — шлём как есть + номер. */
   if (body.kind === "event_lead") {
     const msg = details + "\n№ " + orderId;
-    const logId = await logOrder(orderId, "event_lead", msg);
+    const logId = await logOrder(orderId, "event_lead", msg, crmMeta(body));
     const ok = await notifyManager(msg);
-    if (ok) await markDelivered(logId);
+    if (ok) await markDelivered(logId, orderId);
     console.log("[paykeeper] notify event_lead", orderId, ok);
     return reply(200, { ok: true, orderId, delivered: ok }, origin);
   }
@@ -683,9 +742,12 @@ async function handleNotify(body, origin) {
       }
       const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + "\nСумма: " +
         (row.total ? row.total.toLocaleString("ru-RU") + " ₽" : totalStr) + "\n\n" + row.manager_text;
-      const logId = await logOrder(orderId, "online_paid", msg);
+      /* Данные клиента положили в pending при создании счёта — берём их
+         оттуда: в этот момент страница присылает только номер заказа. */
+      const logId = await logOrder(orderId, "online_paid", msg,
+        crmMeta(row.meta || body, { payment: "online_paid", total: row.total }));
       const ok = await notifyManager(msg);
-      if (ok) await markDelivered(logId);
+      if (ok) await markDelivered(logId, orderId);
       const ph = normPhotos(row.photos);
       if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderId);
       console.log("[paykeeper] notify online_paid", orderId, ok);
@@ -693,9 +755,10 @@ async function handleNotify(body, origin) {
     } catch (e) {
       console.error("[pending] notify take error", orderId, e && e.message);
       const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details;
-      const logId = await logOrder(orderId, "online_paid", msg);
+      const logId = await logOrder(orderId, "online_paid", msg,
+        crmMeta(body, { payment: "online_paid", total: cart && !cart.error ? cart.total : 0 }));
       const ok = await notifyManager(msg);
-      if (ok) await markDelivered(logId);
+      if (ok) await markDelivered(logId, orderId);
       await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
       console.log("[paykeeper] notify online_paid fallback", orderId, ok);
       return reply(200, { ok: true, orderId, delivered: ok }, origin);
@@ -707,9 +770,10 @@ async function handleNotify(body, origin) {
     (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
 
   const msg = header + "\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details;
-  const logId = await logOrder(orderId, body.payment || "order", msg);
+  const logId = await logOrder(orderId, body.payment || "order", msg,
+    crmMeta(body, { total: cart && !cart.error ? cart.total : 0 }));
   const ok = await notifyManager(msg);
-  if (ok) await markDelivered(logId);
+  if (ok) await markDelivered(logId, orderId);
   await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
   console.log("[paykeeper] notify", orderId, body.payment || "", ok);
   return reply(200, { ok: true, orderId, delivered: ok }, origin);
@@ -761,9 +825,13 @@ async function handleWebhook(event) {
     const row = await pendingTake(orderid);
     if (row) {
       const msg = "✅ ОПЛАЧЕН (онлайн картой)\n№ " + orderid + "\nСумма: " + amountStr + " ₽\n\n" + row.manager_text;
-      const logId = await logOrder(orderid, "online_paid", msg);
+      const logId = await logOrder(orderid, "online_paid", msg,
+        crmMeta(row.meta, {
+          payment: "online_paid",
+          total: Number.isFinite(amount) ? Math.round(amount) : row.total,
+        }));
       const ok = await notifyManager(msg);
-      if (ok) await markDelivered(logId);
+      if (ok) await markDelivered(logId, orderid);
       const ph = normPhotos(row.photos);
       if (ph.length) await notifyPhotos(ph, "🖼 Букеты по заказу № " + orderid);
     }
@@ -827,11 +895,13 @@ module.exports.handler = async function handler(event) {
     "import-codes", "void-code", "selftest",
     "products-migrate", "products-all", "product-save", "product-delete", "product-active",
     "orders",
+    "crm-list", "crm-update", "crm-import",
   ];
   const ADMIN_GET_OK =
     action === "migrate" || action === "release-expired" ||
     action === "codes-stats" || action === "selftest" ||
-    action === "products-migrate" || action === "products-all" || action === "orders";
+    action === "products-migrate" || action === "products-all" || action === "orders" ||
+    action === "crm-list" || action === "crm-import";
   if (method !== "POST" && !ADMIN_GET_OK)
     return reply(405, { error: "Только POST" }, origin);
 
@@ -839,8 +909,12 @@ module.exports.handler = async function handler(event) {
   if (ADMIN_ACTIONS.includes(action)) {
     const qs = event.queryStringParameters || {};
     // действия с телом — разбираем заранее (там же token).
+    /* CRM-страница шлёт пароль в ТЕЛЕ POST, а не в адресной строке: строка
+       запроса оседает в логах, тело — нет. Поэтому тело разбираем у всех
+       crm-действий, включая читающие. Для GET rawBody пуст — parse("{}") ок. */
     const needsBody = action === "import-codes" || action === "void-code" ||
-      action === "product-save" || action === "product-delete" || action === "product-active";
+      action === "product-save" || action === "product-delete" || action === "product-active" ||
+      action.indexOf("crm-") === 0;
     let bodyObj = {};
     if (needsBody) {
       try { bodyObj = JSON.parse(rawBody(event) || "{}"); }
@@ -856,6 +930,28 @@ module.exports.handler = async function handler(event) {
       } catch (e) {
         console.error("[orders] list error", e && e.message);
         return reply(500, { error: "Ошибка журнала: " + (e && e.message) }, origin);
+      }
+    }
+    // ── CRM: заказы и заявки полями, со статусом и заметкой ──
+    if (action.indexOf("crm-") === 0) {
+      try {
+        const crm = require("./crm");
+        if (action === "crm-list") {
+          return reply(200, {
+            ok: true,
+            ...(await crm.list({
+              q: qs.q, status: qs.status, kind: qs.kind,
+              from: qs.from, to: qs.to, limit: qs.limit, offset: qs.offset,
+            })),
+          }, origin);
+        }
+        if (action === "crm-update")
+          return reply(200, { ...(await crm.update(bodyObj.orderId, bodyObj)) }, origin);
+        if (action === "crm-import")
+          return reply(200, { ok: true, ...(await crm.importLegacy()) }, origin);
+      } catch (e) {
+        console.error("[crm] admin action error", e && e.stack);
+        return reply(500, { error: "Ошибка CRM: " + (e && e.message) }, origin);
       }
     }
     // ── Каталог товаров (админка) ──

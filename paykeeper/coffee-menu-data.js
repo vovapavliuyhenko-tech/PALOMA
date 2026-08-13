@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════
    PALOMA COFFEE MENU DATA — полное меню кофейни
-   56 позиций, 6 категорий
+   100 позиций, 11 категорий
    ════════════════════════════════════════════════════════ */
 if (!window.PALOMA_COFFEE_MENU) {
   window.PALOMA_COFFEE_MENU = [
@@ -1179,6 +1179,30 @@ if (!window.PALOMA_COFFEE_MENU) {
     "desc": "Яблочный сок. Б 0 · Ж 0 · У 11.5 · 46 ккал",
     "image": "images/paloma/coffee/juice-yabloko.jpg",
     "imageBg": "linear-gradient(160deg,#ffe1c2 0%,#ffb060 55%,#e07a1e 100%)"
+  },
+  {
+    "id": "menu-water-96",
+    "num": "096",
+    "title": "Вода газированная Jevea",
+    "category": "water",
+    "price": 120,
+    "priceLabel": "120 ₽",
+    "volumes": "0.5 л",
+    "desc": "Артезианская минеральная вода Jevea Crystalnaya Sparkling.",
+    "image": "images/paloma/coffee/water-gaz.jpg",
+    "imageBg": "linear-gradient(160deg,#dfe6f2 0%,#9aa8c8 55%,#5a6488 100%)"
+  },
+  {
+    "id": "menu-water-97",
+    "num": "097",
+    "title": "Вода негазированная Jevea",
+    "category": "water",
+    "price": 120,
+    "priceLabel": "120 ₽",
+    "volumes": "0.5 л",
+    "desc": "Артезианская минеральная вода Jevea Crystalnaya Still.",
+    "image": "images/paloma/coffee/water-negaz.jpg",
+    "imageBg": "linear-gradient(160deg,#f2e2e2 0%,#c89a9a 55%,#8a5252 100%)"
   }
 ];
 }
