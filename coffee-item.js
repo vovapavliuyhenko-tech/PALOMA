@@ -18,6 +18,7 @@
     milkshake: "Молочный коктейль",
     tea: "Чай",
     cold: "Холодные напитки",
+    water: "Вода",
   };
   var imgByCat = {
     classic: "images/paloma/coffee/cup-classic.jpg",

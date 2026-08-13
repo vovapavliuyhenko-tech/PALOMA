@@ -44,6 +44,7 @@
       cold: "Холодные",
       lemonade: "Лимонады Лапочка",
       juice: "Соки",
+      water: "Вода",
       corpus: "Корпусные",
       dessert: "Десерты",
       chokome: "ChokoMe",
@@ -78,6 +79,7 @@
       cold: "cold & fresh",
       lemonade: "sweet lemonades",
       juice: "fresh juices",
+      water: "still & sparkling",
       corpus: "signature cakes",
       dessert: "sweet & art",
       chokome: "chocolate bar",
@@ -346,7 +348,7 @@
     };
     function coldGroups(it) {
       if (SWEET_CATS[it.category]) return null; /* десерты, корпусные, ChokoMe — без добавок */
-      if (it.category === "lemonade" || it.category === "juice") return null; /* готовые напитки — без добавок */
+      if (it.category === "lemonade" || it.category === "juice" || it.category === "water") return null; /* готовые напитки — без добавок */
       var x = COLD[it.id];
       if (x) {
         var g;
@@ -475,7 +477,7 @@
         /* Бутылочные напитки (лимонады «Лапочка», соки) — высокие: при cover
            обрезались верх/низ. Показываем целиком (contain) с подложкой под
            синий фон фото. Кофе в стаканах остаётся как есть (cover). */
-        var fullFit = it.category === "lemonade" || it.category === "juice";
+        var fullFit = it.category === "lemonade" || it.category === "juice" || it.category === "water";
         imgEl.classList.toggle("cf-modal__img--full", !!fullFit);
       } else {
         /* нет своего фото — без фото-колонки (не показываем градиент-заглушку) */
