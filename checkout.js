@@ -328,6 +328,7 @@
         exact.value = ok ? ok.value : "";
       }
     }
+    refreshPickers();
   }
 
   /* true, если выбранное время доставки ещё не прошло (или дата не сегодня) */
@@ -888,6 +889,139 @@
 
   window.__coNormContact = normContact; /* для проверки валидации из теста */
 
+  /* ── Кастомный дропдаун вместо нативного <select> ──────────────────
+     Нативный список рисует ОС: системный шрифт, синяя подсветка, свои
+     отступы — под типографику PALOMA его не привести. Оборачиваем select
+     в кнопку + панель, сам select оставляем в DOM (скрытым): вся прежняя
+     логика (updateTimeConstraints, сериализация формы) работает с ним
+     как раньше, мы только рисуем поверх.                            */
+  const pickers = [];
+
+  function enhanceSelect(sel) {
+    if (!sel || sel.dataset.picker) return;
+    sel.dataset.picker = "1";
+
+    const wrap = document.createElement("div");
+    wrap.className = "co-pick";
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(sel);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "co-pick__btn";
+    btn.setAttribute("aria-haspopup", "listbox");
+    btn.setAttribute("aria-expanded", "false");
+    const lbl = sel.id && document.querySelector('label[for="' + sel.id + '"]');
+    if (lbl) btn.setAttribute("aria-label", lbl.textContent.trim());
+
+    const val = document.createElement("span");
+    val.className = "co-pick__value";
+    btn.appendChild(val);
+    btn.insertAdjacentHTML(
+      "beforeend",
+      '<svg class="co-pick__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+    );
+
+    const list = document.createElement("div");
+    list.className = "co-pick__list";
+    list.setAttribute("role", "listbox");
+    list.hidden = true;
+
+    wrap.appendChild(btn);
+    wrap.appendChild(list);
+
+    const api = { sel, btn, list, val, wrap, open: false };
+
+    api.render = function () {
+      val.textContent = sel.selectedOptions[0]
+        ? sel.selectedOptions[0].textContent
+        : "—";
+      list.innerHTML = "";
+      [...sel.options].forEach((o) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "co-pick__opt";
+        item.textContent = o.textContent;
+        item.dataset.value = o.value;
+        item.setAttribute("role", "option");
+        item.setAttribute("aria-selected", String(o.value === sel.value));
+        if (o.disabled) {
+          item.disabled = true;
+          item.classList.add("is-disabled");
+        }
+        if (o.value === sel.value) item.classList.add("is-selected");
+        list.appendChild(item);
+      });
+    };
+
+    api.close = function () {
+      if (!api.open) return;
+      api.open = false;
+      list.hidden = true;
+      wrap.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+    };
+
+    api.openList = function () {
+      pickers.forEach((p) => p !== api && p.close());
+      api.render();
+      api.open = true;
+      list.hidden = false;
+      wrap.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      /* прокручиваем к выбранному, чтобы список открывался «на нём» */
+      const cur = list.querySelector(".is-selected");
+      if (cur) list.scrollTop = cur.offsetTop - list.clientHeight / 2 + cur.offsetHeight / 2;
+    };
+
+    btn.addEventListener("click", () => (api.open ? api.close() : api.openList()));
+
+    list.addEventListener("click", (e) => {
+      const item = e.target.closest(".co-pick__opt");
+      if (!item || item.disabled) return;
+      sel.value = item.dataset.value;
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+      api.render();
+      api.close();
+      btn.focus();
+    });
+
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const opts = [...sel.options].filter((o) => !o.disabled);
+        const i = opts.indexOf(sel.selectedOptions[0]);
+        const next = opts[e.key === "ArrowDown" ? i + 1 : i - 1];
+        if (next) {
+          sel.value = next.value;
+          sel.dispatchEvent(new Event("change", { bubbles: true }));
+          api.render();
+        }
+      } else if (e.key === "Escape") {
+        api.close();
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        api.open ? api.close() : api.openList();
+      }
+    });
+
+    api.render();
+    pickers.push(api);
+  }
+
+  /* значения/доступность меняет updateTimeConstraints напрямую в select,
+     без события change — поэтому перерисовываем принудительно */
+  function refreshPickers() {
+    pickers.forEach((p) => {
+      p.render();
+      if (p.open) p.close();
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".co-pick")) pickers.forEach((p) => p.close());
+  });
+
   function init() {
     updateView();
     /* Цель: начали оформление заказа — открыли чекаут с непустой корзиной. */
@@ -899,6 +1033,7 @@
     if (dateInput) {
       dateInput.min = new Date().toISOString().split("T")[0];
     }
+    document.querySelectorAll("select.co-select").forEach(enhanceSelect);
     updateTimeConstraints();
 
     $form?.querySelectorAll(".co-input").forEach((input) => {
