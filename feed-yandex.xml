@@ -1257,6 +1257,30 @@
         <param name="Материал">Стекло</param>
         <description>Компактная стеклянная ваза на каждый день. Размеры 14 × 20 см.</description>
       </offer>
+          <offer id="n41" available="true">
+        <url>https://paloma.website/product.html?slug=fiesta</url>
+        <price>21300</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n41.jpg</picture>
+        <name>Фиеста</name><vendor>PALOMA</vendor>
+        <param name="Состав">Антуриум, кроксомия, паникум, каллы, циния, орнитогалум, целозия, книфофия, амарант</param>
+        <description>Яркий авторский букет в оранжево-зелёной гамме: зелёные антуриумы, циннии, книфофия и струящийся амарант.</description>
+      </offer>
+      <offer id="n42" available="true">
+        <url>https://paloma.website/product.html?slug=solnechnyy-den</url>
+        <price>4410</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n42.jpg</picture>
+        <name>Солнечный день</name><vendor>PALOMA</vendor>
+        <param name="Состав">Подсолнух, сетария, камыш, амми</param>
+        <description>Летний авторский букет из подсолнухов с камышом, сетарией и ажурной амми.</description>
+      </offer>
+      <offer id="n43" available="true">
+        <url>https://paloma.website/product.html?slug=kaskad</url>
+        <price>15160</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
+        <picture>https://paloma.website/images/paloma/catalog/n43.jpg</picture>
+        <name>Каскад</name><vendor>PALOMA</vendor>
+        <param name="Состав">Орхидея фаленопсис, голландская гортензия, львиный зев, пионовидная лилия, листья малины, пионовидная роза</param>
+        <description>Авторский букет с ниспадающей ветвью орхидеи фаленопсис, голубой гортензией и пионовидной розой.</description>
+      </offer>
     </offers>
   </shop>
 </yml_catalog>
