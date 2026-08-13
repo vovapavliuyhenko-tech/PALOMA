@@ -289,10 +289,6 @@
     const p = String(hm || "").split(":");
     return (Number(p[0]) || 0) * 60 + (Number(p[1]) || 0);
   }
-  function minToHM(min) {
-    const h = Math.floor(min / 60), m = min % 60;
-    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
-  }
 
   function updateTimeConstraints() {
     const dateInput = document.getElementById("co-date");
@@ -321,8 +317,16 @@
         if (ok) fromSel.value = ok.value;
       }
     }
-    if (exact) {
-      exact.min = isToday ? minToHM(Math.min(cutoff, 22 * 60)) : "09:00";
+    /* точное время — список: гасим прошедшие получасовки, а не min= на input,
+       иначе браузеры всё равно дают ввести любое значение вручную */
+    if (exact && exact.options) {
+      [...exact.options].forEach((o) => {
+        o.disabled = isToday && hmToMin(o.value) < cutoff;
+      });
+      if (exact.selectedOptions[0] && exact.selectedOptions[0].disabled) {
+        const ok = [...exact.options].find((o) => !o.disabled);
+        exact.value = ok ? ok.value : "";
+      }
     }
   }
 
