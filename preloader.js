@@ -12,25 +12,56 @@
     document.body.classList.remove("pl-lock", "loader-lock");
   }
 
+  /* Жираф внизу лоадера: идёт слева направо, пока грузится страница.
+     Разметка лоадера прописана прямо в HTML на 25 страницах, поэтому
+     жирафа не дублируем в каждой — достраиваем сюда из одного места.
+     Картинка та же, что в подвале сайта: браузер качает её один раз. */
+  function ensureGiraffe(loader) {
+    if (loader.querySelector(".paloma-page-loader__walk")) return;
+
+    const walk = document.createElement("div");
+    walk.className = "paloma-page-loader__walk";
+    walk.setAttribute("aria-hidden", "true");
+    /* Жираф разобран на слои: туловище + четыре ноги. Все PNG в одной
+       системе координат 550×784, поэтому лежат друг на друге без сдвигов,
+       а каждая нога крутится вокруг своего шарнира (см. CSS). Туловище
+       лежит поверх ног и закрывает место стыка. */
+    walk.innerHTML = [
+      '<div class="paloma-page-loader__giraffe">',
+      '  <span class="paloma-page-loader__giraffe-shadow"></span>',
+      '  <div class="pl-giraffe-rig">',
+      '    <img class="pl-giraffe-part pl-giraffe-leg pl-giraffe-leg--1" src="assets/images/giraffe-walk/giraffe-leg1.png" alt="" decoding="async">',
+      '    <img class="pl-giraffe-part pl-giraffe-leg pl-giraffe-leg--2" src="assets/images/giraffe-walk/giraffe-leg2.png" alt="" decoding="async">',
+      '    <img class="pl-giraffe-part pl-giraffe-leg pl-giraffe-leg--3" src="assets/images/giraffe-walk/giraffe-leg3.png" alt="" decoding="async">',
+      '    <img class="pl-giraffe-part pl-giraffe-leg pl-giraffe-leg--4" src="assets/images/giraffe-walk/giraffe-leg4.png" alt="" decoding="async">',
+      '    <img class="pl-giraffe-part pl-giraffe-body" src="assets/images/giraffe-walk/giraffe-body.png" alt="" decoding="async">',
+      "  </div>",
+      "</div>",
+    ].join("");
+
+    loader.appendChild(walk);
+  }
+
   function createPalomaPageLoader() {
     removeLegacyLoaders();
 
     let loader = document.getElementById("palomaPageLoader");
 
-    if (loader) return loader;
+    if (!loader) {
+      loader = document.createElement("div");
+      loader.className = "paloma-page-loader";
+      loader.id = "palomaPageLoader";
+      loader.setAttribute("aria-hidden", "true");
+      loader.innerHTML = [
+        '<div class="paloma-page-loader__logo" aria-label="PALOMA">',
+        '  <span class="paloma-page-loader__logo-base">Paloma</span>',
+        '  <span class="paloma-page-loader__logo-fill">Paloma</span>',
+        "</div>",
+      ].join("");
+      document.body.prepend(loader);
+    }
 
-    loader = document.createElement("div");
-    loader.className = "paloma-page-loader";
-    loader.id = "palomaPageLoader";
-    loader.setAttribute("aria-hidden", "true");
-    loader.innerHTML = [
-      '<div class="paloma-page-loader__logo" aria-label="PALOMA">',
-      '  <span class="paloma-page-loader__logo-base">Paloma</span>',
-      '  <span class="paloma-page-loader__logo-fill">Paloma</span>',
-      "</div>",
-    ].join("");
-
-    document.body.prepend(loader);
+    ensureGiraffe(loader);
     return loader;
   }
 
@@ -86,8 +117,13 @@
     let isTransitioning = false;
     let initialDone = false;
     const revealDelay = reduceMotion ? 60 : 80;
-    const leaveDelay = reduceMotion ? 200 : 550;
-    const cleanupDelay = reduceMotion ? 260 : 850;
+    /* Проход жирафа через весь экран; держится в паре с --pl-walk-dur в CSS. */
+    const walkDuration = 2600;
+    /* Сколько ждём картинку жирафа, прежде чем начать без неё: на медленной
+       сети лучше показать шторку с логотипом, чем морозить экран. */
+    const giraffeWaitMax = 1200;
+    const leaveDelay = reduceMotion ? 200 : walkDuration + 120;
+    const cleanupDelay = leaveDelay + (reduceMotion ? 60 : 300);
 
     function lockScroll() {
       document.body.classList.add("is-paloma-loading");
@@ -99,10 +135,43 @@
     }
 
     function resetLoaderVisualState() {
-      loader.classList.remove("is-hidden", "is-leaving", "is-ready");
+      loader.classList.remove("is-hidden", "is-leaving", "is-ready", "is-walking");
       loader.style.transform = "";
       loader.style.opacity = "";
       loader.style.visibility = "";
+    }
+
+    /* Жираф стартует, только когда картинка реально готова — иначе он
+       «выпрыгивает» из середины экрана на первой (незакэшированной)
+       загрузке. Если картинка не приехала за giraffeWaitMax — идём дальше
+       без неё, лоадер не должен зависеть от одного PNG. */
+    function whenGiraffeReady(callback) {
+      const parts = loader.querySelectorAll(".pl-giraffe-part");
+      let done = false;
+      function go() {
+        if (done) return;
+        done = true;
+        callback();
+      }
+      if (reduceMotion || !parts.length) {
+        go();
+        return;
+      }
+      /* Ждём ВСЕ слои: если туловище приедет раньше ног, жираф стартует
+         без ног. Ноги по 5 КБ, так что ожидание упирается в туловище. */
+      let pending = 0;
+      parts.forEach(function (img) {
+        if (img.complete) return;
+        pending += 1;
+        function onPart() {
+          pending -= 1;
+          if (pending === 0) go();
+        }
+        img.addEventListener("load", onPart, { once: true });
+        img.addEventListener("error", onPart, { once: true });
+      });
+      if (pending === 0) go();
+      else window.setTimeout(go, giraffeWaitMax);
     }
 
     function finishInitialLoader() {
@@ -121,15 +190,21 @@
         loader.classList.add("is-ready");
       });
 
-      window.setTimeout(function () {
-        loader.classList.add("is-leaving");
-        document.body.classList.add("is-paloma-page-visible");
-      }, leaveDelay);
+      /* Шторка уходит вверх ровно после того, как жираф дошёл до правого
+         края, поэтому отсчёт начинаем от старта прохода, а не от DOMReady. */
+      whenGiraffeReady(function () {
+        loader.classList.add("is-walking");
 
-      window.setTimeout(function () {
-        loader.classList.add("is-hidden");
-        finishInitialLoader();
-      }, cleanupDelay);
+        window.setTimeout(function () {
+          loader.classList.add("is-leaving");
+          document.body.classList.add("is-paloma-page-visible");
+        }, leaveDelay);
+
+        window.setTimeout(function () {
+          loader.classList.add("is-hidden");
+          finishInitialLoader();
+        }, cleanupDelay);
+      });
     }
 
     function showTransitionAndNavigate(url) {
@@ -187,7 +262,9 @@
         loader.classList.add("is-leaving", "is-hidden");
         finishInitialLoader();
       }
-    }, 5000);
+      /* Страховка: с проходом жирафа штатный сценарий занимает до ~3.5 с
+         (ожидание картинки + проход + шторка), запас держим выше него. */
+    }, 7000);
 
     window.setTimeout(showInitialLoader, revealDelay);
   }

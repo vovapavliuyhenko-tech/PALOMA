@@ -100,6 +100,141 @@ body.is-paloma-loading {
   transform: translateY(0);
 }
 
+/* ═══════════════════════════════════════════════════════
+   Жираф идёт по низу экрана, пока грузится страница
+   Дорожка .__walk двигает жирафа слева направо, вложенный
+   .__giraffe качает его вверх-вниз — так один статичный PNG
+   читается как шаг. Длительность прохода продублирована
+   в preloader.js (walkDuration).
+   ═══════════════════════════════════════════════════════ */
+.paloma-page-loader__walk {
+  --pl-walk-dur: 2600ms;   /* дублируется в preloader.js (walkDuration) */
+  --pl-step-dur: 900ms;    /* один полный мах ногой */
+  --pl-giraffe-h: clamp(170px, 30vw, 380px);
+
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 100%;
+  height: var(--pl-giraffe-h);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Габаритная коробка жирафа = пропорции исходного PNG (550 × 784).
+   Все слои лежат в этой же системе координат, поэтому совмещаются
+   по inset: 0 без единого сдвига. */
+.paloma-page-loader__giraffe {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 100%;
+  aspect-ratio: 550 / 784;
+  /* стартовая позиция — целиком за левым краем */
+  transform: translate3d(-140%, 0, 0);
+  will-change: transform;
+}
+
+.paloma-page-loader.is-walking .paloma-page-loader__giraffe {
+  animation: paloma-giraffe-cross var(--pl-walk-dur) linear forwards;
+}
+
+/* Оснастка: качает жирафа вверх-вниз в такт шагу. Отдельный слой,
+   потому что сам .__giraffe уже занят проходом по экрану, а тень
+   должна остаться на земле и не подпрыгивать вместе с корпусом. */
+.pl-giraffe-rig {
+  position: absolute;
+  inset: 0;
+}
+
+.paloma-page-loader.is-walking .pl-giraffe-rig {
+  animation: paloma-giraffe-bob var(--pl-step-dur) ease-in-out infinite;
+}
+
+.pl-giraffe-part {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Туловище поверх ног: закрывает стык, где ноги отрезаны от корпуса */
+.pl-giraffe-body {
+  z-index: 2;
+}
+
+.pl-giraffe-leg {
+  z-index: 1;
+}
+
+/* Шарниры — середина каждой ноги на линии реза (y = 585 из 784).
+   Считаны по альфа-каналу исходника, не на глаз. */
+.pl-giraffe-leg--1 { transform-origin: 22.36% 75.51%; }
+.pl-giraffe-leg--2 { transform-origin: 30.82% 75.51%; }
+.pl-giraffe-leg--3 { transform-origin: 58.36% 75.51%; }
+.pl-giraffe-leg--4 { transform-origin: 78.91% 75.51%; }
+
+/* Жираф — иноходец: одновременно шагают ноги одной стороны, а не
+   по диагонали. Дальняя пара (1 и 3, тёмные) идёт в противофазе
+   к ближней (2 и 4). Противофазу задаём отрицательной задержкой —
+   кадры те же. */
+.paloma-page-loader.is-walking .pl-giraffe-leg {
+  animation: paloma-giraffe-step var(--pl-step-dur) ease-in-out infinite;
+}
+
+.paloma-page-loader.is-walking .pl-giraffe-leg--2,
+.paloma-page-loader.is-walking .pl-giraffe-leg--4 {
+  animation-delay: calc(var(--pl-step-dur) / -2);
+}
+
+/* Тень под копытами: сжимается в такт подскоку — привязывает жирафа к полу */
+.paloma-page-loader__giraffe-shadow {
+  position: absolute;
+  left: 47.8%;
+  bottom: 3.5%;
+  z-index: 0;
+  width: 68%;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(27, 26, 24, 0.15);
+  filter: blur(5px);
+  transform: translateX(-50%) scale(1);
+}
+
+.paloma-page-loader.is-walking .paloma-page-loader__giraffe-shadow {
+  animation: paloma-giraffe-shadow var(--pl-step-dur) ease-in-out infinite;
+}
+
+@keyframes paloma-giraffe-cross {
+  from { transform: translate3d(-140%, 0, 0); }
+  to   { transform: translate3d(calc(100vw + 40%), 0, 0); }
+}
+
+@keyframes paloma-giraffe-step {
+  0%,
+  100% { transform: rotate(-11deg); }
+  50%  { transform: rotate(11deg); }
+}
+
+/* Подскок вдвое чаще шага: корпус поднимается на каждой опорной ноге */
+@keyframes paloma-giraffe-bob {
+  0%,
+  50%,
+  100% { transform: translateY(0); }
+  25%,
+  75%  { transform: translateY(-1.6%); }
+}
+
+@keyframes paloma-giraffe-shadow {
+  0%,
+  50%,
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  25%,
+  75%  { transform: translateX(-50%) scale(0.86); opacity: 0.75; }
+}
+
 /* ── Шторка (legacy-элемент, просто прячем) ── */
 .paloma-page-loader__shutter {
   display: none;
@@ -129,5 +264,10 @@ body.is-paloma-loading {
     transition: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+  /* Проход через весь экран — ровно то движение, от которого просят
+     избавить: убираем жирафа целиком, лоадер остаётся коротким. */
+  .paloma-page-loader__walk {
+    display: none;
   }
 }
