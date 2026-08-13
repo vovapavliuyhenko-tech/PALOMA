@@ -342,11 +342,12 @@
 }
 
 /* Chrysanthemums — protea and hydrangea mix */
+/* Самый сезон — георгины крупным планом, кадр заполнен целиком */
 .home-categories__photo--chrysanthemums {
   background-image:
     linear-gradient(to bottom, rgba(27, 26, 24, 0.04) 0%, rgba(27, 26, 24, 0.18) 100%),
-    url("images/paloma/catalog/bouquet-03.jpg");
-  background-position: center 30%;
+    url("images/paloma/catalog/season-tile.jpg");
+  background-position: center 45%;
 }
 
 /* Сборные букеты — colorful Paloma-ribbon bouquet */
@@ -358,27 +359,30 @@
 }
 
 /* Монобукеты — white ranunculus + freesia, moody */
+/* Монобукеты — белый букет на тёмном фоне, соцветия в верхней трети кадра */
 .home-categories__photo--mono {
   background-image:
     linear-gradient(to bottom, rgba(27, 26, 24, 0.06) 0%, rgba(27, 26, 24, 0.22) 100%),
-    url("images/paloma/catalog/bouquet-04.jpg");
-  background-position: center 15%;
+    url("images/paloma/catalog/mono-tile.jpg");
+  background-position: center 32%;
 }
 
 /* Композиции — large editorial dark-background bouquet */
+/* Композиции и корзины — белая корзина в центре кадра */
 .home-categories__photo--compositions {
   background-image:
     linear-gradient(to bottom, rgba(27, 26, 24, 0.04) 0%, rgba(27, 26, 24, 0.18) 100%),
-    url("images/paloma/catalog/n24.jpg");
-  background-position: center 20%;
+    url("images/paloma/catalog/compositions-tile.jpg");
+  background-position: center 45%;
 }
 
 /* Аксессуары — premium Seletti vase */
+/* Вазы и подарки — ваза SELETTI Love in Bloom Kintsugi */
 .home-categories__photo--accessories {
   background-image:
     linear-gradient(to bottom, rgba(27, 26, 24, 0.04) 0%, rgba(27, 26, 24, 0.18) 100%),
-    url("images/paloma/vases/vase-01.jpg");
-  background-position: center center;
+    url("images/paloma/catalog/vases-tile.jpg");
+  background-position: center 40%;
 }
 
 .home-categories__item span {
