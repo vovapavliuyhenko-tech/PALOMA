@@ -118,7 +118,8 @@ body.is-paloma-loading {
   z-index: 1;
   width: 100%;
   height: var(--pl-giraffe-h);
-  overflow: hidden;
+  /* без overflow: hidden — жираф опущен ниже своей коробки, чтобы копыта
+     легли на край экрана. По горизонтали его и так режет сам лоадер. */
   pointer-events: none;
 }
 
@@ -128,7 +129,10 @@ body.is-paloma-loading {
 .paloma-page-loader__giraffe {
   position: absolute;
   left: 0;
-  bottom: 0;
+  /* В исходном PNG под копытами пусто: контент кончается на строке 752
+     из 784. Опускаем коробку на эти 3.95%, чтобы копыта шли ровно по
+     нижнему краю экрана, а не висели над ним. */
+  bottom: -3.95%;
   height: 100%;
   aspect-ratio: 550 / 784;
   /* стартовая позиция — целиком за левым краем */
@@ -193,7 +197,7 @@ body.is-paloma-loading {
 .paloma-page-loader__giraffe-shadow {
   position: absolute;
   left: 47.8%;
-  bottom: 3.5%;
+  bottom: 3.95%;   /* линия копыт — теперь это самый низ экрана */
   z-index: 0;
   width: 68%;
   height: 9px;
