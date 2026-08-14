@@ -759,17 +759,25 @@
      который резолвится по завершении отправки ИЛИ через 6с (что раньше) —
      чтобы гарантированно успеть отправить до перехода на thank-you.
      keepalive: true — подстраховка, если всё же уйдём по таймауту. */
-  function notifyManagerOfOrder(orderData) {
+  function notifyManagerOfOrder(orderData, extra) {
     const ep = payEndpoint();
     if (!ep) return Promise.resolve();
     const f = orderData.form || {};
+    /* extra — для заказа, где онлайн-оплата не создалась: свой заголовок
+       и объяснение менеджеру. Обычный заказ идёт как раньше. */
+    const x = extra || {};
+    const managerText = [x.header, x.note, buildManagerText(orderData)]
+      .filter(Boolean)
+      .join("\n\n");
     const send = fetch(ep + "?a=notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       keepalive: true,
       body: JSON.stringify({
         orderId: orderData.id,
-        payment: orderData.payment,
+        /* payment_failed — чтобы сервер не пошёл по ветке online_paid
+           (там заказ ищется в pending_orders, которого нет). */
+        payment: x.header ? "payment_failed" : orderData.payment,
         items: orderData.items.map((i) => ({
           id: i.id,
           name: i.name,
@@ -782,7 +790,7 @@
         phone: f.phone || "",
         email: f.email || "",
         messengerContact: orderData.messengerContact || "",
-        managerText: buildManagerText(orderData),
+        managerText: managerText,
       }),
     }).catch(() => {}); /* уведомление не должно мешать оформлению заказа */
     return Promise.race([
@@ -906,12 +914,28 @@
       window.location.href = data.paymentUrl;
     } catch (err) {
       console.error("[PALOMA] PayKeeper:", err);
-      releaseSubmit();
+      /* Счёт создать не удалось. Раньше клиент видел alert, а заказ не уходил
+         НИКУДА: менеджер о нём не узнавал вообще. Теперь заказ всё равно
+         отправляется в бот с пометкой, что оплату надо согласовать руками —
+         потерять заказ хуже, чем принять его без предоплаты. */
+      const reason = err && err.message ? err.message : "ошибка связи";
+      try {
+        await notifyManagerOfOrder(orderData, {
+          header: "❗ ЗАКАЗ БЕЗ ОПЛАТЫ — онлайн-оплата не создалась",
+          note:
+            "Клиент выбрал оплату картой, но счёт не выставился.\n" +
+            "Причина: " + reason + "\n" +
+            "СВЯЖИТЕСЬ С КЛИЕНТОМ и согласуйте оплату.",
+        });
+      } catch (e) {
+        console.error("[PALOMA] уведомление о неудачной оплате:", e);
+      }
+      emptyCart();
       alert(
-        "Не получилось открыть оплату: " +
-          (err?.message || "ошибка связи") +
-          ".\nПопробуйте ещё раз или выберите «Оплата при получении».",
+        "Оплата картой сейчас недоступна.\n\n" +
+          "Заказ мы приняли — менеджер свяжется с вами, чтобы согласовать оплату.",
       );
+      showSuccess(orderData.id);
     }
   }
 
