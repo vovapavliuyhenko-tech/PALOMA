@@ -346,6 +346,7 @@
     if (d.recipient) parts.push("🎁 получатель: " + esc(d.recipient) +
       (d.recipientPhone ? " · " + esc(d.recipientPhone) : ""));
     if (d.eventType) parts.push("повод: " + esc(d.eventType));
+    if (d.card) parts.push("✉️ <b>Открытка:</b> " + esc(d.card));
     if (d.comment) parts.push("💬 " + esc(d.comment));
     if (d.courierNote) parts.push("курьеру: " + esc(d.courierNote));
     return parts.length ? '<div class="deliv">' + parts.join("<br>") + "</div>" : "";

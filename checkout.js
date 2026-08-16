@@ -664,6 +664,9 @@
       recipient: f.recipient_type === "other" ? f.recipient_name || "" : "",
       recipientPhone: f.recipient_type === "other" ? f.recipient_phone || "" : "",
       comment: f.comment || "",
+      /* Открытка — отдельным полем, чтобы в CRM её было видно сразу
+         в карточке, а не только внутри «Полного текста заказа». */
+      card: f.add_card ? String(f.card_text || "").trim() || "(без текста)" : "",
     };
   }
 
@@ -871,6 +874,18 @@
     if (f.recipient_type === "other") {
       lines.push("", "Получатель: " + (f.recipient_name || "—") + ", " + (f.recipient_phone || "—"));
     }
+    /* Текст открытки. Раньше поле собиралось формой, но в текст заказа не
+       попадало — флорист его не видел ни в боте, ни в CRM, и открытки уходили
+       пустыми. Выносим отдельным блоком: это то, что пишут от руки. */
+    if (f.add_card) {
+      const cardText = String(f.card_text || "").trim();
+      lines.push(
+        "",
+        "✉️ ОТКРЫТКА:",
+        cardText || "— текст не указан, уточнить у клиента",
+      );
+    }
+
     lines.push("", "Клиент: " + (f.name || "—") + ", " + (f.phone || "—"));
     lines.push("Связь: " + (o.messenger || "—") + " " + (o.messengerContact || ""));
     if (f.email) lines.push("Email: " + f.email);
