@@ -105,8 +105,22 @@
       background: #faf8f5; border-radius: 10px; padding: 9px 12px;
     }
     .items { margin: 10px 0 0; padding: 0; list-style: none; font-size: 14px; }
-    .items li { display: flex; gap: 8px; padding: 3px 0; border-bottom: 1px dashed #eee; }
-    .items li span:last-child { margin-left: auto; white-space: nowrap; color: var(--muted); }
+    .items li {
+      display: flex; gap: 10px; align-items: center;
+      padding: 6px 0; border-bottom: 1px dashed #eee;
+    }
+    .items__name { min-width: 0; }
+    .items__sum { margin-left: auto; white-space: nowrap; color: var(--muted); }
+
+    /* Миниатюра букета: флорист видит, что собирать, не открывая сайт */
+    .items__thumb {
+      flex: none; width: 56px; height: 56px; border-radius: 8px;
+      overflow: hidden; background: #f0ebe4; display: block;
+    }
+    .items__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .items__thumb--none {
+      display: grid; place-items: center; color: #c3bcb1; font-size: 18px;
+    }
 
     details.raw { margin-top: 10px; }
     details.raw summary { cursor: pointer; font-size: 13px; color: var(--muted); }
@@ -176,6 +190,10 @@
     </div>
   </div>
 
+<!-- Каталог сайта — из него берём фото букетов по id позиции заказа.
+     В самой CRM фото не хранятся: в заказе лежит только id, имя и цена. -->
+<script src="paloma-products.js?v=p56"></script>
+<script src="coffee-menu-data.js?v=21"></script>
 <script>
 (function PalomaCRM() {
   "use strict";
@@ -200,6 +218,36 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var state = { status: "", offset: 0, rows: [] };
+
+  /* ── Фото позиции по её id ─────────────────────────────────────────
+     Строка заказа приходит как «m6», «m6-M», «n41-base» — размер идёт
+     суффиксом после дефиса или подчёркивания, поэтому отрезаем его.
+     Позиции кофейни (menu-water-96) лежат в своём справочнике.        */
+  var PHOTOS = (function () {
+    var map = {};
+    (window.PALOMA_PRODUCTS || []).forEach(function (p) {
+      if (p && p.id && p.image) map[p.id] = p.image;
+    });
+    (window.PALOMA_COFFEE_MENU || []).forEach(function (p) {
+      if (p && p.id && p.image) map[p.id] = p.image;
+    });
+    return map;
+  })();
+
+  function photoOf(id) {
+    var key = String(id || "");
+    if (!key) return "";
+    if (PHOTOS[key]) return PHOTOS[key];
+    /* Отрезаем суффиксы справа по одному: «menu-classic-3-350» → …-3,
+       «m6-M» → «m6». Так и кофейные id с дефисами внутри не ломаются. */
+    var parts = key.split(/[-_]/);
+    while (parts.length > 1) {
+      parts.pop();
+      var candidate = parts.join("-");
+      if (PHOTOS[candidate]) return PHOTOS[candidate];
+    }
+    return "";
+  }
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -332,9 +380,17 @@
     if (!Array.isArray(items) || !items.length) return "";
     return '<ul class="items">' + items.map(function (i) {
       var qty = Number(i.qty) || 1;
-      return "<li><span>" + esc(i.name || i.id || "позиция") +
-        (qty > 1 ? " × " + qty : "") + "</span><span>" +
-        money((Number(i.price) || 0) * qty) + "</span></li>";
+      var src = photoOf(i.id);
+      /* Клик по миниатюре открывает фото в полный размер — флористу
+         удобнее смотреть детали букета, а не квадратик 56 px. */
+      var thumb = src
+        ? '<a class="items__thumb" href="' + esc(src) + '" target="_blank" rel="noopener" title="Открыть фото">' +
+            '<img src="' + esc(src) + '" alt="" loading="lazy"></a>'
+        : '<span class="items__thumb items__thumb--none" aria-hidden="true">—</span>';
+      return "<li>" + thumb +
+        '<span class="items__name">' + esc(i.name || i.id || "позиция") +
+        (qty > 1 ? " × " + qty : "") + "</span>" +
+        '<span class="items__sum">' + money((Number(i.price) || 0) * qty) + "</span></li>";
     }).join("") + "</ul>";
   }
 
