@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
+  <!-- Рабочая панель обновляется часто; из кэша легко получить старую
+       версию и решить, что «не работает». Просим браузер перепроверять. -->
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <title>PALOMA — заказы и заявки</title>
   <link rel="icon" type="image/png" href="assets/icons/favicon-giraffe.png?v=2">
   <style>
@@ -158,6 +161,9 @@
   <div class="wrap" id="app" hidden>
     <div class="top">
       <h1>Заказы и заявки</h1>
+      <!-- Версия панели. Браузер держит страницу в кэше, и по её отсутствию
+           не понять, старая версия открыта или сломалась новая. -->
+      <span class="sub" title="версия панели">v2 · фото</span>
       <span class="sub" id="updated"></span>
       <button class="ghost" id="btnReload">Обновить</button>
       <button class="ghost" id="btnCsv">Выгрузить в Excel</button>
