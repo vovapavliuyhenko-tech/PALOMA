@@ -442,3 +442,16 @@
   .wpb-qr__side { width: 100%; }
   .wpb-qr__code { max-width: 260px; }
 }
+
+/* Счётчик символов и запасной путь через WhatsApp */
+.wpb-qr__counter {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.wpb-qr__alt {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.wpb-qr__alt a { color: #e7385a; }
