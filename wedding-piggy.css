@@ -455,3 +455,33 @@
   color: rgba(255, 255, 255, 0.55);
 }
 .wpb-qr__alt a { color: #e7385a; }
+
+/* Кнопки внутри тёмного блока копилки.
+   .subscription-option рассчитан на светлую подложку: тёмный текст на
+   прозрачном фоне. На чёрном блоке он практически не виден — задаём
+   свои цвета, не трогая кнопку на остальных страницах. */
+.wpb-qr .subscription-option {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+  background: transparent;
+}
+.wpb-qr .subscription-option:hover,
+.wpb-qr .subscription-option:focus-visible {
+  background: #e7385a;
+  border-color: #e7385a;
+  color: #fff;
+}
+/* Главное действие блока выделяем заливкой — его ищут глазами первым.
+   Оттенок чуть темнее фирменного #e7385a: на нём белый текст 12px даёт
+   контраст 5.1 вместо 4.1, то есть проходит норму читаемости. */
+.wpb-qr .wpb-qr__make {
+  background: #cf2a4a;
+  border-color: #cf2a4a;
+  color: #fff;
+  font-weight: 600;
+}
+.wpb-qr .wpb-qr__make:hover,
+.wpb-qr .wpb-qr__make:focus-visible {
+  background: #ff4a6c;
+  border-color: #ff4a6c;
+}
