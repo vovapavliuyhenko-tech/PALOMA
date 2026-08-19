@@ -544,17 +544,6 @@
         <param name="Состав">Толстый фарфор, красный вельвет</param>
         <description>Шкатулка SELETTI «Love in a Box». Размеры 13.6 × 18.9 × 7.4 см.</description>
       </offer>
-      <offer id="acc3" available="true">
-        <url>https://paloma.website/product.html?slug=seletti-hybrid-para</url>
-        <price>8400</price>
-        <currencyId>RUR</currencyId>
-        <categoryId>6</categoryId>
-        <picture>https://paloma.website/images/paloma/catalog/acc3.jpg</picture>
-        <name>Кофейная пара SELETTI Hybrid</name>
-        <vendor>PALOMA</vendor>
-        <param name="Состав">Толстый фарфор</param>
-        <description>Кофейная пара SELETTI Hybrid: чашка и блюдце.</description>
-      </offer>
       <offer id="acc4" available="true">
         <url>https://paloma.website/product.html?slug=seletti-nabor-2-chashki-podnos</url>
         <price>6200</price>
@@ -609,17 +598,6 @@
         <vendor>PALOMA</vendor>
         <param name="Состав">Толстый фарфор, покрытие золотом 24 карата</param>
         <description>Тарелка SELETTI Kintsugi. Размеры 27.5 × 3 см.</description>
-      </offer>
-      <offer id="acc10" available="true">
-        <url>https://paloma.website/product.html?slug=seletti-love-in-bloom</url>
-        <price>36500</price>
-        <currencyId>RUR</currencyId>
-        <categoryId>6</categoryId>
-        <picture>https://paloma.website/images/paloma/catalog/acc10.jpg</picture>
-        <name>Ваза SELETTI Love in Bloom</name>
-        <vendor>PALOMA</vendor>
-        <param name="Состав">Толстый фарфор, покрытие золотом 24 карата</param>
-        <description>Ваза SELETTI Love in Bloom. Размеры 16.5 × 9 × 25 см.</description>
       </offer>
       <offer id="n33" available="true">
         <url>https://paloma.website/product.html?slug=harper</url>
