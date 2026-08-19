@@ -137,6 +137,22 @@
     .note { margin-top: 10px; }
     .note textarea { min-height: 46px; resize: vertical; font-size: 14px; }
 
+    /* ── Итоги свадебных копилок ── */
+    .piggy {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 16px;
+    }
+    .piggy[hidden] { display: none; }
+    .piggy__title { font-weight: 700; margin-bottom: 10px; }
+    .piggy__row {
+      display: flex; gap: 12px; align-items: baseline;
+      padding: 6px 0; border-bottom: 1px dashed #eee;
+    }
+    .piggy__couple { font-weight: 600; }
+    .piggy__n { color: var(--muted); font-size: 13px; }
+    .piggy__sum { margin-left: auto; font-weight: 700; white-space: nowrap; }
+    .piggy__hint { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+
     .msg { padding: 14px; border-radius: 12px; background: #fff; border: 1px solid var(--line); color: var(--muted); }
     .msg.err { color: #b3261e; border-color: #f0c7c3; background: #fdf3f2; }
     .msg.ok { color: var(--done); }
@@ -163,7 +179,7 @@
       <h1>Заказы и заявки</h1>
       <!-- Версия панели. Браузер держит страницу в кэше, и по её отсутствию
            не понять, старая версия открыта или сломалась новая. -->
-      <span class="sub" title="версия панели">v2 · фото</span>
+      <span class="sub" title="версия панели">v3 · копилки</span>
       <span class="sub" id="updated"></span>
       <button class="ghost" id="btnReload">Обновить</button>
       <button class="ghost" id="btnCsv">Выгрузить в Excel</button>
@@ -171,6 +187,10 @@
     </div>
 
     <div class="tabs" id="tabs"></div>
+
+    <!-- Свадебные копилки: взносы приходят разными заказами, менеджеру
+         нужен итог по паре, а не россыпь строк. -->
+    <div class="piggy" id="piggy" hidden></div>
 
     <div class="filters">
       <div class="span2">
@@ -414,7 +434,42 @@
     return parts.length ? '<div class="deliv">' + parts.join("<br>") + "</div>" : "";
   }
 
+  /* Итоги свадебных копилок по парам. Считаем по загруженным записям:
+     отменённые взносы в сумму не берём — деньги по ним не пришли. */
+  function renderPiggy() {
+    var box = $("piggy");
+    if (!box) return;
+    var byCouple = {};
+    state.rows.forEach(function (o) {
+      var couple = (o.delivery && o.delivery.couple) || "";
+      if (!couple) return;
+      if (o.status === "cancelled") return;
+      if (!byCouple[couple]) byCouple[couple] = { sum: 0, n: 0, last: o.created_at };
+      byCouple[couple].sum += Number(o.total) || 0;
+      byCouple[couple].n += 1;
+      if (o.created_at > byCouple[couple].last) byCouple[couple].last = o.created_at;
+    });
+    var names = Object.keys(byCouple);
+    if (!names.length) { box.hidden = true; box.innerHTML = ""; return; }
+    names.sort(function (a, b) { return byCouple[b].sum - byCouple[a].sum; });
+
+    box.hidden = false;
+    box.innerHTML =
+      '<div class="piggy__title">💍 Свадебные копилки</div>' +
+      names.map(function (name) {
+        var d = byCouple[name];
+        return '<div class="piggy__row">' +
+            '<span class="piggy__couple">' + esc(name) + "</span>" +
+            '<span class="piggy__n">' + d.n + " взнос" + (d.n % 10 === 1 && d.n % 100 !== 11 ? "" : d.n % 10 >= 2 && d.n % 10 <= 4 && (d.n % 100 < 10 || d.n % 100 >= 20) ? "а" : "ов") + "</span>" +
+            '<span class="piggy__sum">' + money(d.sum) + "</span>" +
+          "</div>";
+      }).join("") +
+      '<p class="piggy__hint">Считаем по показанным записям — снимите фильтры, ' +
+      "чтобы увидеть весь период. Отменённые взносы не учитываются.</p>";
+  }
+
   function render() {
+    renderPiggy();
     if (!state.rows.length) {
       $("list").innerHTML = '<p class="msg">Ничего не нашлось. Попробуйте снять фильтры.</p>';
       return;

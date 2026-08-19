@@ -102,6 +102,13 @@
         items: [{ id: opts.id, name: opts.name, price: total, qty: 1 }],
         delivery: 0,
         managerText: opts.details,
+        /* Поля клиента и детали заказа — чтобы в CRM запись была не
+           безымянной, а с телефоном и (для копилки) именем пары. */
+        clientName: (opts.meta && opts.meta.clientName) || "",
+        phone: (opts.meta && opts.meta.phone) || "",
+        email: (opts.meta && opts.meta.email) || "",
+        messengerContact: (opts.meta && opts.meta.messengerContact) || "",
+        deliveryInfo: (opts.meta && opts.meta.deliveryInfo) || {},
       }),
     })
       .then(function (r) {

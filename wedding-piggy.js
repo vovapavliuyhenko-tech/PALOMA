@@ -161,6 +161,15 @@
         total: state.amount,
         details: lines.join("\n"),
         button: submitBtn,
+        /* Имя пары отдельным полем: по нему CRM считает,
+           сколько всего накопила конкретная свадьба. */
+        meta: {
+          /* Имени гостя форма не спрашивает — есть только контакт для связи.
+             Если это телефон, кладём его в phone: по нему CRM ищет. */
+          phone: /^[+\d][\d\s()-]{9,}$/.test(contact.value || "") ? contact.value : "",
+          messengerContact: contact.summary || "",
+          deliveryInfo: { couple: couple, card: wish || "", eventType: "свадебная копилка" },
+        },
       });
     });
 
@@ -217,6 +226,19 @@
         alert("Слишком длинные имена для QR-кода. Попробуйте покороче — например, «Иван и Мария».");
         return;
       }
+      /* Заявка менеджеру: пара открывает копилку прямо здесь, а не только
+         через WhatsApp. Ссылку кладём в текст — менеджеру не нужно её
+         восстанавливать, чтобы отправить паре повторно. */
+      if (window.palomaSendLead && !qrNames.dataset.notified) {
+        qrNames.dataset.notified = "1";
+        window.palomaSendLead({
+          name: names,
+          phone: "",
+          comment: "Пара открыла свадебную копилку на сайте.\nЛичная ссылка: " + url,
+          page: "wedding-piggy",
+        });
+      }
+
       qrCanvas.style.width = "100%";
       qrCanvas.style.height = "auto";
       qrCanvas.style.imageRendering = "pixelated";   /* без размытия при печати */
@@ -224,6 +246,19 @@
       if (qrLink) qrLink.value = url;
       if (qrResult) qrResult.hidden = false;
     }
+
+    /* Счётчик символов: в QR помещается ограниченное число букв, и лучше
+       показать это заранее, чем выдать ошибку после нажатия. */
+    var qrCounter = document.getElementById("wpbQrCounter");
+    function syncCounter() {
+      if (!qrCounter || !qrNames) return;
+      var left = 27 - qrNames.value.length;
+      qrCounter.textContent = left > 0
+        ? "Осталось символов: " + left
+        : "Достигнут предел — длиннее не поместится в код";
+    }
+    if (qrNames) qrNames.addEventListener("input", syncCounter);
+    syncCounter();
 
     if (qrMake) qrMake.addEventListener("click", makeQr);
     if (qrNames) qrNames.addEventListener("keydown", function (e) {

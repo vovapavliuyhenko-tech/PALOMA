@@ -26,6 +26,7 @@
   const PAGE_TITLE = {
     events: "🎉 ЗАЯВКА — оформление события",
     "event-decoration": "🎉 ЗАЯВКА — оформление мероприятия",
+    "wedding-piggy": "💍 ЗАЯВКА — свадебная копилка",
   };
 
   const EVENT_TYPE = {
