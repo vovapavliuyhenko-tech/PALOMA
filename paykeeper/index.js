@@ -131,55 +131,79 @@ async function notifyManager(text) {
   return anyOk;
 }
 
-/* Отправка одного фото ЗАГРУЗКОЙ БАЙТОВ (multipart), а не ссылкой.
-   Раньше слали URL и Telegram сам скачивал картинку — но по некоторым файлам
-   его фетчер зависал (кэш/CDN), и функция падала по таймауту, фото не доходили.
-   Теперь картинку скачивает сама функция (это быстро) и отдаёт Telegram готовые
-   байты — фетчер Telegram из цепочки убран. */
-async function sendPhotoUpload(chatId, url, caption) {
-  let bytes;
-  {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000);
-    try {
-      const r = await fetch(url, { signal: ctrl.signal });
-      if (!r.ok) { console.error("[photo] fetch", url, r.status); return false; }
-      bytes = Buffer.from(await r.arrayBuffer());
-    } catch (e) {
-      console.error("[photo] fetch error", url, e && e.message);
-      return false;
-    } finally { clearTimeout(timer); }
-  }
+
+/* Скачать картинку один раз. Возвращает байты или null. */
+async function fetchPhotoBytes(url) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4000);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    if (!r.ok) { console.error("[photo] fetch", url, r.status); return null; }
+    return Buffer.from(await r.arrayBuffer());
+  } catch (e) {
+    console.error("[photo] fetch error", url, e && e.message);
+    return null;
+  } finally { clearTimeout(timer); }
+}
+
+/* Отправка альбомом: все фото заказа уходят ОДНИМ запросом на чат.
+   Раньше на каждое фото и каждый чат был свой запрос, а картинка
+   качалась заново под каждый чат: заказ из трёх букетов на два чата —
+   шесть скачиваний и шесть загрузок подряд. Функция живёт 10 секунд и
+   не доживала до конца: текст уже ушёл, фото — нет. Отсюда и было
+   «фото приходят не всегда». */
+async function sendAlbumToChat(chatId, photos, caption) {
   const form = new FormData();
   form.append("chat_id", String(chatId));
-  if (caption) form.append("caption", caption);
-  form.append("photo", new Blob([bytes], { type: "image/jpeg" }), "bouquet.jpg");
+
+  if (photos.length === 1) {
+    if (caption) form.append("caption", caption);
+    form.append("photo", new Blob([photos[0].bytes], { type: "image/jpeg" }), "bouquet.jpg");
+    return tgMultipart("sendPhoto", form, chatId);
+  }
+
+  const media = photos.map(function (p, i) {
+    const item = { type: "photo", media: "attach://file" + i };
+    if (i === 0 && caption) item.caption = caption;
+    return item;
+  });
+  form.append("media", JSON.stringify(media));
+  photos.forEach(function (p, i) {
+    form.append("file" + i, new Blob([p.bytes], { type: "image/jpeg" }), "bouquet" + i + ".jpg");
+  });
+  return tgMultipart("sendMediaGroup", form, chatId);
+}
+
+async function tgMultipart(method, form, chatId) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 8000);
+  const timer = setTimeout(() => ctrl.abort(), 6000);
   try {
-    const res = await fetch(`${TG_API_BASE}/bot${TG_BOT_TOKEN}/sendPhoto`, {
+    const res = await fetch(`${TG_API_BASE}/bot${TG_BOT_TOKEN}/${method}`, {
       method: "POST",
       body: form, /* fetch сам проставит multipart Content-Type с boundary */
       signal: ctrl.signal,
     });
-    if (!res.ok) console.error("[telegram] sendPhoto", chatId, res.status, await res.text().catch(() => ""));
+    if (!res.ok)
+      console.error("[telegram] " + method, chatId, res.status, await res.text().catch(() => ""));
     return res.ok;
   } catch (e) {
-    console.error("[telegram] sendPhoto error", chatId, e && e.message);
+    console.error("[telegram] " + method + " error", chatId, e && e.message);
     return false;
   } finally { clearTimeout(timer); }
 }
 
-/* Фото букетов из заказа — по одному, загрузкой байтов. Подпись — на первом. */
-async function sendPhotosToChat(chatId, urls, caption) {
-  for (let i = 0; i < urls.length; i++) {
-    await sendPhotoUpload(chatId, urls[i], i === 0 ? caption : undefined);
-  }
-}
-
 async function notifyPhotos(urls, caption) {
   if (!TG_BOT_TOKEN || !TG_CHAT_ID || !urls || !urls.length) return;
-  await Promise.all(tgChatIds().map((chatId) => sendPhotosToChat(chatId, urls, caption)));
+  /* Альбом Telegram вмещает до 10 медиа; больше и не собираем. */
+  const list = urls.slice(0, 10);
+  /* Качаем параллельно и ОДИН раз на все чаты. */
+  const downloaded = await Promise.all(list.map(fetchPhotoBytes));
+  const photos = [];
+  downloaded.forEach(function (bytes, i) {
+    if (bytes) photos.push({ url: list[i], bytes: bytes });
+  });
+  if (!photos.length) { console.error("[photo] ни одно фото не скачалось"); return; }
+  await Promise.all(tgChatIds().map((chatId) => sendAlbumToChat(chatId, photos, caption)));
 }
 
 /* ── Хранилище деталей онлайн-заказа между «создан счёт» и «оплачено» ──
