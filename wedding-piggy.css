@@ -485,3 +485,18 @@
   background: #ff4a6c;
   border-color: #ff4a6c;
 }
+
+/* «Скачать QR» — то, ради чего блок и нужен: код уходит в пригласительные.
+   Делаем заливкой, как «Сделать», чтобы действие было видно сразу.
+   «Скопировать ссылку» рядом остаётся второстепенной, с обводкой. */
+.wpb-qr #wpbQrDownload {
+  background: #cf2a4a;
+  border-color: #cf2a4a;
+  color: #fff;
+  font-weight: 600;
+}
+.wpb-qr #wpbQrDownload:hover,
+.wpb-qr #wpbQrDownload:focus-visible {
+  background: #ff4a6c;
+  border-color: #ff4a6c;
+}
