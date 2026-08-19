@@ -164,6 +164,100 @@
       });
     });
 
+    /* ── Личная ссылка пары ─────────────────────────────────────────
+       ?p=<имена> — страница открывается с уже заполненным «Кому».
+       Гость не набирает имена руками и не может в них ошибиться,
+       а взнос гарантированно попадает в нужную копилку.            */
+    function coupleFromUrl() {
+      try {
+        var p = new URLSearchParams(location.search).get("p");
+        return p ? p.trim().slice(0, 60) : "";
+      } catch (e) {
+        return "";
+      }
+    }
+
+    var fixedCouple = coupleFromUrl();
+    if (fixedCouple && coupleInput) {
+      coupleInput.value = fixedCouple;
+      coupleInput.readOnly = true;
+      coupleInput.classList.add("is-locked");
+      var fs_ = coupleInput.closest("fieldset");
+      var legend = fs_ && fs_.querySelector("legend");
+      if (legend) legend.textContent = "Копилка пары";
+    }
+
+    /* ── Ссылка и QR для пригласительных ── */
+    var qrNames = document.getElementById("wpbQrNames");
+    var qrMake = document.getElementById("wpbQrMake");
+    var qrResult = document.getElementById("wpbQrResult");
+    var qrCode = document.getElementById("wpbQrCode");
+    var qrLink = document.getElementById("wpbQrLink");
+    var qrCopy = document.getElementById("wpbQrCopy");
+    var qrDownload = document.getElementById("wpbQrDownload");
+    var qrCanvas = null;
+
+    function buildLink(names) {
+      var base = location.origin + location.pathname;
+      return base + "?p=" + encodeURIComponent(names);
+    }
+
+    function makeQr() {
+      var names = (qrNames && qrNames.value.trim()) || "";
+      if (!names) { flash(qrNames); qrNames && qrNames.focus(); return; }
+      if (!window.palomaQRCanvas) return;
+
+      var url = buildLink(names);
+      try {
+        qrCanvas = window.palomaQRCanvas(url, { scale: 8, quiet: 4 });
+      } catch (e) {
+        /* Длинные имена не помещаются в код — просим сократить,
+           а не показываем пустое место. */
+        flash(qrNames);
+        alert("Слишком длинные имена для QR-кода. Попробуйте покороче — например, «Иван и Мария».");
+        return;
+      }
+      qrCanvas.style.width = "100%";
+      qrCanvas.style.height = "auto";
+      qrCanvas.style.imageRendering = "pixelated";   /* без размытия при печати */
+      if (qrCode) { qrCode.innerHTML = ""; qrCode.appendChild(qrCanvas); }
+      if (qrLink) qrLink.value = url;
+      if (qrResult) qrResult.hidden = false;
+    }
+
+    if (qrMake) qrMake.addEventListener("click", makeQr);
+    if (qrNames) qrNames.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); makeQr(); }
+    });
+
+    if (qrCopy) qrCopy.addEventListener("click", function () {
+      if (!qrLink || !qrLink.value) return;
+      var done = function () {
+        var was = qrCopy.textContent;
+        qrCopy.textContent = "Скопировано ✓";
+        setTimeout(function () { qrCopy.textContent = was; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(qrLink.value).then(done, function () {
+          qrLink.select(); document.execCommand("copy"); done();
+        });
+      } else {
+        qrLink.select(); document.execCommand("copy"); done();
+      }
+    });
+
+    if (qrDownload) qrDownload.addEventListener("click", function () {
+      if (!qrCanvas) return;
+      var names = (qrNames && qrNames.value.trim()) || "kopilka";
+      var safe = names.replace(/[^\wа-яА-ЯёЁ -]+/g, "").replace(/\s+/g, "-").slice(0, 40);
+      var a = document.createElement("a");
+      a.href = qrCanvas.toDataURL("image/png");
+      a.download = "PALOMA-kopilka-" + (safe || "qr") + ".png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+
     recalc();
   }
 

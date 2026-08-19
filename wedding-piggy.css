@@ -372,3 +372,73 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Ссылка и QR для пригласительных ─────────────────────────────
+   Тот же тёмный блок, что у призыва «Создайте копилку», — они стоят
+   рядом и должны читаться как одна пара. */
+.wpb-qr {
+  margin-top: clamp(14px, 1.6vw, 20px);
+  padding: clamp(28px, 3vw, 48px) clamp(28px, 3.4vw, 56px);
+  background: #0e0d0c;
+  border: 1px solid rgba(231, 56, 90, 0.28);
+  border-radius: 20px;
+}
+.wpb-qr__row {
+  margin-top: clamp(16px, 1.8vw, 24px);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.wpb-qr__row .wpb-input { flex: 1 1 240px; }
+.wpb-qr__make { flex: 0 0 auto; }
+
+.wpb-qr__result {
+  margin-top: clamp(20px, 2.2vw, 30px);
+  display: grid;
+  grid-template-columns: minmax(160px, 240px) 1fr;
+  gap: clamp(20px, 2.4vw, 34px);
+  align-items: start;
+}
+.wpb-qr__result[hidden] { display: none; }
+
+/* Белое поле вокруг кода обязательно: на тёмном фоне сканеры его не берут */
+.wpb-qr__code {
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px;
+  line-height: 0;
+}
+.wpb-qr__code canvas { display: block; border-radius: 6px; }
+
+.wpb-qr__label {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 8px;
+}
+.wpb-qr__link { width: 100%; }
+.wpb-qr__actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wpb-qr__hint {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Имена, пришедшие из личной ссылки, менять нельзя */
+.wpb-input.is-locked {
+  opacity: 0.85;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  .wpb-qr__result { grid-template-columns: 1fr; justify-items: center; }
+  .wpb-qr__side { width: 100%; }
+  .wpb-qr__code { max-width: 260px; }
+}
