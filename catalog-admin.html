@@ -142,6 +142,19 @@
     <p class="msg" id="listMsg"></p>
     <div id="list"></div>
 
+    <!-- перенос оборвался: часть товаров прайса не доехала -->
+    <section class="card hidden" id="repairBox"
+      style="border-color:var(--accent);background:#fff6f8">
+      <h2 style="font-size:17px;margin:0 0 6px">В каталоге меньше товаров, чем было на сайте</h2>
+      <p class="hint" style="margin:0 0 14px">Сейчас в панели <b id="repairHave">0</b>,
+        а в исходном списке сайта <b id="repairWant">0</b>. Если товары пропали не по вашей
+        воле — верните недостающие. Уже изменённые товары останутся как есть.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn--accent" id="btnRepair">Вернуть недостающие</button>
+        <button class="btn btn--ghost" id="btnRepairHide">Всё в порядке, скрыть</button>
+      </div>
+    </section>
+
     <!-- пусто: все товары удалены вручную -->
     <section class="card hidden" id="emptyBox">
       <h2 style="font-size:17px;margin:0 0 6px">В каталоге пусто</h2>
@@ -270,8 +283,11 @@
   }
   function say(el, text, cls) { el.textContent = text || ""; el.className = "msg " + (cls || ""); }
 
+  var HIDE_REPAIR = "paloma:catalog-admin:repair-hidden";
+
   var pass = "";
   var items = [];           // весь каталог из базы
+  var builtIn = 0;          // сколько товаров во встроенном прайсе сайта
   var filterCat = "all";
   var editing = null;       // редактируемый товар (null = новый)
   var pendingImage = null;  // data:URL нового фото, ещё не загруженного
@@ -313,6 +329,7 @@
   async function load() {
     var data = await api("products-all");
     items = data.products || [];
+    builtIn = Number(data.builtIn) || 0;
     render();
     /* Первое открытие: сервер сам перенёс товары сайта в базу. */
     if (data.seeded) {
@@ -369,6 +386,7 @@
     renderTabs();
     var list = visible();
     $("emptyBox").classList.toggle("hidden", items.length > 0);
+    renderRepair();
     if (!list.length) {
       $("list").innerHTML = "";
       say($("listMsg"), items.length ? "Ничего не нашлось." : "Товаров пока нет.", "");
@@ -408,6 +426,39 @@
         '</div></div>';
     }).join("");
   }
+
+  /* Перенос прайса мог оборваться на полпути — предлагаем вернуть недостающие.
+     Прячем по кнопке: удалённые вручную товары тоже дают недостачу, и
+     напоминать о них вечно незачем. */
+  function renderRepair() {
+    var hidden = false;
+    try { hidden = localStorage.getItem(HIDE_REPAIR) === "1"; } catch (e) {}
+    var need = builtIn > 0 && items.length < builtIn && !hidden;
+    $("repairBox").classList.toggle("hidden", !need);
+    if (need) {
+      $("repairHave").textContent = items.length;
+      $("repairWant").textContent = builtIn;
+    }
+  }
+
+  $("btnRepairHide").addEventListener("click", function () {
+    try { localStorage.setItem(HIDE_REPAIR, "1"); } catch (e) {}
+    renderRepair();
+  });
+
+  $("btnRepair").addEventListener("click", async function () {
+    var b = this; b.disabled = true;
+    say($("listMsg"), "Возвращаю недостающие товары…");
+    try {
+      var r = await api("products-migrate");
+      try { localStorage.removeItem(HIDE_REPAIR); } catch (e) {}
+      await load();
+      say($("listMsg"), r.added
+        ? "Готово: вернулось товаров — " + r.added + "."
+        : "Все товары прайса уже на месте.", "ok");
+    } catch (e) { say($("listMsg"), e.message, "err"); }
+    b.disabled = false;
+  });
 
   /* ── действия в списке ── */
   $("list").addEventListener("click", async function (e) {

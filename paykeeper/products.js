@@ -7,7 +7,7 @@
    менять форму данных: публичный список отдаёт ровно такие же объекты.
 
    Таблица создаётся автоматически (ensureTable) и один раз заполняется из
-   встроенного прайса (seedIfEmpty) — миграция без отдельных SQL-файлов.
+   встроенного прайса (autoSeed) — миграция без отдельных SQL-файлов.
    ════════════════════════════════════════════════════════ */
 "use strict";
 
@@ -73,31 +73,51 @@ async function markSeeded() {
 async function autoSeed(getSeed) {
   await ensureTable();
   if (await wasSeeded()) return { seeded: 0, skipped: true };
-  const cnt = await query(`SELECT COUNT(*)::int AS n FROM products`);
-  if (cnt.rows[0].n > 0) { await markSeeded(); return { seeded: 0, skipped: true }; }
-  const res = await seedIfEmpty(getSeed() || []);
-  return res;
+  const res = await insertMissing(getSeed() || []);
+  await markSeeded();
+  return { seeded: res.added, skipped: false };
 }
 
-// Разовое наполнение таблицы из встроенного прайса (только если она пуста).
-async function seedIfEmpty(seedArr) {
+/* Досыпать в каталог товары встроенного прайса, которых там нет.
+   Уже лежащие в базе не трогаем: у них могли поменять цену, фото и порядок.
+
+   Пишем ПАЧКАМИ, а не по одному. Раньше 128 товаров вставлялись 128 отдельными
+   запросами в базу — функция не укладывалась в свой таймаут и обрывалась
+   посередине, а каталог оставался заполненным наполовину. */
+const SEED_CHUNK = 50;
+
+async function insertMissing(seedArr) {
   await ensureTable();
-  const cnt = await query(`SELECT COUNT(*)::int AS n FROM products`);
-  if (cnt.rows[0].n > 0) { await markSeeded(); return { seeded: 0, skipped: true }; }
-  let n = 0;
-  for (let i = 0; i < seedArr.length; i++) {
-    const p = seedArr[i];
-    const id = String(p.id);
-    const slug = p.slug || slugify(p.name);
-    await query(
+  const list = Array.isArray(seedArr) ? seedArr : [];
+  let added = 0;
+  for (let from = 0; from < list.length; from += SEED_CHUNK) {
+    const chunk = list.slice(from, from + SEED_CHUNK);
+    const values = [];
+    const params = [];
+    chunk.forEach((p, k) => {
+      const i = from + k;
+      const b = params.length;
+      params.push(String(p.id), p.slug || slugify(p.name), i, JSON.stringify(p));
+      values.push(`($${b + 1},$${b + 2},TRUE,$${b + 3},$${b + 4}::jsonb)`);
+    });
+    if (!values.length) continue;
+    const r = await query(
       `INSERT INTO products (id, slug, active, sort, data)
-       VALUES ($1,$2,TRUE,$3,$4) ON CONFLICT (id) DO NOTHING`,
-      [id, slug, i, JSON.stringify(p)]
+       VALUES ${values.join(",")} ON CONFLICT (id) DO NOTHING`,
+      params
     );
-    n++;
+    added += r.rowCount || 0;
   }
+  return { added, total: list.length };
+}
+
+/* Ручное восстановление из панели: вернуть недостающие товары прайса.
+   Отличается от autoSeed тем, что работает и после отметки о переносе —
+   это лечение оборвавшегося переноса, а не повторный перенос. */
+async function restoreMissing(seedArr) {
+  const res = await insertMissing(seedArr);
   await markSeeded();
-  return { seeded: n, skipped: false };
+  return res;
 }
 
 // Публичный список для сайта — только активные, в порядке сортировки.
@@ -325,6 +345,6 @@ async function getImage(id) {
 }
 
 module.exports = {
-  ensureTable, seedIfEmpty, listActive, listAll, save, remove, setActive, slugify,
-  reorder, saveImage, getImage, listForPricing, autoSeed, buildSizes,
+  ensureTable, listActive, listAll, save, remove, setActive, slugify,
+  reorder, saveImage, getImage, listForPricing, autoSeed, restoreMissing, buildSizes,
 };

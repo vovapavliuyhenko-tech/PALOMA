@@ -1194,21 +1194,31 @@ module.exports.handler = async function handler(event) {
       try {
         const products = require("./products.js");
         catalogLoadedAt = 0; // каталог правили — перечитать при следующем заказе
-        if (action === "products-migrate") {
-          require("./paloma-products.js"); // наполняем global.window.PALOMA_PRODUCTS
-          const seed = (global.window && global.window.PALOMA_PRODUCTS) || [];
-          return reply(200, { ok: true, ...(await products.seedIfEmpty(seed)) }, origin);
-        }
+        const builtInPrice = () => {
+          require("./paloma-products.js"); // наполняет global.window.PALOMA_PRODUCTS
+          return (global.window && global.window.PALOMA_PRODUCTS) || [];
+        };
+
+        /* Вернуть недостающие товары прайса. Это лечение оборвавшегося переноса,
+           поэтому работает и после отметки о нём. Существующие товары не
+           трогаются: у них могли поменять цену, фото и порядок. */
+        if (action === "products-migrate")
+          return reply(200, { ok: true, ...(await products.restoreMissing(builtInPrice())) }, origin);
+
         if (action === "products-all") {
           /* Первое открытие панели: каталог наполняется сам из встроенного
              прайса. Нажимать «перенести» вручную не нужно, а повторно перенос
              не сработает — отметка о нём лежит в базе. */
-          const seeded = await products.autoSeed(() => {
-            require("./paloma-products.js");
-            return (global.window && global.window.PALOMA_PRODUCTS) || [];
-          });
-          return reply(200, { ok: true, seeded: seeded.seeded || 0,
-            products: await products.listAll() }, origin);
+          const seeded = await products.autoSeed(builtInPrice);
+          const list = await products.listAll();
+          /* builtIn — сколько товаров в исходном прайсе. Панель сравнивает его
+             со своим списком и предлагает дозагрузить, если перенос оборвался. */
+          return reply(200, {
+            ok: true,
+            seeded: seeded.seeded || 0,
+            builtIn: builtInPrice().length,
+            products: list,
+          }, origin);
         }
         if (action === "product-save")
           return reply(200, { ok: true, product: await products.save(bodyObj.product || bodyObj) }, origin);
