@@ -14,7 +14,7 @@
     :root {
       --bg: #f6f3ef; --card: #fff; --line: #e4ddd3; --ink: #1b1a18;
       --muted: #8a857c; --accent: #1b1a18;
-      --new: #c2410c; --work: #1d4ed8; --done: #15803d; --cancelled: #8a857c;
+      --pending: #a16207; --new: #c2410c; --work: #1d4ed8; --done: #15803d; --cancelled: #8a857c;
     }
     body {
       margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
@@ -95,6 +95,7 @@
       font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
       padding: 3px 9px; border-radius: 999px; color: #fff;
     }
+    .badge--pending { background: var(--pending); }
     .badge--new { background: var(--new); }
     .badge--work { background: var(--work); }
     .badge--done { background: var(--done); }
@@ -179,7 +180,7 @@
       <h1>Заказы и заявки</h1>
       <!-- Версия панели. Браузер держит страницу в кэше, и по её отсутствию
            не понять, старая версия открыта или сломалась новая. -->
-      <span class="sub" title="версия панели">v3 · копилки</span>
+      <span class="sub" title="версия панели">v4 · ждёт оплаты</span>
       <span class="sub" id="updated"></span>
       <button class="ghost" id="btnReload">Обновить</button>
       <button class="ghost" id="btnCsv">Выгрузить в Excel</button>
@@ -229,13 +230,15 @@
   var PAGE = 50;
 
   var STATUS = {
+    pending:   { label: "Ждёт оплаты", cls: "pending" },
     new:       { label: "Новый",    cls: "new" },
     work:      { label: "В работе", cls: "work" },
     done:      { label: "Выполнен", cls: "done" },
     cancelled: { label: "Отменён",  cls: "cancelled" }
   };
-  var ORDER = ["new", "work", "done", "cancelled"];
+  var ORDER = ["pending", "new", "work", "done", "cancelled"];
   var KIND = {
+    online_pending: "ждёт оплаты картой",
     online_paid: "оплачен онлайн",
     payment_on_receipt: "оплата при получении",
     event_lead: "заявка на оформление",
@@ -443,7 +446,8 @@
     state.rows.forEach(function (o) {
       var couple = (o.delivery && o.delivery.couple) || "";
       if (!couple) return;
-      if (o.status === "cancelled") return;
+      /* Отменённые и неоплаченные в сумму не идут — денег по ним нет. */
+      if (o.status === "cancelled" || o.status === "pending") return;
       if (!byCouple[couple]) byCouple[couple] = { sum: 0, n: 0, last: o.created_at };
       byCouple[couple].sum += Number(o.total) || 0;
       byCouple[couple].n += 1;

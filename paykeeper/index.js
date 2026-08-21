@@ -253,6 +253,20 @@ async function pendingStore(orderId, managerText, photos, total, meta) {
 }
 /* Атомарно забирает и удаляет строку: кто первый (webhook или thank-you), тот и
    шлёт уведомление — второй получит null и не продублирует. */
+/* Неоплаченные заказы: счёт выставлен, деньги не пришли. Нужны, чтобы
+   найти заказы, потерявшиеся до появления статуса «ждёт оплаты». */
+async function pendingList(limit) {
+  if (!process.env.DATABASE_URL) return [];
+  const db = require("./db");
+  await pendingEnsure(db);
+  const res = await db.query(
+    "SELECT order_id, total, manager_text, meta, created_at" +
+      " FROM pending_orders ORDER BY created_at DESC LIMIT $1",
+    [Math.min(Math.max(Number(limit) || 50, 1), 200)],
+  );
+  return res.rows || [];
+}
+
 async function pendingTake(orderId) {
   if (!process.env.DATABASE_URL) return null;
   const db = require("./db");
@@ -689,6 +703,24 @@ async function createInvoice(body, origin) {
   } catch (e) {
     console.error("[pending] store error", orderId, e && e.message);
   }
+
+  /* Заказ виден в панели СРАЗУ, со статусом «ждёт оплаты». Раньше он до
+     оплаты не попадал никуда: клиент уходил со страницы оплаты, и для
+     студии заказа не существовало — узнавали, только если клиент писал
+     сам. Когда деньги придут, статус сам сменится на «новый». */
+  try {
+    await require("./crm").save(
+      orderId,
+      "online_pending",
+      "⏳ ЖДЁТ ОПЛАТЫ\n№ " + orderId + "\nСумма: " +
+        cart.total.toLocaleString("ru-RU") + " ₽\n\n" + details,
+      crmMeta(body, { payment: "online", total: cart.total }),
+      "pending",
+    );
+  } catch (e) {
+    console.error("[crm] pending save skipped", e && e.message);
+  }
+
   if (!stashed) {
     await notifyManager(
       "🆕 НОВЫЙ ЗАКАЗ (⏳ ещё не оплачен)\n№ " + orderId + "\nСумма: " +
@@ -919,13 +951,13 @@ module.exports.handler = async function handler(event) {
     "import-codes", "void-code", "selftest",
     "products-migrate", "products-all", "product-save", "product-delete", "product-active",
     "orders",
-    "crm-list", "crm-update", "crm-import",
+    "crm-list", "crm-update", "crm-import", "pending-list",
   ];
   const ADMIN_GET_OK =
     action === "migrate" || action === "release-expired" ||
     action === "codes-stats" || action === "selftest" ||
     action === "products-migrate" || action === "products-all" || action === "orders" ||
-    action === "crm-list" || action === "crm-import";
+    action === "crm-list" || action === "crm-import" || action === "pending-list";
   if (method !== "POST" && !ADMIN_GET_OK)
     return reply(405, { error: "Только POST" }, origin);
 
@@ -956,6 +988,16 @@ module.exports.handler = async function handler(event) {
         return reply(500, { error: "Ошибка журнала: " + (e && e.message) }, origin);
       }
     }
+    // ── Неоплаченные заказы: счёт выставлен, деньги не пришли ──
+    if (action === "pending-list") {
+      try {
+        return reply(200, { ok: true, pending: await pendingList(qs.limit) }, origin);
+      } catch (e) {
+        console.error("[pending] list error", e && e.message);
+        return reply(500, { error: "Ошибка: " + (e && e.message) }, origin);
+      }
+    }
+
     // ── CRM: заказы и заявки полями, со статусом и заметкой ──
     if (action.indexOf("crm-") === 0) {
       try {

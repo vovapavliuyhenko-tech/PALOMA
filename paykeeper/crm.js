@@ -13,7 +13,10 @@
    ════════════════════════════════════════════════════════ */
 "use strict";
 
-const STATUSES = ["new", "work", "done", "cancelled"];
+/* pending — заказ создан, счёт выставлен, деньги ещё не пришли. Такие
+   заказы раньше не попадали никуда: клиент уходил со страницы оплаты, и
+   для студии заказа не существовало. Теперь они видны сразу. */
+const STATUSES = ["pending", "new", "work", "done", "cancelled"];
 
 let ready = false;
 
@@ -65,18 +68,19 @@ function jsonOr(value, fallback) {
 /* Сохранить заказ/заявку. Повторный вызов по тому же номеру обновляет
    данные, но НЕ трогает статус и заметку — их ведёт менеджер руками,
    и приход webhook об оплате не должен сбрасывать их в «новый». */
-async function save(orderId, kind, text, meta) {
+async function save(orderId, kind, text, meta, initialStatus) {
   if (!process.env.DATABASE_URL) return false;
   const id = str(orderId, 64);
   if (!id) return false;
   const m = meta || {};
+  const start = STATUSES.indexOf(initialStatus) >= 0 ? initialStatus : "new";
   try {
     const db = require("./db");
     await ensure(db);
     await db.query(
       "INSERT INTO crm_orders" +
-        " (order_id, kind, client_name, phone, email, messenger, total, items, delivery, payment, text)" +
-        " VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11)" +
+        " (order_id, kind, client_name, phone, email, messenger, total, items, delivery, payment, text, status)" +
+        " VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11,$12)" +
         " ON CONFLICT (order_id) DO UPDATE SET" +
         "  kind = EXCLUDED.kind," +
         /* пустое значение из позднего вызова не должно затирать заполненное */
@@ -89,6 +93,10 @@ async function save(orderId, kind, text, meta) {
         "  delivery    = CASE WHEN EXCLUDED.delivery = '{}'::jsonb THEN crm_orders.delivery ELSE EXCLUDED.delivery END," +
         "  payment     = COALESCE(NULLIF(EXCLUDED.payment,''),     crm_orders.payment)," +
         "  text        = EXCLUDED.text," +
+        /* Оплата пришла — «ждёт оплаты» превращается в «новый». Статусы,
+           которые менеджер поставил руками, не трогаем никогда. */
+        "  status      = CASE WHEN crm_orders.status = 'pending' AND EXCLUDED.status <> 'pending'" +
+        "                     THEN EXCLUDED.status ELSE crm_orders.status END," +
         "  updated_at  = now()",
       [
         id,
@@ -102,6 +110,7 @@ async function save(orderId, kind, text, meta) {
         jsonOr(m.delivery, {}),
         str(m.payment, 32),
         str(text, 3800),
+        start,
       ],
     );
     return true;
