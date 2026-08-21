@@ -20,7 +20,7 @@ const crypto = require("crypto");
 
 /* Дата сборки архива. Видна в ?a=ping — по ней проверяют, что в облако
    загрузился именно свежий paloma-pay.zip, а не старый. */
-const BUILD = "2026-08-21-3";
+const BUILD = "2026-08-21-4";
 
 /* ── настройки из переменных окружения функции ── */
 const PK_SERVER = (process.env.PK_SERVER || "https://paloma.server.paykeeper.ru").replace(/\/+$/, "");
@@ -399,6 +399,26 @@ async function ordersLogEnsure(db) {
 /* Пишем заказ В БАЗУ ДО попытки отправки в Telegram — тогда даже если отправка
    зависнет и функцию убьёт по таймауту, заказ уже сохранён и не потеряется.
    Возвращает id записи (для последующей отметки о доставке). */
+/* Ограничитель ожидания. Возвращает null, если не успели, и НЕ бросает:
+   вызывающему коду не нужно обкладываться try/catch, а заказ не должен
+   зависеть от того, проснулась ли база. */
+async function withDeadline(promise, ms, label) {
+  let timer = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((res) => { timer = setTimeout(() => res(Symbol.for("late")), ms); }),
+    ]).then((v) => (v === Symbol.for("late")
+      ? (console.error("[deadline] не дождались:", label, ms + " мс"), null)
+      : v));
+  } catch (e) {
+    console.error("[deadline] ошибка:", label, e && e.message);
+    return null;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 async function logOrder(orderId, kind, text, meta) {
   /* Параллельно кладём заказ в CRM (crm.js) — там те же данные, но полями,
      чтобы админка умела искать и вести статус. Журнал остаётся как есть:
@@ -511,20 +531,45 @@ rebuildCatalog();
    подряд идущие запросы базу не дёргают. Если база недоступна — молча
    остаёмся на встроенном прайсе, оплата старых товаров продолжает работать. */
 const CATALOG_TTL_MS = 60000;
+/* Жёсткий потолок на чтение каталога. Заказ важнее свежих цен: если база
+   просыпается дольше, чем нужно (Neon после простоя, холодный старт), мы НЕ
+   имеем права утянуть за собой весь запрос — иначе функцию убьёт по таймауту
+   и заказ не дойдёт ни в Telegram, ни в панель. Не успели — работаем по
+   встроенному прайсу. */
+const CATALOG_WAIT_MS = 2500;
+/* Потолки на запись в базу на пути заказа. Заказ уже ушёл в Telegram —
+   ждать медленную базу дольше незачем. */
+const LOG_WAIT_MS = 4000;
+const MARK_WAIT_MS = 1500;
 let catalogLoadedAt = 0;
 let catalogFromDb = false;
+
+async function readCatalog() {
+  const list = await require("./products.js").listForPricing();
+  if (Array.isArray(list) && list.length) {
+    PRODUCTS = list;
+    catalogFromDb = true;
+    rebuildCatalog();
+  }
+}
+
 async function refreshCatalog() {
   if (catalogLoadedAt && Date.now() - catalogLoadedAt < CATALOG_TTL_MS) return catalogFromDb;
   catalogLoadedAt = Date.now();
+  let timer = null;
   try {
-    const list = await require("./products.js").listForPricing();
-    if (Array.isArray(list) && list.length) {
-      PRODUCTS = list;
-      catalogFromDb = true;
-      rebuildCatalog();
-    }
+    await Promise.race([
+      readCatalog(),
+      new Promise((_, rej) => {
+        timer = setTimeout(() => rej(new Error("каталог не ответил за " + CATALOG_WAIT_MS + " мс")), CATALOG_WAIT_MS);
+      }),
+    ]);
   } catch (e) {
-    console.error("[products] база недоступна, работаем по встроенному прайсу:", e && e.message);
+    /* Не смогли — пусть следующий запрос попробует снова, а не ждёт минуту. */
+    catalogLoadedAt = 0;
+    console.error("[products] работаем по встроенному прайсу:", e && e.message);
+  } finally {
+    if (timer) clearTimeout(timer);
   }
   return catalogFromDb;
 }
@@ -907,9 +952,11 @@ async function handleNotify(body, origin) {
      свой заголовок уже внутри managerText — шлём как есть + номер. */
   if (body.kind === "event_lead") {
     const msg = details + "\n№ " + orderId;
-    const logId = await logOrder(orderId, "event_lead", msg, crmMeta(body));
+    /* Сначала Telegram, потом база — это то, что менеджер реально видит. */
     const ok = await notifyManager(msg);
-    if (ok) await markDelivered(logId, orderId);
+    const logId = await withDeadline(
+      logOrder(orderId, "event_lead", msg, crmMeta(body)), LOG_WAIT_MS, "журнал заявки");
+    if (ok) await withDeadline(markDelivered(logId, orderId), MARK_WAIT_MS, "отметка о доставке");
     console.log("[paykeeper] notify event_lead", orderId, ok);
     return reply(200, { ok: true, orderId, delivered: ok }, origin);
   }
@@ -958,10 +1005,18 @@ async function handleNotify(body, origin) {
     (body.payment === "payment_on_receipt" ? " (оплата при получении)" : "");
 
   const msg = header + "\n№ " + orderId + (totalStr ? "\nСумма: " + totalStr : "") + "\n\n" + details;
-  const logId = await logOrder(orderId, body.payment || "order", msg,
-    crmMeta(body, { total: cart && !cart.error ? cart.total : 0 }));
+
+  /* ПОРЯДОК ВАЖЕН: сначала Telegram, потом база.
+     Раньше заказ сперва писался в журнал и в панель, и медленная база (Neon
+     после простоя) съедала весь таймаут функции — заказ не доходил вообще
+     никуда: ни в бот, ни в панель. Менеджер смотрит в Telegram, поэтому туда
+     отправляем первым делом, а записи в базу ограничиваем по времени. */
   const ok = await notifyManager(msg);
-  if (ok) await markDelivered(logId, orderId);
+  const logId = await withDeadline(
+    logOrder(orderId, body.payment || "order", msg,
+      crmMeta(body, { total: cart && !cart.error ? cart.total : 0 })),
+    LOG_WAIT_MS, "журнал заказа");
+  if (ok) await withDeadline(markDelivered(logId, orderId), MARK_WAIT_MS, "отметка о доставке");
   await notifyPhotos(bouquetPhotos(body), "🖼 Букеты по заказу № " + orderId);
   console.log("[paykeeper] notify", orderId, body.payment || "", ok);
   return reply(200, { ok: true, orderId, delivered: ok }, origin);
