@@ -253,6 +253,102 @@ async function pendingStore(orderId, managerText, photos, total, meta) {
 }
 /* Атомарно забирает и удаляет строку: кто первый (webhook или thank-you), тот и
    шлёт уведомление — второй получит null и не продублирует. */
+/* ── Самопроверка связи с Telegram ──────────────────────────────────
+   «Иногда не доходит» невозможно чинить вслепую: причин пять, и в логах
+   они выглядят по-разному. Этот маршрут проходит всю цепочку и говорит,
+   что именно сломано — токен, адрес чата, права бота или сеть до
+   Telegram. Шлёт в чаты одно тестовое сообщение и одно фото. */
+async function tgSelfTest() {
+  const out = {
+    настройки: {
+      токен_бота: TG_BOT_TOKEN ? "задан" : "НЕ ЗАДАН",
+      чаты: TG_CHAT_ID ? tgChatIds() : "НЕ ЗАДАНЫ",
+      адрес_api: TG_API_BASE,
+      через_прокси: TG_API_BASE.indexOf("api.telegram.org") === -1,
+    },
+    шаги: [],
+    чаты: [],
+  };
+  if (!TG_BOT_TOKEN || !TG_CHAT_ID) {
+    out.итог = "Уведомления выключены: не заданы TG_BOT_TOKEN или TG_CHAT_ID.";
+    return out;
+  }
+
+  const timed = async (name, fn) => {
+    const t0 = Date.now();
+    try {
+      const r = await fn();
+      out.шаги.push({ шаг: name, ок: r.ok, мс: Date.now() - t0, ответ: r.info });
+      return r;
+    } catch (e) {
+      out.шаги.push({ шаг: name, ок: false, мс: Date.now() - t0, ответ: String(e && e.message) });
+      return { ok: false };
+    }
+  };
+
+  /* 1. Доступен ли Telegram и жив ли токен */
+  await timed("связь с Telegram (getMe)", async () => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch(`${TG_API_BASE}/bot${TG_BOT_TOKEN}/getMe`, { signal: ctrl.signal });
+      const d = await res.json().catch(() => ({}));
+      return { ok: res.ok, info: res.ok ? "бот @" + ((d.result || {}).username || "?") : JSON.stringify(d) };
+    } finally { clearTimeout(timer); }
+  });
+
+  /* 2. По каждому чату: существует ли, и проходят ли текст и фото */
+  /* Берём настоящее фото букета: оно того же типа и веса, что уходит с
+     заказами, — проверка должна повторять боевой путь, а не облегчённый. */
+  const photoUrl = SITE + "/images/paloma/catalog/mono-hydrangea-pink.jpg";
+  let bytes = null;
+  try { bytes = await fetchPhotoBytes(photoUrl); } catch (e) { /* ниже отметим */ }
+
+  for (const chatId of tgChatIds()) {
+    const item = { чат: chatId };
+    /* существует ли чат и есть ли доступ */
+    try {
+      const res = await fetch(`${TG_API_BASE}/bot${TG_BOT_TOKEN}/getChat?chat_id=` + encodeURIComponent(chatId));
+      const d = await res.json().catch(() => ({}));
+      item.найден = res.ok;
+      if (res.ok) {
+        item.название = (d.result || {}).title || (d.result || {}).username || "";
+        item.тип = (d.result || {}).type || "";
+      } else {
+        item.ошибка = (d && d.description) || ("код " + res.status);
+      }
+    } catch (e) {
+      item.найден = false;
+      item.ошибка = String(e && e.message);
+    }
+
+    /* текст */
+    const t1 = Date.now();
+    item.текст_дошёл = await sendMessageResilient(
+      chatId,
+      "🔧 Проверка связи PALOMA. Это тестовое сообщение, заказом не является.",
+    );
+    item.текст_мс = Date.now() - t1;
+
+    /* фото */
+    if (!bytes) {
+      item.фото_дошло = false;
+      item.фото_ошибка = "не удалось скачать картинку с сайта: " + photoUrl;
+    } else {
+      const t2 = Date.now();
+      item.фото_дошло = await sendAlbumToChat(chatId, [{ bytes: bytes }], "🔧 Проверка отправки фото");
+      item.фото_мс = Date.now() - t2;
+    }
+    out.чаты.push(item);
+  }
+
+  const плохо = out.чаты.filter((c) => !c.текст_дошёл || !c.фото_дошло);
+  out.итог = плохо.length
+    ? "Есть проблемы — смотрите поля «ошибка» у чатов выше."
+    : "Всё в порядке: текст и фото доходят во все чаты.";
+  return out;
+}
+
 /* Неоплаченные заказы: счёт выставлен, деньги не пришли. Нужны, чтобы
    найти заказы, потерявшиеся до появления статуса «ждёт оплаты». */
 async function pendingList(limit) {
@@ -951,14 +1047,15 @@ module.exports.handler = async function handler(event) {
     "import-codes", "void-code", "selftest",
     "products-migrate", "products-all", "product-save", "product-delete", "product-active",
     "orders",
-    "crm-list", "crm-update", "crm-import", "crm-import-pending", "pending-list",
+    "crm-list", "crm-update", "crm-import", "crm-import-pending", "pending-list", "tg-selftest",
   ];
   const ADMIN_GET_OK =
     action === "migrate" || action === "release-expired" ||
     action === "codes-stats" || action === "selftest" ||
     action === "products-migrate" || action === "products-all" || action === "orders" ||
     action === "crm-list" || action === "crm-import" ||
-    action === "crm-import-pending" || action === "pending-list";
+    action === "crm-import-pending" || action === "pending-list" ||
+    action === "tg-selftest";
   if (method !== "POST" && !ADMIN_GET_OK)
     return reply(405, { error: "Только POST" }, origin);
 
@@ -989,6 +1086,16 @@ module.exports.handler = async function handler(event) {
         return reply(500, { error: "Ошибка журнала: " + (e && e.message) }, origin);
       }
     }
+    // ── Самопроверка Telegram: что именно не доходит и почему ──
+    if (action === "tg-selftest") {
+      try {
+        return reply(200, { ok: true, проверка: await tgSelfTest() }, origin);
+      } catch (e) {
+        console.error("[tg-selftest]", e && e.stack);
+        return reply(500, { error: "Ошибка самопроверки: " + (e && e.message) }, origin);
+      }
+    }
+
     // ── Неоплаченные заказы: счёт выставлен, деньги не пришли ──
     if (action === "pending-list") {
       try {
