@@ -1124,16 +1124,15 @@ module.exports.handler = async function handler(event) {
     /* CRM-страница шлёт пароль в ТЕЛЕ POST, а не в адресной строке: строка
        запроса оседает в логах, тело — нет. Поэтому тело разбираем у всех
        crm-действий, включая читающие. Для GET rawBody пуст — parse("{}") ок. */
-    const needsBody = action === "import-codes" || action === "void-code" ||
-      action === "product-save" || action === "product-delete" ||
-      action === "product-active" || action === "product-image" ||
-      action === "products-reorder" ||
-      action.indexOf("crm-") === 0;
+    /* Тело разбираем у ВСЕХ админ-действий, а не у избранных.
+       Панели шлют пароль в ТЕЛЕ POST, а не в адресной строке: query-строка
+       оседает в логах функции и в истории браузера, тело — нет. Пока список
+       вёлся вручную, забытое в нём действие отвечало «Нет доступа» на верный
+       пароль — ровно так сломалась панель каталога на products-all.
+       Для GET тело пустое, JSON.parse("{}") отрабатывает вхолостую. */
     let bodyObj = {};
-    if (needsBody) {
-      try { bodyObj = JSON.parse(rawBody(event) || "{}"); }
-      catch { return reply(400, { error: "Некорректный JSON" }, origin); }
-    }
+    try { bodyObj = JSON.parse(rawBody(event) || "{}"); }
+    catch { return reply(400, { error: "Некорректный JSON" }, origin); }
     const token = qs.token || bodyObj.token;
     if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN)
       return reply(403, { error: "Нет доступа" }, origin);
