@@ -24,3 +24,7 @@ IMG_20*.jpg
 
 # Claude session files
 .claude/
+
+# временный локальный сервер и черновик портфолио — не для сайта
+_devserver.js
+portfolio-paloma.html
