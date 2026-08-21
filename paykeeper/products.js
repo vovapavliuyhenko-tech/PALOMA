@@ -54,28 +54,57 @@ async function ensureSettings() {
      )`
   );
 }
-async function wasSeeded() {
+/* Отметка хранит, СКОЛЬКО товаров было в прайсе на момент переноса. Первая
+   версия писала туда просто дату — по такой отметке нельзя понять, доехал
+   перенос целиком или оборвался. Значение без числа считаем недостоверным
+   и проверяем каталог заново (один раз). */
+async function seededMark() {
   await ensureSettings();
   const r = await query(`SELECT value FROM app_settings WHERE key = 'catalog_seeded'`);
-  return r.rows.length > 0;
+  if (!r.rows.length) return null;
+  const raw = String(r.rows[0].value || "");
+  try {
+    const box = JSON.parse(raw);
+    if (box && typeof box.count === "number") return box;
+  } catch (e) { /* старая отметка — просто дата */ }
+  return { count: null, legacy: true };
 }
-async function markSeeded() {
+async function markSeeded(count) {
   await ensureSettings();
   await query(
-    `INSERT INTO app_settings (key, value) VALUES ('catalog_seeded', now()::text)
-     ON CONFLICT (key) DO NOTHING`
+    `INSERT INTO app_settings (key, value, updated_at)
+       VALUES ('catalog_seeded', $1, now())
+     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+    [JSON.stringify({ at: new Date().toISOString(), count: Number(count) || 0 })]
   );
 }
 
 /* Первое открытие админки: каталог наполняется сам, вручную ничего нажимать
-   не нужно. Повторно не срабатывает — ни при пустой таблице, ни при обновлении
-   функции: отметка о переносе лежит в базе. */
+   не нужно. Отметку ставим ТОЛЬКО когда перенос дошёл до конца — оборвавшийся
+   на полпути возобновится при следующем открытии панели.
+
+   Отдельно лечим каталоги, перенесённые сломанной версией: у них отметка без
+   числа, поэтому один раз досылаем недостающее и переписываем отметку. */
 async function autoSeed(getSeed) {
   await ensureTable();
-  if (await wasSeeded()) return { seeded: 0, skipped: true };
-  const res = await insertMissing(getSeed() || []);
-  await markSeeded();
-  return { seeded: res.added, skipped: false };
+  const mark = await seededMark();
+  const seed = getSeed() || [];
+
+  if (mark && !mark.legacy && mark.count >= seed.length) {
+    return { seeded: 0, skipped: true };
+  }
+
+  const res = await insertMissing(seed);
+  const cnt = await query(`SELECT COUNT(*)::int AS n FROM products`);
+  const complete = cnt.rows[0].n >= seed.length;
+  /* Не дошло до конца — отметку не ставим, следующий заход продолжит. */
+  if (complete) await markSeeded(seed.length);
+  return {
+    seeded: res.added,
+    skipped: false,
+    repaired: !!(mark && mark.legacy && res.added),
+    complete,
+  };
 }
 
 /* Досыпать в каталог товары встроенного прайса, которых там нет.
@@ -116,8 +145,23 @@ async function insertMissing(seedArr) {
    это лечение оборвавшегося переноса, а не повторный перенос. */
 async function restoreMissing(seedArr) {
   const res = await insertMissing(seedArr);
-  await markSeeded();
+  await markSeeded((seedArr || []).length);
   return res;
+}
+
+/* Публичная сводка для проверки «доехала ли новая функция». Без токена:
+   ничего секретного, только числа и дата сборки. */
+async function health(seedCount) {
+  await ensureTable();
+  const cnt = await query(`SELECT COUNT(*)::int AS n FROM products`);
+  const act = await query(`SELECT COUNT(*)::int AS n FROM products WHERE active = TRUE`);
+  const mark = await seededMark();
+  return {
+    товаров_в_прайсе: seedCount,
+    товаров_в_базе: cnt.rows[0].n,
+    из_них_видно_на_сайте: act.rows[0].n,
+    перенос_завершён: !!(mark && !mark.legacy && mark.count >= seedCount),
+  };
 }
 
 // Публичный список для сайта — только активные, в порядке сортировки.
@@ -346,5 +390,5 @@ async function getImage(id) {
 
 module.exports = {
   ensureTable, listActive, listAll, save, remove, setActive, slugify,
-  reorder, saveImage, getImage, listForPricing, autoSeed, restoreMissing, buildSizes,
+  reorder, saveImage, getImage, listForPricing, autoSeed, restoreMissing, health, buildSizes,
 };

@@ -18,6 +18,10 @@
 
 const crypto = require("crypto");
 
+/* Дата сборки архива. Видна в ?a=ping — по ней проверяют, что в облако
+   загрузился именно свежий paloma-pay.zip, а не старый. */
+const BUILD = "2026-08-21-3";
+
 /* ── настройки из переменных окружения функции ── */
 const PK_SERVER = (process.env.PK_SERVER || "https://paloma.server.paykeeper.ru").replace(/\/+$/, "");
 const PK_USER = process.env.PK_USER || "";
@@ -1063,6 +1067,21 @@ module.exports.handler = async function handler(event) {
 
   if (method === "OPTIONS") return { statusCode: 204, headers: cors(origin), body: "" };
 
+  /* ── Проверка «какая версия функции сейчас работает». Без токена: отдаём
+     только версию сборки и количества товаров, ничего секретного. Нужна,
+     чтобы после загрузки нового архива было видно, доехал он или нет. ── */
+  if (action === "ping") {
+    const out = { ok: true, версия: BUILD };
+    try {
+      require("./paloma-products.js");
+      const seed = (global.window && global.window.PALOMA_PRODUCTS) || [];
+      Object.assign(out, await require("./products.js").health(seed.length));
+    } catch (e) {
+      out.база = "недоступна: " + (e && e.message);
+    }
+    return reply(200, out, origin);
+  }
+
   // ── Публичный каталог из базы (для сайта). GET и POST, без токена. ──
   if (action === "products") {
     try {
@@ -1215,7 +1234,9 @@ module.exports.handler = async function handler(event) {
              со своим списком и предлагает дозагрузить, если перенос оборвался. */
           return reply(200, {
             ok: true,
+            версия: BUILD,
             seeded: seeded.seeded || 0,
+            repaired: !!seeded.repaired,
             builtIn: builtInPrice().length,
             products: list,
           }, origin);
