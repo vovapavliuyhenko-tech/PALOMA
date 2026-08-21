@@ -10,6 +10,7 @@ Disallow: /thank-you.html
 Disallow: /order.html
 Disallow: /admin.html
 Disallow: /crm.html
+Disallow: /catalog-admin.html
 
 # Метки рекламных кампаний не создают отдельные страницы в индексе
 Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content&yclid&gclid

@@ -74,6 +74,15 @@ async function listActive() {
   return r.rows.map((row) => row.data);
 }
 
+/* Список для проверки цены на бэкенде — ВКЛЮЧАЯ скрытые товары.
+   Скрытый товар мог остаться у покупателя в корзине: с витрины он пропал,
+   но оплатить его нужно дать — иначе на кассе вылезет «неизвестный товар». */
+async function listForPricing() {
+  await ensureTable();
+  const r = await query(`SELECT data FROM products ORDER BY sort ASC, id ASC`);
+  return r.rows.map((row) => row.data);
+}
+
 // Полный список для админки — с метаданными (active/sort/updated).
 async function listAll() {
   await ensureTable();
@@ -176,6 +185,74 @@ async function setActive(id, active) {
   return { updated: r.rowCount, active: !!active };
 }
 
+
+
+/* ── Порядок вывода: админка присылает id в нужной последовательности ── */
+async function reorder(ids) {
+  await ensureTable();
+  if (!Array.isArray(ids) || !ids.length) throw new Error("Пустой список порядка");
+  if (ids.length > 500) throw new Error("Слишком длинный список");
+  for (let i = 0; i < ids.length; i++) {
+    await query(`UPDATE products SET sort = $2, updated_at = now() WHERE id = $1`,
+      [String(ids[i]), i]);
+  }
+  return { ordered: ids.length };
+}
+
+/* ════════════════════════════════════════════════════════
+   Фотографии товаров.
+
+   Храним в базе, а отдаём наружу ссылкой «?a=img&id=…»: так админке не нужны
+   ни бакет, ни ключи Object Storage — клиентка просто выбирает файл. Браузер
+   перед отправкой ужимает снимок до ~1600 px, поэтому строки небольшие.
+   ════════════════════════════════════════════════════════ */
+let imgReady = false;
+async function ensureImages() {
+  if (imgReady) return;
+  await query(
+    `CREATE TABLE IF NOT EXISTS product_images (
+       id         TEXT PRIMARY KEY,
+       mime       TEXT NOT NULL,
+       body       TEXT NOT NULL,
+       bytes      INTEGER NOT NULL DEFAULT 0,
+       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+     )`
+  );
+  imgReady = true;
+}
+
+const IMG_MIME = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+const IMG_MAX_BYTES = 2 * 1024 * 1024; // запрос и ответ функции ограничены 3,5 МБ
+
+// Принять data:URL из админки, вернуть { id } для ссылки «?a=img&id=…».
+async function saveImage(dataUrl) {
+  await ensureImages();
+  const m = /^data:([a-z/+.-]+);base64,([A-Za-z0-9+/=\s]+)$/i.exec(String(dataUrl || "").trim());
+  if (!m) throw new Error("Это не картинка (ожидается data:image/…;base64)");
+  const mime = m[1].toLowerCase();
+  if (!IMG_MIME[mime]) throw new Error("Формат не поддерживается: " + mime + ". Нужен JPG, PNG или WEBP");
+  const body = m[2].replace(/\s+/g, "");
+  const bytes = Math.floor((body.length * 3) / 4);
+  if (bytes < 100) throw new Error("Файл пустой");
+  if (bytes > IMG_MAX_BYTES) throw new Error("Файл больше 2 МБ — уменьшите снимок");
+  const id = "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  await query(
+    `INSERT INTO product_images (id, mime, body, bytes) VALUES ($1,$2,$3,$4)`,
+    [id, mime, body, bytes]
+  );
+  return { id, mime, bytes };
+}
+
+// Отдать картинку по ссылке (публично, без токена).
+async function getImage(id) {
+  await ensureImages();
+  id = String(id || "").trim();
+  if (!/^[A-Za-z0-9_-]{4,64}$/.test(id)) return null;
+  const r = await query(`SELECT mime, body FROM product_images WHERE id = $1`, [id]);
+  return r.rows.length ? r.rows[0] : null;
+}
+
 module.exports = {
   ensureTable, seedIfEmpty, listActive, listAll, save, remove, setActive, slugify,
+  reorder, saveImage, getImage, listForPricing,
 };

@@ -460,7 +460,7 @@ function normPhotos(photos) {
 global.window = global.window || {};
 require("./paloma-products.js");
 require("./coffee-menu-data.js");
-const PRODUCTS = global.window.PALOMA_PRODUCTS || [];
+let PRODUCTS = global.window.PALOMA_PRODUCTS || [];
 const COFFEE = global.window.PALOMA_COFFEE_MENU || [];
 
 /* Максимум добавок к кофе: молоко 100 + сироп 60 (см. COLD_ADDONS в coffee-ea.js) */
@@ -470,28 +470,60 @@ const OPEN_MIN = 100;
 const OPEN_MAX = 300000;
 const DELIVERY_ALLOWED = [0, 350];
 
-/* Товары с фиксированной ценой: допы букета + апселлы чекаута */
-const FIXED = {};
-PRODUCTS.forEach((p) => {
-  (p.addons || []).forEach((a) => {
-    FIXED[a.id] = Math.max(FIXED[a.id] || 0, Number(a.price) || 0);
-  });
-});
-Object.assign(FIXED, {
-  "upsell-coffee": 250,
-  "upsell-vase": 1500,
-  "upsell-secateurs": 1000,
-  "upsell-dessert": 190,
-});
+/* Товары с фиксированной ценой: допы букета + апселлы чекаута.
+   Пересобирается при обновлении каталога из базы — см. rebuildCatalog. */
+let FIXED = {};
 
 /* Префиксы каталожных id (c — букеты и вазы, m — моно, w — свадебные).
    Берём из самого прайса: иначе новая группа товаров молча проваливается
    в диапазон «свободной суммы» и её цену можно подменить в браузере. */
-const CATALOG_ID_RE = new RegExp(
-  "^((?:" +
-    [...new Set(PRODUCTS.map((p) => (String(p.id).match(/^([a-z]+)\d+$/i) || [])[1]).filter(Boolean))].join("|") +
-    ")\\d+)(?:[-_]|$)",
-);
+let CATALOG_ID_RE = /^$/;
+
+function rebuildCatalog() {
+  FIXED = {};
+  PRODUCTS.forEach((p) => {
+    (p.addons || []).forEach((a) => {
+      FIXED[a.id] = Math.max(FIXED[a.id] || 0, Number(a.price) || 0);
+    });
+  });
+  Object.assign(FIXED, {
+    "upsell-coffee": 250,
+    "upsell-vase": 1500,
+    "upsell-secateurs": 1000,
+    "upsell-dessert": 190,
+  });
+  const prefixes = [
+    ...new Set(
+      PRODUCTS.map((p) => (String(p.id).match(/^([a-z]+)\d+$/i) || [])[1]).filter(Boolean),
+    ),
+  ];
+  CATALOG_ID_RE = new RegExp("^((?:" + prefixes.join("|") + ")\\d+)(?:[-_]|$)");
+}
+rebuildCatalog();
+
+/* ── Каталог из базы ────────────────────────────────────────────────────────
+   Товары правятся в админке, а цену при оплате проверяет эта функция — значит
+   она обязана знать новые товары. Держим список в памяти тёплого экземпляра:
+   подряд идущие запросы базу не дёргают. Если база недоступна — молча
+   остаёмся на встроенном прайсе, оплата старых товаров продолжает работать. */
+const CATALOG_TTL_MS = 60000;
+let catalogLoadedAt = 0;
+let catalogFromDb = false;
+async function refreshCatalog() {
+  if (catalogLoadedAt && Date.now() - catalogLoadedAt < CATALOG_TTL_MS) return catalogFromDb;
+  catalogLoadedAt = Date.now();
+  try {
+    const list = await require("./products.js").listForPricing();
+    if (Array.isArray(list) && list.length) {
+      PRODUCTS = list;
+      catalogFromDb = true;
+      rebuildCatalog();
+    }
+  } catch (e) {
+    console.error("[products] база недоступна, работаем по встроенному прайсу:", e && e.message);
+  }
+  return catalogFromDb;
+}
 
 /* Категории, которые считаем «букетом» — только их фото шлём менеджеру.
    Вазы, десерты, подписка, оформление, кофе и допы в фото не попадают. */
@@ -1009,6 +1041,7 @@ module.exports._verifyCart = verifyCart;
 module.exports._handleWebhook = handleWebhook;
 module.exports._handleNotify = handleNotify;
 module.exports._bouquetPhotos = bouquetPhotos;
+module.exports._refreshCatalog = refreshCatalog;
 
 module.exports.handler = async function handler(event) {
   const headers = event.headers || {};
@@ -1041,11 +1074,36 @@ module.exports.handler = async function handler(event) {
     }
   }
 
+  /* ── Фото товара по ссылке из каталога. Публично: картинки открывает
+     любой посетитель, а браузеру разрешаем держать их в кэше — файл под
+     конкретным id не меняется никогда (новое фото = новый id). ── */
+  if (action === "img") {
+    try {
+      const id = (event.queryStringParameters || {}).id;
+      const img = await require("./products.js").getImage(id);
+      if (!img) return reply(404, { error: "Нет такой картинки" }, origin);
+      return {
+        statusCode: 200,
+        headers: {
+          "Content-Type": img.mime,
+          "Cache-Control": "public, max-age=31536000, immutable",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: img.body,
+        isBase64Encoded: true,
+      };
+    } catch (e) {
+      console.error("[products] image error", e && e.stack);
+      return reply(500, { error: "Ошибка картинки" }, origin);
+    }
+  }
+
   // Часть админ-маршрутов разрешаем и по GET — чтобы можно было «просто открыть ссылку».
   const ADMIN_ACTIONS = [
     "migrate", "release-expired", "codes-stats",
     "import-codes", "void-code", "selftest",
-    "products-migrate", "products-all", "product-save", "product-delete", "product-active",
+    "products-migrate", "products-all", "products-reorder",
+    "product-save", "product-delete", "product-active", "product-image",
     "orders",
     "crm-list", "crm-update", "crm-import", "crm-import-pending", "pending-list", "tg-selftest",
   ];
@@ -1067,7 +1125,9 @@ module.exports.handler = async function handler(event) {
        запроса оседает в логах, тело — нет. Поэтому тело разбираем у всех
        crm-действий, включая читающие. Для GET rawBody пуст — parse("{}") ок. */
     const needsBody = action === "import-codes" || action === "void-code" ||
-      action === "product-save" || action === "product-delete" || action === "product-active" ||
+      action === "product-save" || action === "product-delete" ||
+      action === "product-active" || action === "product-image" ||
+      action === "products-reorder" ||
       action.indexOf("crm-") === 0;
     let bodyObj = {};
     if (needsBody) {
@@ -1134,6 +1194,7 @@ module.exports.handler = async function handler(event) {
     if (action.indexOf("product") === 0) {
       try {
         const products = require("./products.js");
+        catalogLoadedAt = 0; // каталог правили — перечитать при следующем заказе
         if (action === "products-migrate") {
           require("./paloma-products.js"); // наполняем global.window.PALOMA_PRODUCTS
           const seed = (global.window && global.window.PALOMA_PRODUCTS) || [];
@@ -1147,6 +1208,13 @@ module.exports.handler = async function handler(event) {
           return reply(200, { ok: true, ...(await products.remove(bodyObj.id)) }, origin);
         if (action === "product-active")
           return reply(200, { ok: true, ...(await products.setActive(bodyObj.id, bodyObj.active)) }, origin);
+        if (action === "products-reorder")
+          return reply(200, { ok: true, ...(await products.reorder(bodyObj.ids)) }, origin);
+        if (action === "product-image") {
+          const saved = await products.saveImage(bodyObj.dataUrl);
+          /* Ссылку собирает админка: адрес функции знает только она. */
+          return reply(200, { ok: true, ...saved, path: "?a=img&id=" + saved.id }, origin);
+        }
       } catch (e) {
         console.error("[products] admin action error", e && e.stack);
         return reply(500, { error: "Ошибка: " + (e && e.message) }, origin);
@@ -1179,6 +1247,10 @@ module.exports.handler = async function handler(event) {
   }
 
   try {
+    /* Подтягиваем товары из базы: без этого новый товар из админки
+       не пройдёт проверку цены и покупатель увидит «Неизвестный товар». */
+    await refreshCatalog();
+
     if (action === "webhook") return await handleWebhook(event);
 
     let body;

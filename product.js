@@ -852,4 +852,21 @@
   }
 
   init();
+
+  /* Каталог обновился из базы (products-live.js). Если страница показывала
+     «товар не найден» — а он только что появился в каталоге, — перезагружаем
+     страницу: свежий список уже лежит в кэше браузера и отрисуется сразу.
+     Перезагрузка (а не повторный init) выбрана намеренно — showNotFound уже
+     спрятал блоки страницы, и восстанавливать их поштучно ненадёжно.
+     Товар, который отрисован, не трогаем: обработчики уже навешаны. */
+  (window.PALOMA_RERENDER = window.PALOMA_RERENDER || []).push(function () {
+    if (product) return;
+    if (!findProducts(new URLSearchParams(location.search).get("slug") ||
+                      new URLSearchParams(location.search).get("id")).norm) return;
+    try {
+      if (sessionStorage.getItem("paloma:pdp-reloaded") === location.search) return;
+      sessionStorage.setItem("paloma:pdp-reloaded", location.search);
+    } catch (e) { /* приватный режим — просто перезагрузим */ }
+    location.reload();
+  });
 })();

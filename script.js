@@ -897,15 +897,13 @@ function initHero() {}
   const showcaseGrid = document.getElementById("showcaseGrid");
   if (!showcaseGrid) return;
 
-  const products = window.PALOMA_CATALOG?.getAll?.() || [];
-  if (!products.length) return;
-
-  const onlineProducts = products.filter((p) =>
-    p.categories?.includes("online"),
-  );
-  const showcaseProducts = (
-    onlineProducts.length >= 4 ? onlineProducts : products
-  ).slice(0, 8);
+  /* Список пересчитываем при каждой отрисовке: каталог могли обновить из базы
+     уже после загрузки страницы (products-live.js). */
+  function pickShowcase() {
+    const all = window.PALOMA_CATALOG?.getAll?.() || [];
+    const online = all.filter((p) => p.categories?.includes("online"));
+    return (online.length >= 4 ? online : all).slice(0, 8);
+  }
 
   function esc(str) {
     return String(str)
@@ -1117,11 +1115,18 @@ function initHero() {}
     });
   }
 
-  fillGrid(showcaseGrid, showcaseProducts);
-  bindCartClicks(showcaseGrid);
+  function paintShowcase() {
+    showcaseGrid.innerHTML = "";
+    fillGrid(showcaseGrid, pickShowcase());
+    window.PalomaWishlist?.syncButtons?.();
+    window.palomaRebindCursorHovers?.();
+  }
 
-  window.PalomaWishlist?.syncButtons?.();
-  window.palomaRebindCursorHovers?.();
+  paintShowcase();
+  bindCartClicks(showcaseGrid); // клики делегированы сетке — вешаем один раз
+
+  /* Каталог обновился из базы — перерисовываем витрину. */
+  (window.PALOMA_RERENDER = window.PALOMA_RERENDER || []).push(paintShowcase);
 })();
 
 /* ════════════════════════════════════════════════════════

@@ -209,6 +209,9 @@
 
   render();
 
+  /* Каталог обновился из базы (products-live.js) — перечитываем товары. */
+  (window.PALOMA_RERENDER = window.PALOMA_RERENDER || []).push(render);
+
   window.addEventListener("storage", (e) => {
     if (e.key === "paloma_wishlist") render();
   });

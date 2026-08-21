@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Cache-Control" content="no-cache">
+<title>PALOMA — каталог товаров</title>
+<style>
+  :root{
+    --ink:#1b1a18; --paper:#fff; --bg:#faf8f5; --line:#e6e0d8;
+    --muted:#8a857c; --accent:#E7385A; --accent-dark:#C82847;
+    --ok:#1e8f5f; --err:#c92c3d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
+    font-family:"Montserrat",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+    -webkit-text-size-adjust:100%}
+  .wrap{max-width:960px;margin:0 auto;padding:20px 16px 120px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:18px;margin-bottom:16px}
+  label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px}
+  input,select,textarea{width:100%;padding:11px 12px;border:1px solid #cfc7bb;
+    border-radius:10px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+  textarea{min-height:82px;resize:vertical}
+  .btn{display:inline-flex;align-items:center;gap:7px;justify-content:center;
+    padding:11px 18px;border:1px solid var(--ink);border-radius:999px;background:var(--ink);
+    color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none}
+  .btn:hover{opacity:.88}
+  .btn--ghost{background:#fff;color:var(--ink)}
+  .btn--accent{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn--danger{background:#fff;color:var(--err);border-color:var(--err)}
+  .btn--sm{padding:7px 13px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:150px}
+  .hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+  .msg{margin:12px 0 0;font-size:14px;font-weight:600;min-height:20px}
+  .msg.ok{color:var(--ok)} .msg.err{color:var(--err)}
+  .hidden{display:none !important}
+
+  /* список товаров */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .toolbar input[type=search]{flex:1;min-width:180px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;
+    font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .tab.is-on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .item{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:12px;margin-bottom:10px}
+  .item.is-off{opacity:.55}
+  .item__pic{width:74px;height:92px;flex:0 0 74px;border-radius:10px;object-fit:cover;
+    background:#efe9e1;display:block}
+  .item__body{flex:1;min-width:0}
+  .item__name{font-weight:700;font-size:15px;margin:0 0 2px;word-break:break-word}
+  .item__meta{font-size:12.5px;color:var(--muted);margin:0 0 8px}
+  .item__price{font-weight:700;color:var(--ink)}
+  .item__acts{display:flex;gap:6px;flex-wrap:wrap}
+  .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;
+    padding:2px 8px;border-radius:999px;background:#f1ece5;color:var(--muted);margin-left:6px}
+  .pill--off{background:#fdecef;color:var(--err)}
+  .pill--badge{background:#eaf6f0;color:var(--ok)}
+  .arrows{display:flex;flex-direction:column;gap:4px}
+  .arrows button{width:30px;height:26px;padding:0;border:1px solid var(--line);border-radius:7px;
+    background:#fff;cursor:pointer;font-size:13px;line-height:1;color:var(--ink)}
+  .arrows button:disabled{opacity:.3;cursor:not-allowed}
+
+  /* форма товара */
+  .cats{display:flex;flex-wrap:wrap;gap:8px}
+  .cats label{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:500;
+    font-size:13px;border:1px solid var(--line);border-radius:999px;padding:7px 13px;
+    cursor:pointer;background:#fff}
+  .cats input{width:auto;padding:0;margin:0}
+  .cats label.is-on{border-color:var(--ink);background:var(--ink);color:#fff}
+  .drop{border:2px dashed #cfc7bb;border-radius:14px;padding:18px;text-align:center;
+    background:#fdfcfa;cursor:pointer}
+  .drop.is-over{border-color:var(--accent);background:#fff5f7}
+  .drop input{display:none}
+  .preview{max-width:170px;border-radius:12px;display:block;margin:0 auto 10px}
+  .sticky{position:sticky;bottom:0;display:flex;gap:10px;flex-wrap:wrap;
+    padding:16px 0 8px;
+    background:linear-gradient(180deg,rgba(255,255,255,0) 0,#fff 26%)}
+  @media (max-width:520px){
+    .item__pic{width:60px;height:76px;flex-basis:60px}
+    .sticky .btn{flex:1}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Каталог товаров</h1>
+  <p class="sub">Добавить, изменить, скрыть или удалить товар. Изменения появляются на сайте сразу.</p>
+
+  <!-- ВХОД -->
+  <section class="card" id="gate">
+    <label for="pass">Пароль администратора</label>
+    <input id="pass" type="password" autocomplete="current-password" placeholder="введите пароль">
+    <p class="hint">Тот же пароль, что у панели заказов.</p>
+    <div style="margin-top:14px"><button class="btn" id="btnLogin">Войти</button></div>
+    <p class="msg" id="gateMsg"></p>
+  </section>
+
+  <!-- РАБОЧАЯ ОБЛАСТЬ -->
+  <main id="app" class="hidden">
+
+    <div class="toolbar">
+      <button class="btn btn--accent" id="btnNew">+ Добавить товар</button>
+      <input type="search" id="search" placeholder="Поиск по названию…">
+      <button class="btn btn--ghost btn--sm" id="btnReload">Обновить</button>
+      <button class="btn btn--ghost btn--sm" id="btnExit">Выйти</button>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+
+    <p class="msg" id="listMsg"></p>
+    <div id="list"></div>
+
+    <!-- первичный перенос -->
+    <section class="card hidden" id="migrateBox">
+      <h2 style="font-size:17px;margin:0 0 6px">База каталога пока пуста</h2>
+      <p class="hint" style="margin:0 0 14px">Один раз нужно перенести в неё товары,
+        которые сейчас показывает сайт. Существующие товары и цены не изменятся.</p>
+      <button class="btn" id="btnMigrate">Перенести каталог в базу</button>
+    </section>
+  </main>
+
+  <!-- ФОРМА ТОВАРА -->
+  <section class="card hidden" id="editor">
+    <h2 style="font-size:18px;margin:0 0 14px" id="editorTitle">Новый товар</h2>
+
+    <label>Фотография</label>
+    <div class="drop" id="drop">
+      <img id="preview" class="preview hidden" alt="">
+      <div id="dropText">Нажмите, чтобы выбрать фото<br>
+        <span class="hint">или перетащите файл сюда</span></div>
+      <input type="file" id="file" accept="image/jpeg,image/png,image/webp">
+    </div>
+    <p class="hint">Снимок уменьшается автоматически. Вертикальный кадр смотрится лучше.
+      Формат — JPG, PNG или WEBP.</p>
+
+    <div class="row">
+      <div>
+        <label for="fName">Название</label>
+        <input id="fName" type="text" placeholder="например: Букет «Камелия»">
+      </div>
+      <div style="flex:0 0 170px;min-width:140px">
+        <label for="fPrice">Цена, ₽</label>
+        <input id="fPrice" type="number" inputmode="numeric" min="0" step="10" placeholder="3500">
+      </div>
+    </div>
+
+    <label>Разделы каталога</label>
+    <div class="cats" id="cats"></div>
+    <p class="hint">Отметьте хотя бы один. Фото товара уходит менеджеру в Telegram
+      только для букетных разделов.</p>
+
+    <label for="fComposition">Состав</label>
+    <textarea id="fComposition" placeholder="Пионовидная роза, эустома, эвкалипт"></textarea>
+
+    <label for="fDesc">Описание</label>
+    <textarea id="fDesc" placeholder="Пара фраз о букете — их видно на странице товара"></textarea>
+
+    <div class="row">
+      <div>
+        <label for="fBadge">Плашка на карточке</label>
+        <select id="fBadge">
+          <option value="">без плашки</option>
+          <option value="Хит">Хит</option>
+          <option value="Новинка">Новинка</option>
+          <option value="Сезон">Сезон</option>
+        </select>
+      </div>
+      <div>
+        <label for="fActive">Показывать на сайте</label>
+        <select id="fActive">
+          <option value="1">да, товар в продаже</option>
+          <option value="0">нет, скрыт от покупателей</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="fSlug">Адрес страницы <span style="font-weight:400;color:#8a857c">(можно не трогать)</span></label>
+    <input id="fSlug" type="text" placeholder="заполнится само">
+    <p class="hint">Товар откроется по ссылке
+      paloma.website/product.html?slug=<span id="slugEcho">…</span></p>
+
+    <p class="msg" id="editorMsg"></p>
+
+    <div class="sticky">
+      <button class="btn btn--accent" id="btnSave">Сохранить</button>
+      <button class="btn btn--ghost" id="btnCancel">Отмена</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var FN = "https://functions.yandexcloud.net/d4ek26aklvok10biu54h";
+  var KEY = "paloma:catalog-admin:pass";
+
+  var CATS = [
+    ["online", "Онлайн-витрина"],
+    ["season", "Самый сезон"],
+    ["bestsellers", "Бестселлеры"],
+    ["compositions", "Композиции и корзины"],
+    ["mono", "Моно и дуобукеты"],
+    ["duo", "Дуобукеты"],
+    ["authors", "Авторские"],
+    ["wedding", "Свадебные"],
+    ["vases", "Вазы и подарки"],
+    ["desserts", "Десерты"]
+  ];
+  var CAT_LABEL = {};
+  CATS.forEach(function (c) { CAT_LABEL[c[0]] = c[1]; });
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function say(el, text, cls) { el.textContent = text || ""; el.className = "msg " + (cls || ""); }
+
+  var pass = "";
+  var items = [];           // весь каталог из базы
+  var filterCat = "all";
+  var editing = null;       // редактируемый товар (null = новый)
+  var pendingImage = null;  // data:URL нового фото, ещё не загруженного
+
+  /* ── сеть ───────────────────────────────────────────────
+     Пароль шлём в ТЕЛЕ запроса, а не в адресе: строка запроса оседает
+     в логах и в истории браузера, тело — нет. */
+  async function api(action, body) {
+    var res = await fetch(FN + "?a=" + action, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ token: pass }, body || {}))
+    });
+    var data;
+    try { data = await res.json(); } catch (e) { throw new Error("Сервер ответил непонятно"); }
+    if (!res.ok || data.error) throw new Error(data.error || ("Ошибка " + res.status));
+    return data;
+  }
+
+  /* ── вход ── */
+  async function login() {
+    var v = $("pass").value.trim();
+    if (!v) return say($("gateMsg"), "Введите пароль.", "err");
+    say($("gateMsg"), "Проверяю…");
+    pass = v;
+    try {
+      await load();
+      try { sessionStorage.setItem(KEY, v); } catch (e) {}
+      $("gate").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      say($("gateMsg"), "");
+    } catch (e) {
+      pass = "";
+      say($("gateMsg"), e.message === "Нет доступа" ? "Пароль не подошёл." : e.message, "err");
+    }
+  }
+
+  /* ── список ── */
+  async function load() {
+    var data = await api("products-all");
+    items = data.products || [];
+    render();
+  }
+
+  function renderTabs() {
+    var used = {};
+    items.forEach(function (p) {
+      (p.categories || []).forEach(function (c) { used[c] = (used[c] || 0) + 1; });
+    });
+    var html = '<button class="tab' + (filterCat === "all" ? " is-on" : "") +
+      '" data-cat="all">Все · ' + items.length + '</button>';
+    CATS.forEach(function (c) {
+      if (!used[c[0]]) return;
+      html += '<button class="tab' + (filterCat === c[0] ? " is-on" : "") +
+        '" data-cat="' + c[0] + '">' + esc(c[1]) + " · " + used[c[0]] + '</button>';
+    });
+    var off = items.filter(function (p) { return !p.active; }).length;
+    if (off) {
+      html += '<button class="tab' + (filterCat === "__off" ? " is-on" : "") +
+        '" data-cat="__off">Скрытые · ' + off + '</button>';
+    }
+    $("tabs").innerHTML = html;
+  }
+
+  function visible() {
+    var q = $("search").value.trim().toLowerCase();
+    return items.filter(function (p) {
+      if (filterCat === "__off" && p.active) return false;
+      if (filterCat !== "all" && filterCat !== "__off" &&
+          (p.categories || []).indexOf(filterCat) < 0) return false;
+      if (q && String(p.name || "").toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  function picOf(p) {
+    if (!p.image) return "";
+    if (/^https?:\/\//i.test(p.image) || p.image.indexOf("data:") === 0) return p.image;
+    return "https://paloma.website/" + String(p.image).replace(/^\/+/, "");
+  }
+
+  function render() {
+    renderTabs();
+    var list = visible();
+    $("migrateBox").classList.toggle("hidden", items.length > 0);
+    if (!list.length) {
+      $("list").innerHTML = "";
+      say($("listMsg"), items.length ? "Ничего не нашлось." : "Товаров пока нет.", "");
+      return;
+    }
+    say($("listMsg"), "");
+    /* Стрелки порядка показываем только в полном несортированном списке —
+       иначе «выше/ниже» переставляли бы товары не там, где их видно. */
+    var canMove = filterCat === "all" && !$("search").value.trim();
+    $("list").innerHTML = list.map(function (p, i) {
+      var cats = (p.categories || []).map(function (c) { return CAT_LABEL[c] || c; }).join(" · ");
+      var pic = picOf(p);
+      return '<div class="item' + (p.active ? "" : " is-off") + '" data-id="' + esc(p.id) + '">' +
+        (canMove
+          ? '<div class="arrows">' +
+              '<button data-act="up" title="Выше"' + (i === 0 ? " disabled" : "") + '>&#9650;</button>' +
+              '<button data-act="down" title="Ниже"' + (i === list.length - 1 ? " disabled" : "") + '>&#9660;</button>' +
+            '</div>'
+          : "") +
+        (pic ? '<img class="item__pic" src="' + esc(pic) + '" alt="" loading="lazy">'
+             : '<span class="item__pic"></span>') +
+        '<div class="item__body">' +
+          '<p class="item__name">' + esc(p.name || "без названия") +
+            (p.active ? "" : '<span class="pill pill--off">скрыт</span>') +
+            (p.badge ? '<span class="pill pill--badge">' + esc(p.badge) + '</span>' : "") +
+          '</p>' +
+          '<p class="item__meta"><span class="item__price">' +
+            Number(p.price || 0).toLocaleString("ru-RU") + " ₽</span>" +
+            (cats ? " · " + esc(cats) : "") + '</p>' +
+          '<div class="item__acts">' +
+            '<button class="btn btn--ghost btn--sm" data-act="edit">Изменить</button>' +
+            '<button class="btn btn--ghost btn--sm" data-act="toggle">' +
+              (p.active ? "Скрыть" : "Показать") + '</button>' +
+            '<button class="btn btn--danger btn--sm" data-act="del">Удалить</button>' +
+          '</div>' +
+        '</div></div>';
+    }).join("");
+  }
+
+  /* ── действия в списке ── */
+  $("list").addEventListener("click", async function (e) {
+    var btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    var box = btn.closest(".item");
+    var id = box && box.getAttribute("data-id");
+    var p = items.filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    var act = btn.getAttribute("data-act");
+
+    if (act === "edit") return openEditor(p);
+
+    if (act === "toggle") {
+      btn.disabled = true;
+      try {
+        /* Состояние берём из ответа сервера, а не переключаем у себя:
+           на экране будет то, что реально лежит в базе. */
+        var r = await api("product-active", { id: id, active: !p.active });
+        p.active = !!r.active;
+        render();
+      } catch (err) { say($("listMsg"), err.message, "err"); btn.disabled = false; }
+      return;
+    }
+
+    if (act === "del") {
+      if (!confirm("Удалить «" + (p.name || id) + "» из каталога?\n\n" +
+                   "Товар исчезнет с сайта навсегда.\n" +
+                   "Если он просто закончился — лучше нажать «Скрыть».")) return;
+      btn.disabled = true;
+      try {
+        await api("product-delete", { id: id });
+        items = items.filter(function (x) { return x.id !== id; });
+        render();
+        say($("listMsg"), "Удалено.", "ok");
+      } catch (err) { say($("listMsg"), err.message, "err"); btn.disabled = false; }
+      return;
+    }
+
+    if (act === "up" || act === "down") {
+      var idx = items.indexOf(p);
+      var to = act === "up" ? idx - 1 : idx + 1;
+      if (to < 0 || to >= items.length) return;
+      items.splice(to, 0, items.splice(idx, 1)[0]);
+      render();
+      try {
+        await api("products-reorder", { ids: items.map(function (x) { return x.id; }) });
+      } catch (err) { say($("listMsg"), "Порядок не сохранился: " + err.message, "err"); }
+    }
+  });
+
+  $("tabs").addEventListener("click", function (e) {
+    var t = e.target.closest(".tab");
+    if (!t) return;
+    filterCat = t.getAttribute("data-cat");
+    render();
+  });
+  $("search").addEventListener("input", render);
+  $("btnReload").addEventListener("click", function () {
+    say($("listMsg"), "Обновляю…");
+    load().catch(function (e) { say($("listMsg"), e.message, "err"); });
+  });
+  $("btnExit").addEventListener("click", function () {
+    try { sessionStorage.removeItem(KEY); } catch (e) {}
+    location.reload();
+  });
+
+  $("btnMigrate").addEventListener("click", async function () {
+    var b = this; b.disabled = true;
+    say($("listMsg"), "Переношу…");
+    try {
+      var r = await api("products-migrate");
+      await load();
+      say($("listMsg"), r.skipped
+        ? "База уже была заполнена."
+        : "Готово: перенесено товаров — " + r.seeded + ".", "ok");
+    } catch (e) { say($("listMsg"), e.message, "err"); }
+    b.disabled = false;
+  });
+
+  /* ── редактор ── */
+  function catsHtml(active) {
+    return CATS.map(function (c) {
+      var on = active.indexOf(c[0]) >= 0;
+      return '<label class="' + (on ? "is-on" : "") + '"><input type="checkbox" value="' +
+        c[0] + '"' + (on ? " checked" : "") + '>' + esc(c[1]) + '</label>';
+    }).join("");
+  }
+
+  function openEditor(p) {
+    editing = p || null;
+    pendingImage = null;
+    $("editorTitle").textContent = p ? "Изменить товар" : "Новый товар";
+    $("fName").value = p ? (p.name || "") : "";
+    $("fPrice").value = p ? (p.price || "") : "";
+    $("fComposition").value = p ? (p.composition || "") : "";
+    $("fDesc").value = p ? (p.desc || "") : "";
+    $("fBadge").value = p ? (p.badge || "") : "";
+    $("fActive").value = p ? (p.active ? "1" : "0") : "1";
+    $("fSlug").value = p ? (p.slug || "") : "";
+    $("slugEcho").textContent = (p && p.slug) || "…";
+    $("cats").innerHTML = catsHtml(p ? (p.categories || []) : ["online"]);
+    setPreview(p ? picOf(p) : "");
+    say($("editorMsg"), "");
+    $("app").classList.add("hidden");
+    $("editor").classList.remove("hidden");
+    window.scrollTo(0, 0);
+  }
+
+  function closeEditor() {
+    $("editor").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    editing = null;
+    pendingImage = null;
+  }
+
+  function setPreview(src) {
+    if (src) {
+      $("preview").src = src;
+      $("preview").classList.remove("hidden");
+      $("dropText").innerHTML = '<span class="hint">Нажмите, чтобы заменить фото</span>';
+    } else {
+      $("preview").classList.add("hidden");
+      $("preview").removeAttribute("src");
+      $("dropText").innerHTML = 'Нажмите, чтобы выбрать фото<br>' +
+        '<span class="hint">или перетащите файл сюда</span>';
+    }
+  }
+
+  $("cats").addEventListener("change", function (e) {
+    var l = e.target.closest("label");
+    if (l) l.classList.toggle("is-on", e.target.checked);
+  });
+
+  /* Фото ужимаем прямо в браузере: на сервер уходит компактный JPEG,
+     а не 5-мегабайтный снимок с телефона. */
+  function shrink(file) {
+    return new Promise(function (resolve, reject) {
+      if (!/^image\/(jpeg|png|webp)$/i.test(file.type || "")) {
+        return reject(new Error(
+          "Нужен JPG, PNG или WEBP. Формат HEIC с айфона не подойдёт — сохраните фото " +
+          "как JPEG (Файлы → Поделиться) или пришлите его себе в мессенджер и скачайте оттуда."));
+      }
+      var fr = new FileReader();
+      fr.onerror = function () { reject(new Error("Не удалось прочитать файл")); };
+      fr.onload = function () {
+        var img = new Image();
+        img.onerror = function () { reject(new Error("Это не картинка")); };
+        img.onload = function () {
+          var MAX = 1600;
+          var k = Math.min(1, MAX / Math.max(img.width, img.height));
+          var w = Math.round(img.width * k);
+          var h = Math.round(img.height * k);
+          var cv = document.createElement("canvas");
+          cv.width = w; cv.height = h;
+          cv.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(cv.toDataURL("image/jpeg", 0.82));
+        };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  async function takeFile(file) {
+    if (!file) return;
+    say($("editorMsg"), "Готовлю фото…");
+    try {
+      pendingImage = await shrink(file);
+      setPreview(pendingImage);
+      var kb = Math.round(pendingImage.length * 0.75 / 1024);
+      say($("editorMsg"), "Фото готово (" + kb + " КБ). Не забудьте нажать «Сохранить».", "ok");
+    } catch (e) {
+      pendingImage = null;
+      say($("editorMsg"), e.message, "err");
+    }
+  }
+
+  $("drop").addEventListener("click", function () { $("file").click(); });
+  $("file").addEventListener("change", function (e) { takeFile(e.target.files[0]); });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    $("drop").addEventListener(ev, function (e) {
+      e.preventDefault(); $("drop").classList.add("is-over");
+    });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    $("drop").addEventListener(ev, function (e) {
+      e.preventDefault(); $("drop").classList.remove("is-over");
+    });
+  });
+  $("drop").addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) takeFile(e.dataTransfer.files[0]);
+  });
+
+  $("btnNew").addEventListener("click", function () { openEditor(null); });
+  $("btnCancel").addEventListener("click", closeEditor);
+
+  $("btnSave").addEventListener("click", async function () {
+    var b = this;
+    var name = $("fName").value.trim();
+    var price = parseInt($("fPrice").value, 10);
+    var cats = [].slice.call($("cats").querySelectorAll("input:checked"))
+      .map(function (i) { return i.value; });
+
+    if (!name) return say($("editorMsg"), "Впишите название товара.", "err");
+    if (!(price > 0)) return say($("editorMsg"), "Впишите цену — число больше нуля.", "err");
+    if (!cats.length) return say($("editorMsg"), "Отметьте хотя бы один раздел каталога.", "err");
+    if (!editing && !pendingImage) return say($("editorMsg"), "Добавьте фотографию товара.", "err");
+
+    b.disabled = true;
+    try {
+      var image = editing ? (editing.image || "") : "";
+      if (pendingImage) {
+        say($("editorMsg"), "Загружаю фото…");
+        var up = await api("product-image", { dataUrl: pendingImage });
+        image = FN + up.path;
+      }
+      say($("editorMsg"), "Сохраняю…");
+      var payload = {
+        id: editing ? editing.id : "",
+        name: name,
+        price: price,
+        categories: cats,
+        composition: $("fComposition").value.trim(),
+        desc: $("fDesc").value.trim(),
+        badge: $("fBadge").value,
+        image: image,
+        active: $("fActive").value === "1"
+      };
+      var slug = $("fSlug").value.trim();
+      if (slug) payload.slug = slug;
+
+      var r = await api("product-save", { product: payload });
+      closeEditor();
+      await load();
+      say($("listMsg"), "Сохранено: " + ((r.product && r.product.name) || name) +
+        ". На сайте появится сразу — обновите страницу каталога.", "ok");
+    } catch (e) {
+      say($("editorMsg"), e.message, "err");
+    }
+    b.disabled = false;
+  });
+
+  /* ── старт ── */
+  $("btnLogin").addEventListener("click", login);
+  $("pass").addEventListener("keydown", function (e) { if (e.key === "Enter") login(); });
+
+  try {
+    var saved = sessionStorage.getItem(KEY);
+    if (saved) { $("pass").value = saved; login(); }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

@@ -344,4 +344,11 @@
   }
 
   initFromUrl();
+
+  /* Каталог обновился из базы (products-live.js) — перерисовываем сетку,
+     сохраняя выбранный посетителем фильтр. */
+  (window.PALOMA_RERENDER = window.PALOMA_RERENDER || []).push(function () {
+    setActiveFilter(currentFilter);
+    renderGrid(currentFilter);
+  });
 })();
