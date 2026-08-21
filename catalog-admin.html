@@ -74,6 +74,30 @@
     cursor:pointer;background:#fff}
   .cats input{width:auto;padding:0;margin:0}
   .cats label.is-on{border-color:var(--ink);background:var(--ink);color:#fff}
+  /* размеры букета */
+  .sizes{display:flex;flex-direction:column;gap:8px}
+  .size-row{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);
+    border-radius:12px;padding:9px 11px}
+  .size-row input[type=radio]{width:auto;margin:0;flex:0 0 auto;accent-color:var(--accent)}
+  .size-row .s-code{flex:0 0 74px;min-width:0;text-transform:uppercase;text-align:center;font-weight:700}
+  .size-row .s-note{flex:1 1 130px;min-width:0}
+  .size-row .s-delta{flex:0 0 122px;min-width:0;text-align:right}
+  .size-row .s-del{flex:0 0 auto;width:30px;height:30px;padding:0;border:1px solid var(--line);
+    border-radius:8px;background:#fff;color:var(--err);cursor:pointer;font-size:15px;line-height:1}
+  .size-row .s-del:disabled{opacity:.3;cursor:not-allowed}
+  .size-row.is-service .s-code{color:var(--muted);background:#f7f4f0;font-weight:500}
+  .sizes-add{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .sizes-head{display:flex;gap:8px;font-size:11px;color:var(--muted);font-weight:700;
+    letter-spacing:.03em;text-transform:uppercase;padding:0 11px}
+  .sizes-head .h-photo{flex:0 0 13px} .sizes-head .h-code{flex:0 0 74px;text-align:center}
+  .sizes-head .h-note{flex:1 1 130px} .sizes-head .h-delta{flex:0 0 122px;text-align:right}
+  .sizes-head .h-del{flex:0 0 30px}
+  @media (max-width:560px){
+    .size-row{flex-wrap:wrap}
+    .size-row .s-note{flex:1 1 100%;order:3}
+    .sizes-head{display:none}
+  }
+
   .drop{border:2px dashed #cfc7bb;border-radius:14px;padding:18px;text-align:center;
     background:#fdfcfa;cursor:pointer}
   .drop.is-over{border-color:var(--accent);background:#fff5f7}
@@ -118,12 +142,11 @@
     <p class="msg" id="listMsg"></p>
     <div id="list"></div>
 
-    <!-- первичный перенос -->
-    <section class="card hidden" id="migrateBox">
-      <h2 style="font-size:17px;margin:0 0 6px">База каталога пока пуста</h2>
-      <p class="hint" style="margin:0 0 14px">Один раз нужно перенести в неё товары,
-        которые сейчас показывает сайт. Существующие товары и цены не изменятся.</p>
-      <button class="btn" id="btnMigrate">Перенести каталог в базу</button>
+    <!-- пусто: все товары удалены вручную -->
+    <section class="card hidden" id="emptyBox">
+      <h2 style="font-size:17px;margin:0 0 6px">В каталоге пусто</h2>
+      <p class="hint" style="margin:0 0 14px">Нажмите «+ Добавить товар» вверху страницы.
+        Если товары пропали неожиданно — напишите разработчику, они есть в базе.</p>
     </section>
   </main>
 
@@ -156,6 +179,26 @@
     <div class="cats" id="cats"></div>
     <p class="hint">Отметьте хотя бы один. Фото товара уходит менеджеру в Telegram
       только для букетных разделов.</p>
+
+    <label>Размеры букета</label>
+    <div class="sizes-head">
+      <span class="h-photo"></span><span class="h-code">Размер</span>
+      <span class="h-note">Сколько цветов</span><span class="h-delta">Доплата, ₽</span>
+      <span class="h-del"></span>
+    </div>
+    <div class="sizes" id="sizes"></div>
+    <div class="sizes-add">
+      <button type="button" class="btn btn--ghost btn--sm" id="btnAddSize">+ Ещё размер</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="btnOneSize">Один размер</button>
+    </div>
+    <p class="hint">Цена выше — за самый маленький размер. У остальных пишем,
+      <b>сколько добавить</b> к ней. Кружком отмечается размер, который на фотографии:
+      именно его цену покупатель видит на карточке в каталоге.</p>
+
+    <label style="display:flex;align-items:center;gap:9px;font-weight:500;cursor:pointer">
+      <input type="checkbox" id="fPriceFrom" style="width:auto;margin:0">
+      Показывать цену как «<b>от</b> 5 000 ₽» — точную сумму назовёт менеджер
+    </label>
 
     <label for="fComposition">Состав</label>
     <textarea id="fComposition" placeholder="Пионовидная роза, эустома, эвкалипт"></textarea>
@@ -271,6 +314,10 @@
     var data = await api("products-all");
     items = data.products || [];
     render();
+    /* Первое открытие: сервер сам перенёс товары сайта в базу. */
+    if (data.seeded) {
+      say($("listMsg"), "Каталог загружен: товаров — " + data.seeded + ".", "ok");
+    }
   }
 
   function renderTabs() {
@@ -304,6 +351,14 @@
     });
   }
 
+  /* Короткая подпись про размеры для карточки списка: «S–XL» или «один размер». */
+  function sizeNote(p) {
+    var s = p.sizes;
+    if (!s || !s.length) return "";
+    if (s.length === 1) return s[0].code === "one" || s[0].code === "base" ? "" : s[0].code;
+    return s[0].code + "–" + s[s.length - 1].code;
+  }
+
   function picOf(p) {
     if (!p.image) return "";
     if (/^https?:\/\//i.test(p.image) || p.image.indexOf("data:") === 0) return p.image;
@@ -313,7 +368,7 @@
   function render() {
     renderTabs();
     var list = visible();
-    $("migrateBox").classList.toggle("hidden", items.length > 0);
+    $("emptyBox").classList.toggle("hidden", items.length > 0);
     if (!list.length) {
       $("list").innerHTML = "";
       say($("listMsg"), items.length ? "Ничего не нашлось." : "Товаров пока нет.", "");
@@ -339,6 +394,7 @@
           '<p class="item__name">' + esc(p.name || "без названия") +
             (p.active ? "" : '<span class="pill pill--off">скрыт</span>') +
             (p.badge ? '<span class="pill pill--badge">' + esc(p.badge) + '</span>' : "") +
+            (sizeNote(p) ? '<span class="pill">' + esc(sizeNote(p)) + '</span>' : "") +
           '</p>' +
           '<p class="item__meta"><span class="item__price">' +
             Number(p.price || 0).toLocaleString("ru-RU") + " ₽</span>" +
@@ -419,19 +475,6 @@
     location.reload();
   });
 
-  $("btnMigrate").addEventListener("click", async function () {
-    var b = this; b.disabled = true;
-    say($("listMsg"), "Переношу…");
-    try {
-      var r = await api("products-migrate");
-      await load();
-      say($("listMsg"), r.skipped
-        ? "База уже была заполнена."
-        : "Готово: перенесено товаров — " + r.seeded + ".", "ok");
-    } catch (e) { say($("listMsg"), e.message, "err"); }
-    b.disabled = false;
-  });
-
   /* ── редактор ── */
   function catsHtml(active) {
     return CATS.map(function (c) {
@@ -454,6 +497,9 @@
     $("fSlug").value = p ? (p.slug || "") : "";
     $("slugEcho").textContent = (p && p.slug) || "…";
     $("cats").innerHTML = catsHtml(p ? (p.categories || []) : ["online"]);
+    $("fPriceFrom").checked = p ? !!p.priceFrom : false;
+    renderSizes(p ? p.sizes : null, p ? p.photoSize : null);
+    refreshFirstRow();
     setPreview(p ? picOf(p) : "");
     say($("editorMsg"), "");
     $("app").classList.add("hidden");
@@ -484,6 +530,129 @@
   $("cats").addEventListener("change", function (e) {
     var l = e.target.closest("label");
     if (l) l.classList.toggle("is-on", e.target.checked);
+  });
+
+  /* ── Размеры букета ───────────────────────────────────────────────────────
+     В базе размер хранится как { code, label, priceDelta }, а label выглядит
+     «M · 15 шт». В форме это две отдельные клеточки — размер и «сколько
+     цветов», — потому что так его и называет флорист. Собираем обратно при
+     сохранении. */
+  var SIZE_STEPS = ["S", "M", "L", "XL", "XXL", "XXXL"];
+
+  function splitLabel(size) {
+    var code = String(size.code || "");
+    var label = String(size.label || "");
+    /* «M · 15 шт» → примечание «15 шт»; «Один размер» → примечание целиком */
+    var parts = label.split("·");
+    if (parts.length > 1 && parts[0].trim().toUpperCase() === code.toUpperCase()) {
+      return { code: code, note: parts.slice(1).join("·").trim() };
+    }
+    if (label.toUpperCase() === code.toUpperCase()) return { code: code, note: "" };
+    return { code: code, note: label };
+  }
+
+  function sizeRowHtml(s, i, photoCode, only) {
+    var v = splitLabel(s);
+    var checked = (photoCode ? photoCode === s.code : i === 0) ? " checked" : "";
+    /* «one»/«base» — служебные коды товара без выбора размера. Показывать их
+       владелице незачем: поле только для чтения, а кружка «на фото» нет. */
+    var service = only && (v.code === "one" || v.code === "base");
+    return '<div class="size-row' + (service ? ' is-service' : "") + '">' +
+      '<input type="radio" name="photoSize" value="' + esc(s.code) + '"' + checked +
+        (only ? ' style="visibility:hidden"' : "") +
+        ' title="этот размер на фотографии">' +
+      '<input class="s-code" type="text" maxlength="6" placeholder="M" value="' + esc(v.code) + '"' +
+        (service ? ' readonly tabindex="-1"' : "") + '>' +
+      '<input class="s-note" type="text" maxlength="40" placeholder="15 шт" value="' + esc(v.note) + '">' +
+      '<input class="s-delta" type="number" min="0" step="10" placeholder="0" value="' +
+        (Number(s.priceDelta) || 0) + '"' + (i === 0 ? " disabled title=\"самый маленький размер — это и есть цена товара\"" : "") + '>' +
+      '<button type="button" class="s-del" title="убрать размер"' + (only ? " disabled" : "") + '>&times;</button>' +
+    '</div>';
+  }
+
+  function renderSizes(list, photoCode) {
+    var arr = (list && list.length) ? list : [{ code: "one", label: "Один размер", priceDelta: 0 }];
+    $("sizes").innerHTML = arr.map(function (s, i) {
+      return sizeRowHtml(s, i, photoCode, arr.length === 1);
+    }).join("");
+  }
+
+  function readSizes() {
+    var rows = $("sizes").querySelectorAll(".size-row");
+    var out = [];
+    Array.prototype.forEach.call(rows, function (row, i) {
+      var code = row.querySelector(".s-code").value.trim();
+      var note = row.querySelector(".s-note").value.trim();
+      var delta = i === 0 ? 0 : (parseInt(row.querySelector(".s-delta").value, 10) || 0);
+      if (!code && !note) return;
+      if (!code) code = "r" + (i + 1);
+      /* Служебная строка («один размер», «базовый») — подпись как есть.
+         Обычный размер собираем в привычный вид: «M · 15 шт». */
+      var service = row.classList.contains("is-service");
+      out.push({
+        code: code,
+        label: service ? (note || code) : (note ? code + " · " + note : code),
+        priceDelta: delta < 0 ? 0 : delta
+      });
+    });
+    return out;
+  }
+
+  function readPhotoSize() {
+    /* Единственный размер — выбирать нечего. Отдаём null: иначе на карточке
+       каталога пропала бы приписка «от» у товаров с договорной ценой. */
+    if ($("sizes").querySelectorAll(".size-row").length < 2) return null;
+    var r = $("sizes").querySelector('input[name="photoSize"]:checked');
+    if (!r) return null;
+    var row = r.closest(".size-row");
+    return row.querySelector(".s-code").value.trim() || null;
+  }
+
+  /* Первая строка — базовая цена, её доплата всегда 0 и поле заблокировано.
+     Кружок «на фото» и кнопка удаления при одном размере не нужны. */
+  function refreshFirstRow() {
+    var rows = $("sizes").querySelectorAll(".size-row");
+    Array.prototype.forEach.call(rows, function (row, i) {
+      var d = row.querySelector(".s-delta");
+      d.disabled = i === 0;
+      if (i === 0) d.value = 0;
+      row.querySelector(".s-del").disabled = rows.length === 1;
+      row.querySelector('input[name="photoSize"]').style.visibility =
+        rows.length === 1 ? "hidden" : "";
+    });
+  }
+
+  $("btnAddSize").addEventListener("click", function () {
+    var cur = readSizes();
+    if (cur.length >= 8) return say($("editorMsg"), "Восьми размеров хватит.", "err");
+    var photo = readPhotoSize();
+    /* Один размер «Один размер» — это заглушка: первое добавление превращает
+       её в честную шкалу S / M. */
+    if (cur.length === 1 && cur[0].code === "one") {
+      cur = [{ code: "S", label: "S", priceDelta: 0 }];
+      photo = "S";
+    }
+    var next = SIZE_STEPS[cur.length] || ("R" + (cur.length + 1));
+    cur.push({ code: next, label: next, priceDelta: 0 });
+    renderSizes(cur, photo);
+    refreshFirstRow();
+  });
+
+  $("btnOneSize").addEventListener("click", function () {
+    renderSizes([{ code: "one", label: "Один размер", priceDelta: 0 }], "one");
+    refreshFirstRow();
+  });
+
+  $("sizes").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("s-del")) return;
+    var row = e.target.closest(".size-row");
+    var wasPhoto = row.querySelector('input[name="photoSize"]').checked;
+    row.remove();
+    if (wasPhoto) {
+      var first = $("sizes").querySelector('input[name="photoSize"]');
+      if (first) first.checked = true;
+    }
+    refreshFirstRow();
   });
 
   /* Фото ужимаем прямо в браузере: на сервер уходит компактный JPEG,
@@ -561,6 +730,15 @@
     if (!cats.length) return say($("editorMsg"), "Отметьте хотя бы один раздел каталога.", "err");
     if (!editing && !pendingImage) return say($("editorMsg"), "Добавьте фотографию товара.", "err");
 
+    var sizes = readSizes();
+    if (!sizes.length) return say($("editorMsg"), "Заполните хотя бы один размер букета.", "err");
+    var dup = {};
+    for (var s = 0; s < sizes.length; s++) {
+      var key = sizes[s].code.toUpperCase();
+      if (dup[key]) return say($("editorMsg"), "Размер «" + sizes[s].code + "» указан дважды.", "err");
+      dup[key] = 1;
+    }
+
     b.disabled = true;
     try {
       var image = editing ? (editing.image || "") : "";
@@ -579,7 +757,10 @@
         desc: $("fDesc").value.trim(),
         badge: $("fBadge").value,
         image: image,
-        active: $("fActive").value === "1"
+        active: $("fActive").value === "1",
+        sizes: sizes,
+        photoSize: readPhotoSize(),
+        priceFrom: $("fPriceFrom").checked
       };
       var slug = $("fSlug").value.trim();
       if (slug) payload.slug = slug;

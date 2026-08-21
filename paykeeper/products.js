@@ -45,11 +45,45 @@ function slugify(s) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || ("tovar-" + Date.now());
 }
 
+/* Отметка «каталог уже переносили». Без неё пустой каталог заполнялся бы
+   заново после того, как владелец сам удалил из него все товары. */
+async function ensureSettings() {
+  await query(
+    `CREATE TABLE IF NOT EXISTS app_settings (
+       key TEXT PRIMARY KEY, value TEXT, updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+     )`
+  );
+}
+async function wasSeeded() {
+  await ensureSettings();
+  const r = await query(`SELECT value FROM app_settings WHERE key = 'catalog_seeded'`);
+  return r.rows.length > 0;
+}
+async function markSeeded() {
+  await ensureSettings();
+  await query(
+    `INSERT INTO app_settings (key, value) VALUES ('catalog_seeded', now()::text)
+     ON CONFLICT (key) DO NOTHING`
+  );
+}
+
+/* Первое открытие админки: каталог наполняется сам, вручную ничего нажимать
+   не нужно. Повторно не срабатывает — ни при пустой таблице, ни при обновлении
+   функции: отметка о переносе лежит в базе. */
+async function autoSeed(getSeed) {
+  await ensureTable();
+  if (await wasSeeded()) return { seeded: 0, skipped: true };
+  const cnt = await query(`SELECT COUNT(*)::int AS n FROM products`);
+  if (cnt.rows[0].n > 0) { await markSeeded(); return { seeded: 0, skipped: true }; }
+  const res = await seedIfEmpty(getSeed() || []);
+  return res;
+}
+
 // Разовое наполнение таблицы из встроенного прайса (только если она пуста).
 async function seedIfEmpty(seedArr) {
   await ensureTable();
   const cnt = await query(`SELECT COUNT(*)::int AS n FROM products`);
-  if (cnt.rows[0].n > 0) return { seeded: 0, skipped: true };
+  if (cnt.rows[0].n > 0) { await markSeeded(); return { seeded: 0, skipped: true }; }
   let n = 0;
   for (let i = 0; i < seedArr.length; i++) {
     const p = seedArr[i];
@@ -62,6 +96,7 @@ async function seedIfEmpty(seedArr) {
     );
     n++;
   }
+  await markSeeded();
   return { seeded: n, skipped: false };
 }
 
@@ -96,7 +131,31 @@ async function listAll() {
   }));
 }
 
-// Собрать безопасный объект товара из данных админки (базовые поля).
+/* ── Размеры букета ─────────────────────────────────────────────────────────
+   Строка размера: { code, label, priceDelta }. code уходит в id строки корзины
+   («m1-M») и в чек, поэтому только латиница и цифры. priceDelta — доплата к
+   базовой цене; отрицательной быть не может, иначе на бэкенде поедет верхняя
+   граница допустимой цены. */
+const ONE_SIZE = { code: "one", label: "Один размер", priceDelta: 0 };
+
+function buildSizes(raw) {
+  const out = [];
+  const seen = new Set();
+  (Array.isArray(raw) ? raw : []).slice(0, 8).forEach((s, i) => {
+    if (!s || typeof s !== "object") return;
+    let code = String(s.code || "").trim().replace(/[^A-Za-z0-9]/g, "").slice(0, 12);
+    const label = String(s.label || "").trim().slice(0, 60) || code;
+    if (!label) return;                     // ни кода, ни подписи — строку выкидываем
+    if (!code) code = "r" + (i + 1);
+    while (seen.has(code.toUpperCase())) code += i + 1;
+    seen.add(code.toUpperCase());
+    const delta = Math.round(Number(s.priceDelta) || 0);
+    out.push({ code, label, priceDelta: delta > 0 ? delta : 0 });
+  });
+  return out.length ? out : [Object.assign({}, ONE_SIZE)];
+}
+
+// Собрать безопасный объект товара из данных админки.
 function buildProduct(input, existing) {
   const base = existing || {};
   const name = String(input.name != null ? input.name : base.name || "").trim();
@@ -115,8 +174,21 @@ function buildProduct(input, existing) {
     desc: input.desc != null ? String(input.desc) : (base.desc || ""),
     image: input.image != null ? String(input.image) : (base.image || ""),
   });
-  // Дефолты для полей, которые пока не редактируются в базовой форме
-  if (!out.sizes) out.sizes = [];
+
+  /* Размеры. Не прислали — оставляем прежние (правка цены не должна их стирать). */
+  out.sizes = input.sizes != null
+    ? buildSizes(input.sizes)
+    : (Array.isArray(base.sizes) && base.sizes.length ? base.sizes : [Object.assign({}, ONE_SIZE)]);
+
+  /* Какой размер на фотографии: от него считается цена на карточке каталога.
+     Значение обязано быть одним из кодов, иначе карточка молча покажет базовую. */
+  const wantPhoto = input.photoSize != null ? input.photoSize : base.photoSize;
+  const codes = out.sizes.map((s) => s.code);
+  out.photoSize = codes.indexOf(String(wantPhoto || "")) >= 0 ? String(wantPhoto) : null;
+
+  /* Цена «от» — итог согласует менеджер (свадебные, оформление). */
+  out.priceFrom = input.priceFrom != null ? !!input.priceFrom : !!base.priceFrom;
+
   if (!out.addons) {
     out.addons = [
       { id: "card", label: "Открытка", price: 350 },
@@ -254,5 +326,5 @@ async function getImage(id) {
 
 module.exports = {
   ensureTable, seedIfEmpty, listActive, listAll, save, remove, setActive, slugify,
-  reorder, saveImage, getImage, listForPricing,
+  reorder, saveImage, getImage, listForPricing, autoSeed, buildSizes,
 };

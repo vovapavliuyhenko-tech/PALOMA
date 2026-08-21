@@ -1199,8 +1199,17 @@ module.exports.handler = async function handler(event) {
           const seed = (global.window && global.window.PALOMA_PRODUCTS) || [];
           return reply(200, { ok: true, ...(await products.seedIfEmpty(seed)) }, origin);
         }
-        if (action === "products-all")
-          return reply(200, { ok: true, products: await products.listAll() }, origin);
+        if (action === "products-all") {
+          /* Первое открытие панели: каталог наполняется сам из встроенного
+             прайса. Нажимать «перенести» вручную не нужно, а повторно перенос
+             не сработает — отметка о нём лежит в базе. */
+          const seeded = await products.autoSeed(() => {
+            require("./paloma-products.js");
+            return (global.window && global.window.PALOMA_PRODUCTS) || [];
+          });
+          return reply(200, { ok: true, seeded: seeded.seeded || 0,
+            products: await products.listAll() }, origin);
+        }
         if (action === "product-save")
           return reply(200, { ok: true, product: await products.save(bodyObj.product || bodyObj) }, origin);
         if (action === "product-delete")
