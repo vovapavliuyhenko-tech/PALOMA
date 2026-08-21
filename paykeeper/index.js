@@ -1085,8 +1085,10 @@ module.exports.handler = async function handler(event) {
   // ── Публичный каталог из базы (для сайта). GET и POST, без токена. ──
   if (action === "products") {
     try {
-      const products = require("./products.js");
-      return reply(200, { ok: true, products: await products.listActive() }, origin);
+      require("./paloma-products.js");
+      const seedCount = ((global.window && global.window.PALOMA_PRODUCTS) || []).length;
+      const res = await require("./products.js").listForSite(seedCount);
+      return reply(200, { ok: true, ...res }, origin);
     } catch (e) {
       console.error("[products] list error", e && e.stack);
       return reply(500, { error: "Ошибка каталога" }, origin);

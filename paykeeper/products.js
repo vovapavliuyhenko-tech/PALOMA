@@ -173,6 +173,18 @@ async function listActive() {
   return r.rows.map((row) => row.data);
 }
 
+/* То же для витрины, но с проверкой: пока перенос прайса не дошёл до конца,
+   отдавать этот список нельзя — покупатель увидит половину каталога. Пустой
+   список сайт игнорирует и остаётся на встроенном прайсе, то есть показывает
+   всё. Как только перенос завершён, база становится единственным источником
+   и удаление товара честно убирает его с витрины. */
+async function listForSite(seedCount) {
+  const mark = await seededMark();
+  const done = !!(mark && !mark.legacy && mark.count >= seedCount);
+  if (!done) return { products: [], перенос_завершён: false };
+  return { products: await listActive(), перенос_завершён: true };
+}
+
 /* Список для проверки цены на бэкенде — ВКЛЮЧАЯ скрытые товары.
    Скрытый товар мог остаться у покупателя в корзине: с витрины он пропал,
    но оплатить его нужно дать — иначе на кассе вылезет «неизвестный товар». */
@@ -390,5 +402,5 @@ async function getImage(id) {
 
 module.exports = {
   ensureTable, listActive, listAll, save, remove, setActive, slugify,
-  reorder, saveImage, getImage, listForPricing, autoSeed, restoreMissing, health, buildSizes,
+  reorder, saveImage, getImage, listForPricing, autoSeed, restoreMissing, health, listForSite, buildSizes,
 };
