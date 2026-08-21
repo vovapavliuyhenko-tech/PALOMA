@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PALOMA — макеты блока «1 сентября»</title>
+
+<!-- Настоящие стили сайта: шрифты, цвета и вёрстка ровно те же, что на главной -->
+<link rel="stylesheet" href="fonts/paloma-fonts.css?v=w1">
+<link rel="stylesheet" href="styles.css?v=ph15">
+<link rel="stylesheet" href="home-editorial.css?v=round7">
+
+<style>
+  /* Только обвязка предпросмотра — сами блоки собраны на классах сайта. */
+  body { background: #fff; }
+  .pv-note {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 64px var(--gutter, 32px) 0;
+    font-family: var(--sans);
+  }
+  .pv-note__kicker {
+    font-size: 12px; font-style: italic; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--burgundy); margin: 0 0 10px;
+  }
+  .pv-note__text { font-size: 15px; line-height: 1.55; color: var(--ink-65); margin: 0; max-width: 720px; }
+  .pv-rule { max-width: 1400px; margin: 96px auto 0; padding: 0 var(--gutter, 32px); }
+  .pv-rule hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+
+  /* ── Вариант 1: три плитки в языке «Выберите по поводу» ── */
+  .sept-tiles .home-categories__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sept-tiles .home-categories__photo { height: clamp(320px, 30vw, 520px); }
+  .sept-photo--teacher      { background-image: linear-gradient(to bottom, rgba(27,26,24,.06) 0%, rgba(27,26,24,.26) 100%), url("images/paloma/catalog/mono-tile.jpg"); background-position: center 32%; }
+  .sept-photo--firstgrader  { background-image: linear-gradient(to bottom, rgba(27,26,24,.04) 0%, rgba(27,26,24,.20) 100%), url("images/paloma/catalog/mono-hydrangea-pink.jpg"); background-position: center 35%; }
+  .sept-photo--class        { background-image: linear-gradient(to bottom, rgba(27,26,24,.04) 0%, rgba(27,26,24,.22) 100%), url("images/paloma/catalog/bestsellers-tile.jpg"); background-position: center 40%; }
+  .sept-tiles .home-categories__item small {
+    display: block; margin-top: 6px;
+    font-family: var(--sans); font-size: 13px; font-style: normal;
+    letter-spacing: .02em; color: var(--ink-50);
+  }
+
+  /* ── Вариант 2: редакционный разворот ── */
+  .sept-spread {
+    max-width: 1400px; margin: 0 auto; padding: 0 var(--gutter, 32px);
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 96px); align-items: center;
+  }
+  .sept-spread__photo {
+    height: clamp(380px, 42vw, 640px);
+    background-image: url("images/paloma/catalog/season-tile.jpg");
+    background-size: cover; background-position: center 45%;
+    filter: saturate(.96) contrast(1.02);
+  }
+  .sept-spread__kicker {
+    font-family: var(--sans); font-size: 12px; font-style: italic; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--ink-50); margin: 0 0 22px;
+  }
+  .sept-spread__title {
+    margin: 0 0 24px; font-family: var(--serif, Georgia, serif);
+    font-size: clamp(30px, 3.2vw, 52px); font-weight: 400; font-style: italic;
+    line-height: 1.04; color: var(--graphite);
+  }
+  .sept-spread__text { margin: 0 0 36px; font-family: var(--sans); font-size: 17px; line-height: 1.55; color: var(--ink-65); max-width: 460px; }
+  .sept-link {
+    display: inline-flex; align-items: center; padding-bottom: 7px;
+    font-family: var(--sans); font-size: 12px; font-style: italic; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--graphite);
+    text-decoration: none; border-bottom: 1px solid currentColor;
+  }
+  .sept-link + .sept-link { margin-left: 34px; }
+
+  /* ── Вариант 3: строка-объявление + одна широкая плитка ── */
+  .sept-strip {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    padding: 20px 0; overflow: hidden;
+  }
+  .sept-strip__row {
+    display: flex; align-items: center; justify-content: center; gap: 26px;
+    flex-wrap: wrap; padding: 0 var(--gutter, 32px);
+    font-family: var(--sans); font-size: 12px; font-style: italic; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--graphite);
+  }
+  .sept-strip__sep { color: var(--burgundy); font-style: normal; letter-spacing: 0; }
+  .sept-wide {
+    max-width: 1400px; margin: 0 auto; padding: 0 var(--gutter, 32px);
+  }
+  .sept-wide__photo {
+    position: relative; display: block; height: clamp(300px, 32vw, 480px);
+    background-image: linear-gradient(to right, rgba(27,26,24,.78) 0%, rgba(27,26,24,.55) 34%, rgba(27,26,24,.16) 68%, rgba(27,26,24,.10) 100%), url("images/paloma/catalog/mono-tile.jpg");
+    background-size: cover; background-position: center 30%;
+    text-decoration: none;
+  }
+  .sept-wide__inner {
+    position: absolute; left: clamp(24px, 4vw, 72px); top: 50%; transform: translateY(-50%);
+    max-width: 520px; color: #fff;
+  }
+  .sept-wide__title {
+    margin: 0 0 14px; font-family: var(--serif, Georgia, serif);
+    font-size: clamp(28px, 3vw, 46px); font-weight: 400; font-style: italic; line-height: 1.06;
+  }
+  .sept-wide__text { margin: 0 0 26px; font-family: var(--sans); font-size: 16px; line-height: 1.5; opacity: .88; }
+  .sept-wide__link {
+    display: inline-flex; padding-bottom: 6px; font-family: var(--sans); font-size: 12px;
+    font-style: italic; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+    color: #fff; border-bottom: 1px solid currentColor;
+  }
+
+  @media (max-width: 900px) {
+    .sept-tiles .home-categories__grid { grid-template-columns: 1fr; }
+    .sept-spread { grid-template-columns: 1fr; }
+    .sept-spread__photo { height: 60vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ ВАРИАНТ 1 ══════════════ -->
+<div class="pv-note">
+  <p class="pv-note__kicker">Вариант 1 — подборка по поводу</p>
+  <p class="pv-note__text">Тот же приём, что у блока «Выберите по поводу и настроению»: крупные кадры,
+    курсивные подписи, никаких плашек и кнопок. Каждая плитка ведёт в каталог с готовой подборкой.</p>
+</div>
+
+<section class="home-categories is-visible sept-tiles" style="padding-top:44px" aria-label="1 сентября">
+  <div class="home-categories__head">
+    <div><h2 class="home-categories__title">Первое сентября</h2></div>
+    <a class="home-categories__all" href="catalog.html">Все букеты</a>
+  </div>
+  <div class="home-categories__grid">
+    <a class="home-categories__item" href="catalog.html?cat=mono">
+      <div class="home-categories__photo sept-photo--teacher"></div>
+      <span>Учителю</span>
+      <small>Сдержанно, без пестроты — от 2 500 ₽</small>
+    </a>
+    <a class="home-categories__item" href="catalog.html?cat=season">
+      <div class="home-categories__photo sept-photo--firstgrader"></div>
+      <span>Первокласснице</span>
+      <small>Лёгкий, по руке ребёнку — от 1 800 ₽</small>
+    </a>
+    <a class="home-categories__item" href="catalog.html?cat=bestsellers">
+      <div class="home-categories__photo sept-photo--class"></div>
+      <span>На весь класс</span>
+      <small>От пяти букетов — соберём одинаковые</small>
+    </a>
+  </div>
+</section>
+
+<div class="pv-rule"><hr></div>
+
+<!-- ══════════════ ВАРИАНТ 2 ══════════════ -->
+<div class="pv-note">
+  <p class="pv-note__kicker">Вариант 2 — редакционный разворот</p>
+  <p class="pv-note__text">Тихая подача: одно большое фото и текст рядом. Ни слова «акция», ни одной плашки —
+    праздник читается из самой фразы. Ближе всего к тому, как сейчас выглядит верх главной.</p>
+</div>
+
+<section style="padding:56px 0 0" aria-label="1 сентября — разворот">
+  <div class="sept-spread">
+    <div class="sept-spread__photo"></div>
+    <div>
+      <p class="sept-spread__kicker">1 сентября</p>
+      <h2 class="sept-spread__title">Цветы, которые<br>не завянут к третьему уроку</h2>
+      <p class="sept-spread__text">Собираем накануне вечером и держим в холодной комнате до утра.
+        Привезём к дому или прямо к школе — к семи тридцати.</p>
+      <a class="sept-link" href="catalog.html">Выбрать букет</a>
+      <a class="sept-link" href="contacts.html">Заказать на класс</a>
+    </div>
+  </div>
+</section>
+
+<div class="pv-rule"><hr></div>
+
+<!-- ══════════════ ВАРИАНТ 3 ══════════════ -->
+<div class="pv-note">
+  <p class="pv-note__kicker">Вариант 3 — строка и одна плитка</p>
+  <p class="pv-note__text">Занимает меньше всего места. Строка сверху — ваш же приём из бегущей ленты
+    преимуществ. Под ней один широкий кадр со ссылкой.</p>
+</div>
+
+<section style="padding:56px 0 0" aria-label="1 сентября — строка">
+  <div class="sept-strip">
+    <div class="sept-strip__row">
+      <span>1 сентября</span>
+      <span class="sept-strip__sep">✦</span>
+      <span>Заказ до 30 августа</span>
+      <span class="sept-strip__sep">✦</span>
+      <span>Доставим к школе к 7:30</span>
+      <span class="sept-strip__sep">✦</span>
+      <span>Букеты на класс — от пяти</span>
+    </div>
+  </div>
+
+  <div class="sept-wide" style="margin-top:40px">
+    <a class="sept-wide__photo" href="catalog.html">
+      <div class="sept-wide__inner">
+        <h2 class="sept-wide__title">Букет учителю</h2>
+        <p class="sept-wide__text">Соберём накануне, покажем фото до отправки, привезём к утру.</p>
+        <span class="sept-wide__link">Смотреть букеты</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<div style="height:120px"></div>
+
+</body>
+</html>
