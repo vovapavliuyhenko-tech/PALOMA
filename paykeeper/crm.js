@@ -276,4 +276,57 @@ async function importLegacy() {
   return { imported: res.rowCount || 0 };
 }
 
-module.exports = { save, markDelivered, list, update, importLegacy, STATUSES };
+/* Разовый перенос неоплаченных заказов в CRM.
+   pending_orders хранит заказы, по которым выставлен счёт, но деньги не
+   пришли. Раньше они не попадали в панель вовсе, и о таком заказе узнавали
+   только если клиент писал сам. Тянем их со статусом «ждёт оплаты»,
+   разбирая meta — там лежат клиент, телефон, состав и доставка.
+   Идемпотентно: заказы, уже попавшие в панель, не трогаем. */
+async function importPending() {
+  const db = require("./db");
+  await ensure(db);
+
+  const rows = await db.query(
+    "SELECT p.order_id, p.manager_text, p.total, p.meta, p.created_at" +
+      "  FROM pending_orders p" +
+      "  LEFT JOIN crm_orders c ON c.order_id = p.order_id" +
+      "  WHERE c.order_id IS NULL",
+  );
+
+  let imported = 0;
+  for (const r of rows.rows || []) {
+    let meta = {};
+    try {
+      meta = typeof r.meta === "string" ? JSON.parse(r.meta) : r.meta || {};
+    } catch (e) {
+      meta = {};
+    }
+    try {
+      await db.query(
+        "INSERT INTO crm_orders" +
+          " (order_id, kind, status, client_name, phone, email, messenger," +
+          "  total, items, delivery, payment, text, created_at)" +
+          " VALUES ($1,'online_pending','pending',$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,'online',$9,$10)" +
+          " ON CONFLICT (order_id) DO NOTHING",
+        [
+          str(r.order_id, 64),
+          str(meta.clientName, 128),
+          digits(meta.phone),
+          str(meta.email, 128),
+          str(meta.messenger || meta.messengerContact, 64),
+          Math.round(Number(r.total) || 0),
+          jsonOr(meta.items, []),
+          jsonOr(meta.deliveryInfo || meta.delivery, {}),
+          "⏳ ЖДЁТ ОПЛАТЫ\n№ " + r.order_id + "\n\n" + String(r.manager_text || ""),
+          r.created_at,
+        ],
+      );
+      imported += 1;
+    } catch (e) {
+      console.error("[crm] import pending", r.order_id, e && e.message);
+    }
+  }
+  return { found: (rows.rows || []).length, imported: imported };
+}
+
+module.exports = { save, markDelivered, list, update, importLegacy, importPending, STATUSES };

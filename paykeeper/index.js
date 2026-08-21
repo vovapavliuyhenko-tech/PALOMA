@@ -951,13 +951,14 @@ module.exports.handler = async function handler(event) {
     "import-codes", "void-code", "selftest",
     "products-migrate", "products-all", "product-save", "product-delete", "product-active",
     "orders",
-    "crm-list", "crm-update", "crm-import", "pending-list",
+    "crm-list", "crm-update", "crm-import", "crm-import-pending", "pending-list",
   ];
   const ADMIN_GET_OK =
     action === "migrate" || action === "release-expired" ||
     action === "codes-stats" || action === "selftest" ||
     action === "products-migrate" || action === "products-all" || action === "orders" ||
-    action === "crm-list" || action === "crm-import" || action === "pending-list";
+    action === "crm-list" || action === "crm-import" ||
+    action === "crm-import-pending" || action === "pending-list";
   if (method !== "POST" && !ADMIN_GET_OK)
     return reply(405, { error: "Только POST" }, origin);
 
@@ -1015,6 +1016,8 @@ module.exports.handler = async function handler(event) {
           return reply(200, { ...(await crm.update(bodyObj.orderId, bodyObj)) }, origin);
         if (action === "crm-import")
           return reply(200, { ok: true, ...(await crm.importLegacy()) }, origin);
+        if (action === "crm-import-pending")
+          return reply(200, { ok: true, ...(await crm.importPending()) }, origin);
       } catch (e) {
         console.error("[crm] admin action error", e && e.stack);
         return reply(500, { error: "Ошибка CRM: " + (e && e.message) }, origin);
