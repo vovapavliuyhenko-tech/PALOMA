@@ -27,6 +27,7 @@
     events: "🎉 ЗАЯВКА — оформление события",
     "event-decoration": "🎉 ЗАЯВКА — оформление мероприятия",
     "wedding-piggy": "💍 ЗАЯВКА — свадебная копилка",
+    "footer-call": "📞 ЗАЯВКА — обратный звонок",
   };
 
   const EVENT_TYPE = {
@@ -39,8 +40,11 @@
 
   function buildText(p) {
     const lines = [PAGE_TITLE[p.page] || "🎉 ЗАЯВКА с сайта"];
-    lines.push("Имя: " + (p.name || "—"));
+    /* Форма обратного звонка в подвале собирает только телефон:
+       пустая строка «Имя: —» в сообщении менеджеру только мешает. */
+    if (p.name) lines.push("Имя: " + p.name);
     lines.push("Телефон: " + (p.phone || "—"));
+    if (p.source) lines.push("Со страницы: " + p.source);
     if (p.messenger) lines.push("Связь: " + p.messenger);
     if (p.eventType) lines.push("Повод: " + (EVENT_TYPE[p.eventType] || p.eventType));
     if (p.date) lines.push("Дата события: " + p.date);
@@ -72,6 +76,7 @@
           eventType: payload.eventType || "",
           comment: payload.comment || "",
           page: payload.page || "",
+          source: payload.source || "",
         },
       }),
     })

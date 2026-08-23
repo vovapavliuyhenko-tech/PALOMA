@@ -1750,6 +1750,17 @@ if (document.body.classList.contains("event-decoration-page")) {
         var consent = box ? box.querySelector('.sf2-consent input[type="checkbox"]') : null;
         if (onlyDigits(input && input.value).length < 10){ if(input)input.focus(); flash(form,"sf2-form--err"); return; }
         if (consent && !consent.checked){ flash(box.querySelector(".sf2-consent"),"sf2-consent--err"); return; }
+        /* Отправляем номер менеджеру: в Telegram и в панель заказов.
+           Раньше форма просто показывала «Спасибо», а телефон никуда не
+           уходил — все оставленные здесь номера терялись. */
+        if (typeof window.palomaSendLead === "function") {
+          window.palomaSendLead({
+            page: "footer-call",
+            phone: (input && input.value || "").trim(),
+            source: document.title || location.pathname
+          });
+        }
+
         if (form) form.style.display = "none";
         var c = box.querySelector(".sf2-consent"); if (c) c.style.display = "none";
         if (!box.querySelector(".sf2-ok")){
@@ -1758,6 +1769,7 @@ if (document.body.classList.contains("event-decoration-page")) {
           ok.textContent = "Спасибо! Мы свяжемся с вами в ближайшее время.";
           box.appendChild(ok);
         }
+        if (window.palomaGoal) window.palomaGoal("footer_call_lead");
       });
     });
   }

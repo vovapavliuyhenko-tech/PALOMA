@@ -242,9 +242,19 @@
     online_pending: "ждёт оплаты картой",
     online_paid: "оплачен онлайн",
     payment_on_receipt: "оплата при получении",
-    event_lead: "заявка на оформление",
+    event_lead: "заявка с сайта",
     order: "заказ"
   };
+
+  /* Заявки с разных форм приходят одним видом event_lead. Различаем их по
+     странице, с которой пришла заявка, — она лежит в поле доставки. */
+  function kindLabel(o) {
+    var page = (o.delivery || {}).page;
+    if (page === "footer-call") return "обратный звонок";
+    if (page === "wedding-piggy") return "заявка · свадебная копилка";
+    if (page === "events" || page === "event-decoration") return "заявка · оформление события";
+    return KIND[o.kind] || o.kind || "заказ";
+  }
 
   var $ = function (id) { return document.getElementById(id); };
   var state = { status: "", offset: 0, rows: [] };
@@ -505,7 +515,7 @@
         (o.tg_delivered ? "" : '<span class="tg-warn">не ушёл в Telegram</span>') +
         (o.total ? '<span class="order__total">' + money(o.total) + "</span>" : "") +
       "</div>" +
-      '<div class="kind">' + esc(KIND[o.kind] || o.kind || "заказ") + "</div>" +
+      '<div class="kind">' + esc(kindLabel(o)) + "</div>" +
       (who.length ? '<div class="who">' + who.join("<span>·</span>") + "</div>" : "") +
       deliveryHtml(o.delivery) +
       itemsHtml(o.items) +
@@ -564,7 +574,7 @@
       var d = o.delivery || {};
       return [
         o.order_id, when(o.created_at), (STATUS[o.status] || {}).label || o.status,
-        KIND[o.kind] || o.kind, o.client_name, phoneFmt(o.phone), o.email,
+        kindLabel(o), o.client_name, phoneFmt(o.phone), o.email,
         o.total, d.date || "", d.time || "", d.address || "", o.note || ""
       ];
     }));
