@@ -8999,13 +8999,49 @@ body.is-home .site-header:not(.is-scrolled) .site-header__logo{background-image:
 
 /* ── Подвал: кнопка «Разработчик» + маленький жираф на линии ── */
 /* дев-ссылка в нижнем ряду рядом с legal-ссылками (тот же мелкий mono-стиль) */
-.sf2-dev {
+/* Ссылка на разработчика — единственная в подвале, по которой пишут живому
+   человеку, поэтому она заметно ярче соседних. Соседи — приглушённый текст
+   (белый 24 %), здесь — акцентная плашка со значком Telegram. */
+.sf2-dev,
+.footer-legal a.sf2-dev {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 13px;
   font-family: var(--mono, 'JetBrains Mono', monospace);
-  font-size: 10px; letter-spacing: .12em;
-  color: rgba(255, 255, 255, 0.24); text-decoration: none;
-  transition: color .22s ease;
+  font-size: 11px; letter-spacing: .12em; font-weight: 500;
+  color: #FFFFFF; text-decoration: none;
+  background: rgba(231, 56, 90, 0.16);
+  border: 1px solid rgba(231, 56, 90, 0.55);
+  border-radius: 999px;
+  transition: background .22s ease, border-color .22s ease, transform .22s ease;
 }
-.sf2-dev:hover, .sf2-dev:focus-visible { color: var(--color-accent, #E7385A); }
+/* Значок — фоном, чтобы не править разметку на двух десятках страниц. */
+.sf2-dev::before,
+.footer-legal a.sf2-dev::before {
+  content: ""; width: 13px; height: 13px; flex: 0 0 13px;
+  background: #FFFFFF;
+  -webkit-mask: var(--tg-glyph) center / contain no-repeat;
+  mask: var(--tg-glyph) center / contain no-repeat;
+}
+.sf2-dev,
+.footer-legal a.sf2-dev {
+  --tg-glyph: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M21.8 3.3 2.9 10.6c-1.1.4-1.1 1.1-.2 1.4l4.8 1.5 1.8 5.6c.2.6.4.8.8.8.4 0 .6-.2.9-.5l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.2-.5-1.8-1-1.6zM8.5 13.9l10.2-6.4c.5-.3.9-.1.6.2l-8.7 7.9-.3 3.6z'/%3E%3C/svg%3E");
+}
+.sf2-dev:hover, .sf2-dev:focus-visible,
+.footer-legal a.sf2-dev:hover, .footer-legal a.sf2-dev:focus-visible {
+  background: #E7385A;
+  border-color: #E7385A;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+.sf2-dev:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 3px; }
+/* В подвале ссылки идут через «·». Перед плашкой разделитель лишний —
+   она и так отделена рамкой. Браузеры без :has просто оставят точку. */
+.footer-legal .sf2-dev { margin-left: 6px; }
+.footer-legal__sep:has(+ .sf2-dev) { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .sf2-dev { transition: none; }
+  .sf2-dev:hover, .sf2-dev:focus-visible { transform: none; }
+}
 
 /* жираф стоит ногами на линии footer-bottom, справа под адресом; фон вырезан из PNG */
 .footer-giraffe {
