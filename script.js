@@ -1776,3 +1776,87 @@ if (document.body.classList.contains("event-decoration-page")) {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
+
+/* ── Шторка подвала ────────────────────────────────────────────────────────
+   Подвал прибивается к низу экрана, <main> едет поверх него и в конце
+   открывает его, как шторку. Разметку страниц не трогаем: распорку ростом
+   с подвал скрипт добавляет сам.
+
+   Включаем только когда подвал помещается в экран целиком. Иначе его верх
+   (форма обратного звонка) ушёл бы за границу экрана и стал недосягаем —
+   на телефонах подвал у нас выше экрана, там остаётся обычная прокрутка. */
+(function () {
+  "use strict";
+
+  var footer = null;
+  var main = null;
+  var spacer = null;
+  var timer = null;
+
+  function apply() {
+    if (!footer || !main || !spacer) return;
+
+    /* Меряем в обычном потоке: у прибитого подвала высота та же, но так
+       надёжнее — не зависим от того, в каком состоянии он сейчас. */
+    var fits = footer.offsetHeight > 0 && footer.offsetHeight <= window.innerHeight;
+
+    document.body.classList.toggle("has-footer-curtain", fits);
+    spacer.style.height = fits ? footer.offsetHeight + "px" : "";
+  }
+
+  function schedule() {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(apply, 120);
+  }
+
+  /* Ссылка «Контакты» ведёт на #contacts — это и есть подвал. Прибитый
+     подвал никуда не проматывается, поэтому едем в самый низ страницы. */
+  function toFooter(e) {
+    if (!document.body.classList.contains("has-footer-curtain")) return;
+    e.preventDefault();
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth"
+    });
+  }
+
+  function init() {
+    footer = document.querySelector(".site-footer");
+    main = document.querySelector("main");
+    if (!footer || !main) return;
+    if (main.parentNode !== footer.parentNode) return;
+
+    /* Между main и подвалом должно быть пусто. Модалки и всплывашки там
+       попадаются (order.html) — они вынуты из потока и шторке не мешают,
+       а вот обычный блок оставил бы прореху, сквозь которую видно подвал. */
+    for (var el = main.nextElementSibling; el && el !== footer; el = el.nextElementSibling) {
+      var pos = window.getComputedStyle(el).position;
+      if (pos !== "fixed" && pos !== "absolute" && el.offsetHeight > 0) return;
+    }
+
+    spacer = document.createElement("div");
+    spacer.className = "footer-curtain-spacer";
+    spacer.setAttribute("aria-hidden", "true");
+    footer.parentNode.insertBefore(spacer, footer);
+
+    apply();
+
+    window.addEventListener("resize", schedule);
+    window.addEventListener("orientationchange", schedule);
+    /* Подвал меняет высоту сам: форма прячется после отправки, шрифты
+       догружаются, картинки встают на место. */
+    if (window.ResizeObserver) new window.ResizeObserver(schedule).observe(footer);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+    window.addEventListener("load", schedule);
+
+    document.querySelectorAll('a[href="#contacts"]').forEach(function (a) {
+      a.addEventListener("click", toFooter);
+    });
+    if (location.hash === "#contacts") window.setTimeout(function () {
+      window.scrollTo(0, document.documentElement.scrollHeight);
+    }, 60);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();

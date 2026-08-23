@@ -9050,3 +9050,36 @@ body.is-home .site-header:not(.is-scrolled) .site-header__logo{background-image:
   background: transparent; pointer-events: none; z-index: 3; margin-bottom: -1px;
 }
 @media (max-width: 700px) { .footer-giraffe { height: 120px; right: 16px; } }
+
+/* ════════════════════════════════════════════════════════
+   ШТОРКА ПОДВАЛА
+
+   Подвал стоит на месте, страница едет поверх него и в конце открывает
+   его, как шторку. Работает без единой анимации: подвал прибит к низу
+   экрана, <main> с непрозрачным фоном лежит выше и просто уезжает вверх.
+
+   Класс на <body> ставит скрипт (script.js) и только когда подвал
+   помещается в экран целиком — иначе его верх ушёл бы за край и до части
+   ссылок было бы не добраться. Без JS сайт ведёт себя как раньше.
+   ════════════════════════════════════════════════════════ */
+body.has-footer-curtain main {
+  position: relative;
+  z-index: 1;
+  background: var(--paper, #FFFFFF);
+}
+
+body.has-footer-curtain .site-footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 0;
+}
+
+/* Распорка ростом с подвал: без неё странице некуда прокручиваться,
+   и шторка никогда не откроется. Высоту проставляет скрипт. */
+.footer-curtain-spacer {
+  display: block;
+  width: 100%;
+  pointer-events: none;
+}
