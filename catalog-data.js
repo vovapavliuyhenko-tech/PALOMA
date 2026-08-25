@@ -7,6 +7,7 @@
   "use strict";
 
   const CATEGORY_LABELS = {
+    sept: "1 сентября",
     online: "Онлайн-витрина",
     season: "Самый сезон",
     bestsellers: "Бестселлеры",
