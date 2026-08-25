@@ -258,7 +258,7 @@ window.PALOMA_PRODUCTS = [
   {
     id: "m10",
     slug: "zheltye-gladiolusy",
-    photoSize: "XL",
+    photoSize: "L",
     image: "images/paloma/catalog/mono-gladiolus-yellow.jpg",
     name: "Жёлтые гладиолусы",
     price: 2700,
