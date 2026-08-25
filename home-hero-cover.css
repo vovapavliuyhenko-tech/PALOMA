@@ -72,6 +72,30 @@ body.is-home .site-header:not(.is-scrolled) .site-header__actions svg {
     rgba(27, 26, 24, 0.28);
 }
 
+/* ── Обложка к 1 сентября (временная, до 2 сентября) ──────────────────────
+   Класс вешает скрипт в index.html — там же и срок. Кадр светлый: школьная
+   обёртка почти белая, и прежних 28% затемнения белому заголовку не хватало.
+   Здесь слой плотнее, иначе «PALOMA» тонет в рисунке бумаги. */
+.paloma-cover--sept .paloma-cover__overlay {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(27, 26, 24, 0.5) 0%, transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(27, 26, 24, 0.56) 0%, transparent 60%),
+    rgba(27, 26, 24, 0.5);
+}
+
+/* Кадр горизонтальный, цветы по углам. На широком экране он влезает почти
+   целиком, а на телефоне режется по бокам — уводим к подсолнухам, иначе
+   в кадре остаётся одна бумага. */
+.paloma-cover--sept .paloma-cover__bg img {
+  object-position: center 45%;
+}
+
+@media (max-width: 768px) {
+  .paloma-cover--sept .paloma-cover__bg img {
+    object-position: 84% 58%;
+  }
+}
+
 /* ── Center content group ────────────────────────────── */
 
 .paloma-cover__center {
