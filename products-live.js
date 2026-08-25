@@ -40,12 +40,116 @@
     return true;
   }
 
-  /* ── Онлайн-витрина главной страницы ──────────────────────────────────────
-     Карточки там свёрстаны руками (подборка редактируется в index.html), но
-     цена, название и фото обязаны совпадать с каталогом, а удалённый товар
-     не должен вести на пустую страницу. Поэтому карточки не перерисовываем,
-     а сверяем с каталогом: расхождения правим, пропавшее прячем. */
+  /* ── Витрина главной страницы ─────────────────────────────────────────────
+     Раньше карточки в этом блоке были свёрстаны руками, и мы лишь сверяли у
+     них цену и название с каталогом. Теперь блок показывает праздничную
+     подборку «1 сентября» и собирается из каталога сам: отметили товар
+     галочкой в панели — он появился на главной.
+
+     Если подборка пуста, блок остаётся прежним: свёрстанные карточки и
+     заголовок «Онлайн-витрина». Пустая витрина на главной хуже старой. */
+  var SHOWCASE_CAT = "sept";
+  var SHOWCASE_TITLE = "1 сентября";
+  var SHOWCASE_LINK = "catalog.html?cat=" + SHOWCASE_CAT;
+  var SHOWCASE_MAX = 12;
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  /* Цена ровно по тому же правилу, что было в свёрстанной разметке:
+     базовая цена товара, «от» — когда итог согласует менеджер. */
+  function priceText(p) {
+    return (p.priceFrom ? "от " : "") + Number(p.price || 0).toLocaleString("ru-RU") + " ₽";
+  }
+
+  function cardHtml(p) {
+    var slug = encodeURIComponent(p.slug || p.id);
+    var name = esc(p.name || "");
+    var href = "product.html?slug=" + slug;
+    return '<article class="home-product-card">' +
+      '<a href="' + href + '" class="home-product-card__media" aria-label="Подробнее: ' + name + '">' +
+        (p.image
+          ? '<img src="' + esc(p.image) + '" alt="' + name +
+            '" loading="lazy" decoding="async" width="600" height="870">'
+          : "") +
+      "</a>" +
+      '<div class="home-product-card__body">' +
+        '<h3 class="home-product-card__title"><a href="' + href + '">' + name + "</a></h3>" +
+        '<p class="home-product-card__price">' + esc(priceText(p)) + "</p>" +
+        '<div class="home-product-card__actions">' +
+          '<a href="' + href + '" class="home-product-card__more" aria-label="' + name +
+            ' — подробнее">Подробнее</a>' +
+        "</div>" +
+      "</div>" +
+    "</article>";
+  }
+
+  function pickShowcase() {
+    var list = window.PALOMA_PRODUCTS || [];
+    var out = [];
+    for (var i = 0; i < list.length && out.length < SHOWCASE_MAX; i++) {
+      var cats = list[i].categories;
+      var has = Array.isArray(cats) ? cats.indexOf(SHOWCASE_CAT) >= 0 : cats === SHOWCASE_CAT;
+      if (has) out.push(list[i]);
+    }
+    return out;
+  }
+
+  /* Бесконечная прокрутка (paloma-carousel-autoscroll.js) работает на копиях
+     карточек: дорожка = оригинал + копия. Обычно она клонирует уже наши
+     карточки — мы отрисовываем их раньше. Но если товары приехали из базы
+     позже, клонировать некому: её защёлка autoscrollInit уже стоит. Тогда
+     копии делаем сами, иначе лента доедет до конца и дёрнется. */
+  function cloneForLoop(track) {
+    var cards = Array.prototype.slice.call(track.children);
+    cards.forEach(function (card) {
+      var clone = card.cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+      clone.querySelectorAll("a, button, [tabindex]").forEach(function (el) {
+        el.setAttribute("tabindex", "-1");
+      });
+      track.appendChild(clone);
+    });
+  }
+
+  var showcaseFilled = false;
+
+  function renderShowcase() {
+    var section = document.getElementById("online-showcase");
+    if (!section) return false;
+    var track = section.querySelector("[data-carousel-track]");
+    if (!track) return false;
+
+    var picked = pickShowcase();
+    if (!picked.length) return false;      // подборка пуста — оставляем как было
+    if (showcaseFilled) return true;       // уже собрали, второй раз не трогаем
+
+    var title = section.querySelector(".home-showcase__title");
+    if (title) title.textContent = SHOWCASE_TITLE;
+    var all = section.querySelector(".home-showcase__catalog-link");
+    if (all) all.setAttribute("href", SHOWCASE_LINK);
+
+    track.innerHTML = picked.map(cardHtml).join("");
+    showcaseFilled = true;
+
+    if (section.dataset.autoscrollInit === "1") cloneForLoop(track);
+    /* Стрелки и полоса прогресса считают ширину дорожки — пересчитаем. */
+    try { window.dispatchEvent(new Event("resize")); } catch (e) { /* ок */ }
+    window.PalomaWishlist && window.PalomaWishlist.syncButtons &&
+      window.PalomaWishlist.syncButtons();
+    window.palomaRebindCursorHovers && window.palomaRebindCursorHovers();
+    return true;
+  }
+
+  /* Запасной путь: подборка пуста, на главной остаются свёрстанные карточки.
+     Цену, название и фото всё равно сверяем с каталогом, а пропавший товар
+     прячем — карточка не должна вести на пустую страницу. */
   function syncHomeShowcase() {
+    if (renderShowcase()) return;
+
     var cards = document.querySelectorAll(".home-product-card");
     if (!cards.length) return;
     var list = window.PALOMA_PRODUCTS || [];
@@ -77,10 +181,7 @@
 
       var price = card.querySelector(".home-product-card__price");
       if (price) {
-        /* Ровно то же правило, что было в свёрстанной разметке: базовая цена,
-           «от» — если итог согласует менеджер. */
-        var txt = (p.priceFrom ? "от " : "") +
-          Number(p.price || 0).toLocaleString("ru-RU") + " ₽";
+        var txt = priceText(p);
         if (price.textContent.replace(/\s/g, "") !== txt.replace(/\s/g, "")) {
           price.textContent = txt;
         }
@@ -98,7 +199,6 @@
       try { window.dispatchEvent(new Event("resize")); } catch (e) { /* ок */ }
     }
   }
-
   function rerender() {
     (window.PALOMA_RERENDER || []).forEach(function (fn) {
       try { fn(); } catch (e) { /* одна сломанная страница не должна ломать остальные */ }
