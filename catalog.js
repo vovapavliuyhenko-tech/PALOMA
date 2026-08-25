@@ -70,35 +70,45 @@
     return map[label] || "product-card__badge--hit";
   }
 
-  /* ── Плитка «помощь в выборе» ────────────────────────────
-     Стоит последней в подборке «1 сентября»: когда букеты
-     пролистаны и ни один не подошёл, менеджер оказывается
-     сразу под рукой, а не в подвале страницы. */
-  const HELP_TILE_CAT = "sept";
-  const HELP_TILE_PHONE = "79897707000";
-  const HELP_TILE_TEXT =
-    "Здравствуйте! Нужна помощь в выборе индивидуального букета к 1 сентября.";
+  /* ── Плашка «помощь в выборе» ────────────────────────────
+     Широкая полоса под сеткой в подборке «1 сентября»: когда
+     букеты пролистаны и ни один не подошёл, дальше идёт не
+     подвал, а обращение к флористу. Живёт вне сетки, поэтому
+     не занимает место карточки и не ломает ряды. */
+  const HELP_BAND_CAT = "sept";
+  /* Telegram не подставляет текст в личные чаты — ссылка просто
+     открывает диалог с менеджером, без заготовки сообщения. */
+  const HELP_BAND_TG = "https://t.me/+79897707000";
 
-  function renderHelpTile() {
-    const phone =
-      (window.PALOMA_MANAGER && window.PALOMA_MANAGER.whatsappPhone) ||
-      HELP_TILE_PHONE;
+  function syncHelpBand(filter) {
+    const existing = document.querySelector(".catalog-help-band");
+    if (filter !== HELP_BAND_CAT) {
+      existing?.remove();
+      return;
+    }
+    if (existing) return;
+
     const href =
-      "https://wa.me/" + phone + "?text=" + encodeURIComponent(HELP_TILE_TEXT);
+      (window.PALOMA_MANAGER && window.PALOMA_MANAGER.telegramUrl) ||
+      HELP_BAND_TG;
 
-    const article = document.createElement("article");
-    article.className = "catalog-help-tile";
-    article.innerHTML = `
-      <a class="catalog-help-tile__inner"
-         href="${href}"
-         target="_blank"
-         rel="noopener noreferrer"
-         data-cursor="hover">
-        <h3 class="catalog-help-tile__title">Помощь в выборе индивидуального букета</h3>
-        <p class="catalog-help-tile__text">Расскажите о поводе и бюджете — флорист подберёт состав и пришлёт варианты.</p>
-        <span class="catalog-help-tile__btn">Написать менеджеру</span>
-      </a>`;
-    return article;
+    const section = document.createElement("section");
+    section.className = "catalog-help-band";
+    section.innerHTML = `
+      <div class="catalog-help-band__inner">
+        <div class="catalog-help-band__copy">
+          <h2 class="catalog-help-band__title">Помощь в выборе индивидуального букета</h2>
+          <p class="catalog-help-band__text">Не нашли подходящий? Расскажите о поводе, вкусах
+            и бюджете — флорист соберёт букет под вас и пришлёт варианты на выбор.</p>
+        </div>
+        <a class="catalog-help-band__btn"
+           href="${href}"
+           target="_blank"
+           rel="noopener noreferrer"
+           data-cursor="hover">Написать в Telegram</a>
+      </div>`;
+
+    grid.insertAdjacentElement("afterend", section);
   }
 
   function renderCard(product) {
@@ -204,7 +214,7 @@
   }
 
   function revealCards() {
-    const cards = grid.querySelectorAll(".product-card, .catalog-help-tile");
+    const cards = grid.querySelectorAll(".product-card");
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       cards.forEach((c) => c.classList.add("is-visible", "is-revealed"));
       return;
@@ -230,6 +240,7 @@
 
     const products = window.PALOMA_CATALOG.getByCategory(currentFilter);
     grid.innerHTML = "";
+    syncHelpBand(currentFilter);
 
     if (!products.length) {
       if (emptyEl) emptyEl.hidden = false;
@@ -252,7 +263,6 @@
     products.forEach((product) => {
       fragment.appendChild(renderCard(product));
     });
-    if (currentFilter === HELP_TILE_CAT) fragment.appendChild(renderHelpTile());
     grid.appendChild(fragment);
     afterRender();
 

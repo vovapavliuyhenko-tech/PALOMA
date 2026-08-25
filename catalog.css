@@ -260,105 +260,89 @@
   }
 }
 
-/* ── Плитка «помощь в выборе» в конце подборки «1 сентября» ──
+/* ── Плашка «помощь в выборе» под сеткой «1 сентября» ────────
    Оформлена как промо-блок «Свадебной копилки»: чёрная подложка,
-   скрипт-заголовок и малиновая кнопка. Среди светлых карточек
-   с фото она читается как обращение студии, а не как товар. */
-.catalog-page .catalog-help-tile {
-  display: flex;
+   скрипт-заголовок, малиновая кнопка. Ширина — как у сетки. */
+.catalog-page .catalog-help-band {
+  margin: clamp(28px, 4vw, 56px) auto clamp(8px, 1.5vw, 20px);
+  padding: 0 clamp(8px, 1vw, 16px);
+  max-width: 1440px;
 }
 
-.catalog-page .catalog-help-tile__inner {
-  flex: 1;
-  min-height: 320px;
+.catalog-page .catalog-help-band__inner {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: clamp(12px, 1.2vw, 18px);
-  padding: clamp(24px, 2.6vw, 38px) clamp(18px, 2vw, 30px);
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 64px);
+  padding: clamp(28px, 3vw, 48px) clamp(28px, 3.4vw, 56px);
   border-radius: 20px;
   border: 1px solid rgba(231, 56, 90, 0.28);
   background: #0e0d0c;
-  text-align: center;
-  text-decoration: none;
-  transition:
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.4s ease,
-    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.catalog-page .catalog-help-tile__title {
-  margin: 0;
+.catalog-page .catalog-help-band__copy {
+  min-width: 0;
+}
+
+.catalog-page .catalog-help-band__title {
+  margin: 0 0 clamp(10px, 1.2vw, 16px);
   font-family: var(--serif, "Classica One", "Italiana", cursive);
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(21px, 2vw, 28px);
+  font-size: clamp(26px, 2.6vw, 40px);
   /* скрипт-шрифт с высокими росчерками — нужен запас по высоте строки */
   line-height: 1.35;
-  letter-spacing: 0;
   color: #e7385a;
-  text-wrap: balance;
 }
 
-.catalog-page .catalog-help-tile__text {
+.catalog-page .catalog-help-band__text {
   margin: 0;
-  max-width: 30ch;
+  max-width: 62ch;
   font-family: var(--sans, "Montserrat", sans-serif);
-  font-size: clamp(12px, 0.95vw, 14px);
+  font-size: clamp(14px, 1.05vw, 16px);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.82);
-  text-wrap: balance;
 }
 
-.catalog-page .catalog-help-tile__btn {
-  margin-top: 4px;
+.catalog-page .catalog-help-band__btn {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
-  padding: 13px 26px;
+  min-width: clamp(200px, 18vw, 300px);
+  min-height: 56px;
+  padding: 18px 40px;
   border-radius: 14px;
   border: 2px solid #e7385a;
   background: #e7385a;
   color: #fff;
   font-family: var(--sans, "Montserrat", sans-serif);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-decoration: none;
   white-space: nowrap;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .catalog-page .catalog-help-tile__inner:hover {
-    transform: translateY(-4px);
-    border-color: rgba(231, 56, 90, 0.6);
-    box-shadow: 0 16px 38px rgba(231, 56, 90, 0.18);
-  }
-  .catalog-page .catalog-help-tile__inner:hover .catalog-help-tile__btn {
+  .catalog-page .catalog-help-band__btn:hover {
     background: transparent;
     color: #e7385a;
   }
 }
 
-/* На телефоне плитка стоит в два столбца рядом с букетами —
-   описание не помещается, оставляем заголовок и кнопку. */
-@media (max-width: 600px) {
-  .catalog-page .catalog-help-tile__inner {
-    min-height: 0;
-    padding: 20px 12px;
-    gap: 10px;
+@media (max-width: 720px) {
+  .catalog-page .catalog-help-band__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+    padding: 26px 22px 28px;
     border-radius: 16px;
   }
-  .catalog-page .catalog-help-tile__text {
-    display: none;
-  }
-  .catalog-page .catalog-help-tile__btn {
-    min-height: 40px;
-    padding: 10px 14px;
-    font-size: 10px;
-    letter-spacing: 0.06em;
+  .catalog-page .catalog-help-band__btn {
+    width: 100%;
+    min-width: 0;
   }
 }
