@@ -350,12 +350,12 @@
   background-position: center 45%;
 }
 
-/* Сборные букеты — colorful Paloma-ribbon bouquet */
-.home-categories__photo--bouquets {
+/* 1 сентября — школьницы с букетами PALOMA, лица в верхней трети кадра */
+.home-categories__photo--sept {
   background-image:
     linear-gradient(to bottom, rgba(27, 26, 24, 0.04) 0%, rgba(27, 26, 24, 0.18) 100%),
-    url("images/paloma/catalog/bouquet-02.jpg");
-  background-position: center 25%;
+    url("images/paloma/catalog/sept-tile.jpg");
+  background-position: center 38%;
 }
 
 /* Монобукеты — white ranunculus + freesia, moody */
