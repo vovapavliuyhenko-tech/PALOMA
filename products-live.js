@@ -20,7 +20,6 @@
   var API = "https://functions.yandexcloud.net/d4ek26aklvok10biu54h";
   var KEY = "paloma:products:v1";
   var CACHE_TTL = 24 * 60 * 60 * 1000; // сутки — дальше кэшу не верим
-  var SEASON_KEY = "paloma:season-tabs";
 
   /* Перерисовщики страниц. Каждая страница добавляет свой:
      (window.PALOMA_RERENDER = window.PALOMA_RERENDER || []).push(fn) */
@@ -100,37 +99,6 @@
     }
   }
 
-  /* ── Праздничные вкладки ──────────────────────────────────────────────────
-     Вкладка «1 сентября» в каталоге и в меню помечена data-season-tab и
-     спрятана в разметке. Показываем её, только если в каталоге есть хоть один
-     товар с этим разделом. Владелице достаточно поставить галочку в панели —
-     вкладка появится сама, а когда праздник пройдёт и галочки снимут,
-     исчезнет тоже сама. Править код для этого не нужно. */
-  function syncSeasonTabs() {
-    var tabs = document.querySelectorAll("[data-season-tab]");
-    if (!tabs.length) return;
-    var list = window.PALOMA_PRODUCTS || [];
-    var live = [];
-
-    Array.prototype.forEach.call(tabs, function (tab) {
-      var cat = tab.getAttribute("data-season-tab");
-      var has = false;
-      for (var i = 0; i < list.length; i++) {
-        var cats = list[i].categories;
-        if (Array.isArray(cats) ? cats.indexOf(cat) >= 0 : cats === cat) { has = true; break; }
-      }
-      tab.hidden = !has;
-      if (has && live.indexOf(cat) < 0) live.push(cat);
-    });
-
-    /* Ответ запоминаем: страницы без каталога (доставка, оплата, статьи) не
-       качают ради одной вкладки весь список товаров — им хватит этой строки.
-       Читает её script.js, он подключён везде. */
-    try {
-      if (list.length) localStorage.setItem(SEASON_KEY, live.join(","));
-    } catch (e) { /* приватный режим */ }
-  }
-
   function rerender() {
     (window.PALOMA_RERENDER || []).forEach(function (fn) {
       try { fn(); } catch (e) { /* одна сломанная страница не должна ломать остальные */ }
@@ -165,11 +133,9 @@
   }
 
   window.PALOMA_RERENDER.push(syncHomeShowcase);
-  window.PALOMA_RERENDER.push(syncSeasonTabs);
 
   function start() {
     syncHomeShowcase(); // список из кэша уже применён — сверяем сразу
-    syncSeasonTabs();
     refresh();
   }
   if (document.readyState === "loading") {

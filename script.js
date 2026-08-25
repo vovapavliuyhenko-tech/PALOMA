@@ -1860,23 +1860,3 @@ if (document.body.classList.contains("event-decoration-page")) {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
-
-/* ── Праздничные вкладки на страницах без каталога ─────────────────────────
-   Вкладка «1 сентября» помечена data-season-tab и спрятана в разметке. На
-   страницах с товарами её показывает products-live.js по живому каталогу и
-   заодно запоминает ответ. Здесь мы этот ответ просто читаем: доставке,
-   оплате и статьям незачем качать весь список товаров ради одной вкладки. */
-(function () {
-  "use strict";
-  var tabs = document.querySelectorAll("[data-season-tab]");
-  if (!tabs.length) return;
-  /* На странице с каталогом решение примет products-live.js — не мешаем. */
-  if (window.PALOMA_PRODUCTS) return;
-  var live = "";
-  try { live = localStorage.getItem("paloma:season-tabs") || ""; } catch (e) { return; }
-  if (!live) return;
-  var set = live.split(",");
-  Array.prototype.forEach.call(tabs, function (tab) {
-    if (set.indexOf(tab.getAttribute("data-season-tab")) >= 0) tab.hidden = false;
-  });
-})();
