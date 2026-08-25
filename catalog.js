@@ -15,6 +15,28 @@
 
   let currentFilter = "all";
 
+  /* ── Блок «Корпоративные букеты» ──────────────────────────
+     Это не товарная категория, а промо-врезка под сеткой, и
+     висела она в каждом разделе. Показываем её только тогда,
+     когда о ней попросили: клик по пилюле-якорю или прямая
+     ссылка с #corporate. */
+  const corporate = document.getElementById("corporate");
+  const corpPill = filters?.querySelector('a[href="#corporate"]');
+
+  function showCorporate(on) {
+    if (corporate) corporate.hidden = !on;
+    corpPill?.classList.toggle("is-active", !!on);
+  }
+
+  showCorporate(window.location.hash === "#corporate");
+
+  /* В меню самого каталога ссылка «Корпоративные букеты» ведёт на
+     catalog.html#corporate: страница не перезагружается, меняется
+     только хеш — разворачиваем блок и по этому событию. */
+  window.addEventListener("hashchange", () => {
+    if (window.location.hash === "#corporate") showCorporate(true);
+  });
+
   function esc(str) {
     return String(str)
       .replace(/&/g, "&amp;")
@@ -46,6 +68,37 @@
       NEW: "product-card__badge--new",
     };
     return map[label] || "product-card__badge--hit";
+  }
+
+  /* ── Плитка «помощь в выборе» ────────────────────────────
+     Стоит последней в подборке «1 сентября»: когда букеты
+     пролистаны и ни один не подошёл, менеджер оказывается
+     сразу под рукой, а не в подвале страницы. */
+  const HELP_TILE_CAT = "sept";
+  const HELP_TILE_PHONE = "79897707000";
+  const HELP_TILE_TEXT =
+    "Здравствуйте! Нужна помощь в выборе индивидуального букета к 1 сентября.";
+
+  function renderHelpTile() {
+    const phone =
+      (window.PALOMA_MANAGER && window.PALOMA_MANAGER.whatsappPhone) ||
+      HELP_TILE_PHONE;
+    const href =
+      "https://wa.me/" + phone + "?text=" + encodeURIComponent(HELP_TILE_TEXT);
+
+    const article = document.createElement("article");
+    article.className = "catalog-help-tile";
+    article.innerHTML = `
+      <a class="catalog-help-tile__inner"
+         href="${href}"
+         target="_blank"
+         rel="noopener noreferrer"
+         data-cursor="hover">
+        <h3 class="catalog-help-tile__title">Помощь в выборе индивидуального букета</h3>
+        <p class="catalog-help-tile__text">Расскажите о поводе и бюджете — флорист подберёт состав и пришлёт варианты.</p>
+        <span class="catalog-help-tile__btn">Написать менеджеру</span>
+      </a>`;
+    return article;
   }
 
   function renderCard(product) {
@@ -151,7 +204,7 @@
   }
 
   function revealCards() {
-    const cards = grid.querySelectorAll(".product-card");
+    const cards = grid.querySelectorAll(".product-card, .catalog-help-tile");
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       cards.forEach((c) => c.classList.add("is-visible", "is-revealed"));
       return;
@@ -199,6 +252,7 @@
     products.forEach((product) => {
       fragment.appendChild(renderCard(product));
     });
+    if (currentFilter === HELP_TILE_CAT) fragment.appendChild(renderHelpTile());
     grid.appendChild(fragment);
     afterRender();
 
@@ -234,7 +288,19 @@
     filters.addEventListener("click", (e) => {
       const btn = e.target.closest(".catalog-filter-btn");
       if (!btn) return;
+
+      /* Пилюля «Корпоративные букеты» — якорь, а не фильтр:
+         разворачиваем блок и отдаём прокрутку браузеру. */
+      if (btn === corpPill) {
+        showCorporate(true);
+        return;
+      }
       if (btn.tagName === "A") return; // ссылка-пилюля (Свадебная копилка) — даём перейти
+
+      /* Выбрали товарный раздел — врезка снова сворачивается.
+         Важно до проверки resolved === currentFilter: иначе
+         повторный клик по текущей категории её не уберёт. */
+      showCorporate(false);
 
       const filter = btn.dataset.filter || "all";
       const resolved = window.PALOMA_CATALOG.resolveFilter(filter);

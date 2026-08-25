@@ -259,3 +259,106 @@
     font-size: 11px;
   }
 }
+
+/* ── Плитка «помощь в выборе» в конце подборки «1 сентября» ──
+   Оформлена как промо-блок «Свадебной копилки»: чёрная подложка,
+   скрипт-заголовок и малиновая кнопка. Среди светлых карточек
+   с фото она читается как обращение студии, а не как товар. */
+.catalog-page .catalog-help-tile {
+  display: flex;
+}
+
+.catalog-page .catalog-help-tile__inner {
+  flex: 1;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(12px, 1.2vw, 18px);
+  padding: clamp(24px, 2.6vw, 38px) clamp(18px, 2vw, 30px);
+  border-radius: 20px;
+  border: 1px solid rgba(231, 56, 90, 0.28);
+  background: #0e0d0c;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease,
+    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.catalog-page .catalog-help-tile__title {
+  margin: 0;
+  font-family: var(--serif, "Classica One", "Italiana", cursive);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(21px, 2vw, 28px);
+  /* скрипт-шрифт с высокими росчерками — нужен запас по высоте строки */
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: #e7385a;
+  text-wrap: balance;
+}
+
+.catalog-page .catalog-help-tile__text {
+  margin: 0;
+  max-width: 30ch;
+  font-family: var(--sans, "Montserrat", sans-serif);
+  font-size: clamp(12px, 0.95vw, 14px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  text-wrap: balance;
+}
+
+.catalog-page .catalog-help-tile__btn {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 13px 26px;
+  border-radius: 14px;
+  border: 2px solid #e7385a;
+  background: #e7385a;
+  color: #fff;
+  font-family: var(--sans, "Montserrat", sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .catalog-page .catalog-help-tile__inner:hover {
+    transform: translateY(-4px);
+    border-color: rgba(231, 56, 90, 0.6);
+    box-shadow: 0 16px 38px rgba(231, 56, 90, 0.18);
+  }
+  .catalog-page .catalog-help-tile__inner:hover .catalog-help-tile__btn {
+    background: transparent;
+    color: #e7385a;
+  }
+}
+
+/* На телефоне плитка стоит в два столбца рядом с букетами —
+   описание не помещается, оставляем заголовок и кнопку. */
+@media (max-width: 600px) {
+  .catalog-page .catalog-help-tile__inner {
+    min-height: 0;
+    padding: 20px 12px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+  .catalog-page .catalog-help-tile__text {
+    display: none;
+  }
+  .catalog-page .catalog-help-tile__btn {
+    min-height: 40px;
+    padding: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+}
