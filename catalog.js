@@ -240,6 +240,9 @@
       const resolved = window.PALOMA_CATALOG.resolveFilter(filter);
       if (resolved === currentFilter) return;
 
+      /* Посетитель выбрал раздел сам — больше ему ничего не подставляем. */
+      catFromUrl = true;
+
       setActiveFilter(filter);
 
       const url = new URL(window.location.href);
@@ -318,9 +321,22 @@
     }
   });
 
+  /* Категория, на которой каталог открывается сам, без ?cat= в адресе.
+     Праздничная витрина: посетитель сразу попадает на неё, а не на «Все».
+     Пустую категорию не открываем — иначе каталог встретит человека
+     надписью «здесь пока нет товаров». Как только товары отмечены в панели,
+     подборка открывается сама. */
+  const DEFAULT_CAT = "sept";
+  let catFromUrl = true;
+
+  function defaultCatHasItems() {
+    return window.PALOMA_CATALOG.getByCategory(DEFAULT_CAT).length > 0;
+  }
+
   function initFromUrl() {
     const qp = new URLSearchParams(window.location.search);
-    const cat = qp.get("cat") || "all";
+    catFromUrl = !!qp.get("cat");
+    const cat = qp.get("cat") || (defaultCatHasItems() ? DEFAULT_CAT : "all");
     const resolved = window.PALOMA_CATALOG.resolveFilter(cat);
 
     const targetBtn =
@@ -346,8 +362,17 @@
   initFromUrl();
 
   /* Каталог обновился из базы (products-live.js) — перерисовываем сетку,
-     сохраняя выбранный посетителем фильтр. */
+     сохраняя выбранный посетителем фильтр.
+
+     Первая отрисовка идёт по встроенному прайсу, и праздничной подборки в нём
+     может ещё не быть — тогда открылись «Все». Если товары приехали из базы,
+     переключаемся на подборку: адрес посетитель не выбирал, значит показать
+     ему нужно именно её. Выбранный вручную фильтр не трогаем. */
   (window.PALOMA_RERENDER = window.PALOMA_RERENDER || []).push(function () {
+    if (!catFromUrl && currentFilter === "all" && defaultCatHasItems()) {
+      currentFilter = DEFAULT_CAT;
+      catFromUrl = true; // решение принято один раз, дальше не навязываемся
+    }
     setActiveFilter(currentFilter);
     renderGrid(currentFilter);
   });
