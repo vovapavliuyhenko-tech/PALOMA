@@ -17,10 +17,48 @@
   background: #1B1A18;
 }
 
+.home-sept__bg {
+  position: absolute;
+  top: -400px;
+  left: 0;
+  right: 0;
+  bottom: -400px;
+  z-index: 0;
+  overflow: hidden;
+  background: #1B1A18;
+  will-change: transform;
+}
+
+.home-sept__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Кадр вертикальный и в коробке параллакса режется сверху и снизу.
+     15% вместо середины — иначе лица девочек уходят за верхний край. */
+  object-position: center 15%;
+  display: block;
+}
+
+/* Затемнение поверх ролика: по нему идут светлая полоса и белая карточка,
+   а кадр местами почти белый. */
+.home-sept__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(27, 26, 24, 0.52);
+}
+
+/* Просили меньше движения — ролик не крутим, остаётся ровный тёмный фон. */
+@media (prefers-reduced-motion: reduce) {
+  .home-sept__video {
+    display: none;
+  }
+}
+
 /* Волны по сайту выключены с мая (paloma-animations.css, .paloma-wave —
    display:none !important). Здесь возвращаем её точечно: три класса в
-   селекторе перебивают тот один. Полоса лежит под карточкой и уходит за
-   неё — видно, как она входит слева и выходит справа. */
+   селекторе перебивают тот один. Полоса лежит поверх ролика и уходит за
+   карточку — видно, как она входит слева и выходит справа. */
 .home-sept .home-sept__band.paloma-wave {
   display: block !important;
   position: absolute;

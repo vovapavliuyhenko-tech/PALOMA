@@ -1,8 +1,8 @@
 /* =====================================================
    PALOMA — section parallax effects
-   · Subscription block: background moves at ~40% scroll
-     speed, creating a floating-card-over-photo effect
-     similar to skladcvetov73.ru
+   · Любая секция с [data-parallax-bg]: фон едет медленнее скролла,
+     карточка поверх него как будто плывёт — приём с skladcvetov73.ru.
+     Так сделаны «Первое сентября» (видео) и «Цветы по подписке» (фото).
    ===================================================== */
 
 (function () {
@@ -16,42 +16,44 @@
 
   function init() {
 
-    /* ── Subscription parallax ─────────────────────── */
-    var section = document.getElementById('subscription');
-    if (!section) return;
+    /* Секцию больше не ищем по имени: разметка сама помечает, что возить. */
+    var bgs = document.querySelectorAll('[data-parallax-bg]');
+    if (!bgs.length) return;
 
-    var bg = section.querySelector('.home-subscription__bg');
-    if (!bg) return;
+    Array.prototype.forEach.call(bgs, function (bg) {
+      var section = bg.closest('section');
+      if (!section) return;
 
-    var rafId = null;
+      var rafId = null;
 
-    function tick() {
-      rafId = null;
+      function tick() {
+        rafId = null;
 
-      var rect   = section.getBoundingClientRect();
-      var viewH  = window.innerHeight;
-      var sectH  = section.offsetHeight;
+        var rect   = section.getBoundingClientRect();
+        var viewH  = window.innerHeight;
+        var sectH  = section.offsetHeight;
 
-      /* Skip when fully off-screen */
-      if (rect.bottom < 0 || rect.top > viewH) return;
+        /* Skip when fully off-screen */
+        if (rect.bottom < 0 || rect.top > viewH) return;
 
-      /* progress 0 → 1 as section scrolls from bottom of viewport to top */
-      var progress = (viewH - rect.top) / (viewH + sectH);
-      progress = Math.max(0, Math.min(1, progress));
+        /* progress 0 → 1 as section scrolls from bottom of viewport to top */
+        var progress = (viewH - rect.top) / (viewH + sectH);
+        progress = Math.max(0, Math.min(1, progress));
 
-      /* Bg travels ±380px (760px total) — CSS sets top/bottom: -400px
-         so the image always covers the section completely. Большой ход =
-         заметный параллакс: фото ощутимо «плывёт» за карточкой при скролле. */
-      var bgY = (progress * 760 - 380).toFixed(2);
-      bg.style.transform = 'translateY(' + bgY + 'px)';
-    }
+        /* Bg travels ±380px (760px total) — CSS sets top/bottom: -400px
+           so the image always covers the section completely. Большой ход =
+           заметный параллакс: фон ощутимо «плывёт» за карточкой при скролле. */
+        var bgY = (progress * 760 - 380).toFixed(2);
+        bg.style.transform = 'translateY(' + bgY + 'px)';
+      }
 
-    window.addEventListener('scroll', function () {
-      if (!rafId) rafId = requestAnimationFrame(tick);
-    }, { passive: true });
+      window.addEventListener('scroll', function () {
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      }, { passive: true });
 
-    /* Kick off on load so initial position is correct */
-    requestAnimationFrame(tick);
+      /* Kick off on load so initial position is correct */
+      requestAnimationFrame(tick);
+    });
   }
 
   if (document.readyState === 'loading') {
