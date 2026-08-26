@@ -122,17 +122,19 @@
     transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Дата на месте жирафа: заезжает за угол, карточка её обрезает */
+/* Дата в правом нижнем углу карточки. Раньше уезжала за край и
+   обрезалась overflow:hidden — теперь помещается целиком, поэтому
+   кегль меньше, а прозрачность чуть плотнее, чтобы читалась. */
 .home-sept__date {
   position: absolute;
-  right: -20px;
-  bottom: -60px;
+  right: clamp(16px, 2.2vw, 30px);
+  bottom: clamp(10px, 1.4vw, 18px);
   z-index: 1;
   font-family: var(--font-display, var(--font-serif, Georgia, serif));
-  font-size: clamp(150px, 20vw, 260px);
+  font-size: clamp(56px, 8vw, 104px);
   line-height: 1;
   font-style: italic;
-  color: rgba(231, 56, 90, 0.09);
+  color: rgba(231, 56, 90, 0.16);
   pointer-events: none;
   user-select: none;
 }
@@ -245,6 +247,14 @@
   .home-sept__text {
     font-size: 15px;
     margin-top: clamp(14px, 2.4vw, 28px);
+  }
+
+  /* Карточка узкая: при общем кегле дата налезала на приписку.
+     Мельче и плотнее к краю — расходятся, не задевая друг друга. */
+  .home-sept__date {
+    right: 8px;
+    bottom: 8px;
+    font-size: 46px;
   }
 }
 
