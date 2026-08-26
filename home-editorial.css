@@ -360,7 +360,9 @@
 }
 
 .home-subscription__title {
-  margin: 0 0 26px;
+  /* нижний отступ обнулён: расстояния раздают авто-маржины текста,
+     ссылки и цитаты — иначе сверху у текста получалось на 26px больше */
+  margin: 0;
   font-family: var(--font-display, var(--font-serif, Georgia, serif));
   font-size: clamp(34px, 3.2vw, 48px);
   font-style: italic;
@@ -371,9 +373,9 @@
 
 .home-subscription__text {
   max-width: 440px;
-  /* нижний отступ убран — авто-маржины ссылки и цитаты центрируют кнопку ровно
-     посередине между текстом сверху и цитатой снизу */
-  margin: clamp(14px, 2.4vw, 28px) auto 0;
+  /* оба отступа auto: пустоты между заголовком, текстом, ссылкой и цитатой
+     делятся поровну — текст встаёт посередине, а не липнет к заголовку */
+  margin: auto auto 0;
   font-family: var(--font-sans, inherit);
   font-size: 13.5px;
   line-height: 1.55;

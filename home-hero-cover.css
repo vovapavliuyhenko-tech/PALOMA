@@ -78,16 +78,17 @@ body.is-home .site-header:not(.is-scrolled) .site-header__actions svg {
    Здесь слой плотнее, иначе «PALOMA» тонет в рисунке бумаги. */
 .paloma-cover--sept .paloma-cover__overlay {
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(27, 26, 24, 0.36) 0%, transparent 62%),
-    radial-gradient(ellipse at 50% 100%, rgba(27, 26, 24, 0.42) 0%, transparent 60%),
-    rgba(27, 26, 24, 0.33);
+    radial-gradient(ellipse at 50% 0%, rgba(27, 26, 24, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(27, 26, 24, 0.28) 0%, transparent 60%),
+    rgba(27, 26, 24, 0.16);
 }
 
 /* Фото светлое, и на самых ярких пятнах бумаги белому заголовку не хватало
    контраста. Мягкая тень держит его читаемым, а кадр не темнит. */
 .paloma-cover--sept .paloma-cover__word,
 .paloma-cover--sept .paloma-cover__tagline {
-  text-shadow: 0 2px 18px rgba(27, 26, 24, 0.45);
+  /* наложение стало легче — тень держит белый текст читаемым */
+  text-shadow: 0 2px 20px rgba(27, 26, 24, 0.6), 0 1px 4px rgba(27, 26, 24, 0.35);
 }
 
 /* Кадр горизонтальный, цветы по углам. На широком экране он влезает почти
