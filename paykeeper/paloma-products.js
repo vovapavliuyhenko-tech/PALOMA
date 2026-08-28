@@ -2808,6 +2808,26 @@ window.PALOMA_PRODUCTS = [
       { id: "coffee", label: "Кофе с собой", price: 320 },
     ],
   },
+  {
+    id: "n49",
+    slug: "svadebnyy-anturium-georgin",
+    image: "images/paloma/catalog/wed-anturium-georgin.jpg",
+    name: "Свадебный с антуриумом",
+    price: 7500,
+    priceFrom: true,
+    categories: ["wedding"],
+    badge: null,
+    composition: "Антуриум, георгин, стабилизированный амарант, паникум, диантус",
+    desc: "Букет невесты с зелёными антуриумами, розовыми георгинами и ниспадающим стабилизированным амарантом.",
+    pairs: "К капучино из PALOMA Coffee.",
+    placeholderGradient: { main: "linear-gradient(135deg, #f0a0a8, #8fae55)", hover: "linear-gradient(135deg, #dc8b94, #7d9a46)" },
+    sizes: [{ code: "base", label: "Базовый", priceDelta: 0 }],
+    addons: [
+      { id: "card", label: "Открытка", price: 350 },
+      { id: "vase", label: "Ваза", price: 1200 },
+      { id: "coffee", label: "Кофе с собой", price: 320 },
+    ],
+  },
 ];
 
 /* Общие допродажи — отдельные позиции в корзине */
