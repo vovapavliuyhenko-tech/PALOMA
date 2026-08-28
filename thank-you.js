@@ -206,6 +206,15 @@
   }
 
   function timeStr(f) {
+    /* Читаем ровно тот режим, который выбран в форме. Раньше exact_time
+       проверялся первым, без оглядки на time_type: если в форме оставалось
+       значение от другого режима, покупатель видел одно время, а менеджеру
+       уходило другое. time_type может не быть у старых заказов — для них
+       остаётся прежний порядок. */
+    if (f.time_type === "exact") return f.exact_time || "—";
+    if (f.time_type === "interval") {
+      return f.time_from || f.time_to ? `${f.time_from || "…"}–${f.time_to || "…"}` : "—";
+    }
     if (f.exact_time) return f.exact_time;
     if (f.time_from || f.time_to) return `${f.time_from || "…"}–${f.time_to || "…"}`;
     return "—";

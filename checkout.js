@@ -445,8 +445,20 @@
     if (e.target.name === "time_type") {
       const interval = document.getElementById("coTimeInterval");
       const exact = document.getElementById("coTimeExact");
-      if (interval) interval.hidden = e.target.value !== "interval";
-      if (exact) exact.hidden = e.target.value !== "exact";
+      const toExact = e.target.value === "exact";
+      if (interval) interval.hidden = toExact;
+      if (exact) exact.hidden = !toExact;
+      /* Гасим поля скрытого режима. Иначе в заказе оставались ОБА времени —
+         и точное, и интервал, — а разные части кода читали разные поля. */
+      if (toExact) {
+        const from = document.getElementById("co-time-from");
+        const to = document.getElementById("co-time-to");
+        if (from) from.value = "";
+        if (to) to.value = "";
+      } else {
+        const ex = document.getElementById("co-exact-time");
+        if (ex) ex.value = "";
+      }
       updateTimeConstraints();
     }
     if (
@@ -866,10 +878,14 @@
     if (f.delivery_date) lines.push("Дата: " + f.delivery_date);
     /* Время доставки: точное («к 14:30») или интервал («09:00–12:00»). Раньше
        не попадало в текст заказа — менеджер не видел выбранное время. */
+    const interval = f.time_from && f.time_to ? f.time_from + "–" + f.time_to : "";
+    const exactAt = f.exact_time ? "к " + f.exact_time : "";
+    /* Без time_type (старые заказы) берём то, что заполнено, — иначе строка
+       со временем пропадала из сообщения менеджеру целиком. */
     const timeStr =
-      f.time_type === "exact"
-        ? (f.exact_time ? "к " + f.exact_time : "")
-        : (f.time_from && f.time_to ? f.time_from + "–" + f.time_to : "");
+      f.time_type === "exact" ? exactAt
+      : f.time_type === "interval" ? interval
+      : (exactAt || interval);
     if (timeStr) lines.push("Время: " + timeStr);
     if (f.recipient_type === "other") {
       lines.push("", "Получатель: " + (f.recipient_name || "—") + ", " + (f.recipient_phone || "—"));
