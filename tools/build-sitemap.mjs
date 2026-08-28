@@ -33,7 +33,8 @@ const STATIC = [
   ["coffee-item.html", "weekly", "0.6"],
   ["subscription.html", "monthly", "0.7"],
   ["event-decoration.html", "monthly", "0.7"],
-  ["event-decoration-author.html", "monthly", "0.6"],
+  /* event-decoration-author.html — ранняя версия страницы оформления,
+     canonical ведёт на event-decoration.html. В карту сайта не включаем. */
   ["events.html", "monthly", "0.7"],
   ["weddings.html", "monthly", "0.7"],
   ["wedding-piggy-bank.html", "monthly", "0.6"],

@@ -960,6 +960,500 @@ window.PALOMA_PRODUCTS = [
     addons: [{ id: "card", label: "Открытка", price: 350 }, { id: "vase", label: "Ваза", price: 1200 }, { id: "coffee", label: "Кофе с собой", price: 320 }],
   },
   {
+    id: "m11",
+    slug: "kremovyy-diantus",
+    photoSize: "M",
+    image: "images/paloma/catalog/m11.jpg",
+    name: "Кремовый диантус",
+    price: 2535,
+    categories: [
+      "sept",
+      "mono"
+    ],
+    badge: null,
+    composition: "Диантус",
+    desc: "Плотный букет кремового диантуса в школьной упаковке PALOMA — спокойный и нарядный подарок к первому сентября.",
+    pairs: "К капучино из PALOMA Coffee.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #efe3b6, #b9a86f)",
+      hover: "linear-gradient(135deg, #b9a86f, #efe3b6)"
+    },
+    sizes: [
+      {
+        code: "S",
+        label: "S · 13 шт",
+        priceDelta: 0
+      },
+      {
+        code: "M",
+        label: "M · 17 шт",
+        priceDelta: 1130
+      },
+      {
+        code: "L",
+        label: "L · 19 шт",
+        priceDelta: 1520
+      },
+      {
+        code: "XL",
+        label: "XL · 21 шт",
+        priceDelta: 1910
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "m12",
+    slug: "rozovye-astry",
+    photoSize: "L",
+    image: "images/paloma/catalog/m12.jpg",
+    name: "Розовые астры",
+    price: 2000,
+    categories: [
+      "sept",
+      "mono"
+    ],
+    badge: null,
+    composition: "Астры",
+    desc: "Нежные розовые астры — классический сентябрьский букет, который держится долго и не выглядит дежурным.",
+    pairs: "К раф-кофе на фисташке.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #f0c3cd, #b3808d)",
+      hover: "linear-gradient(135deg, #b3808d, #f0c3cd)"
+    },
+    sizes: [
+      {
+        code: "S",
+        label: "S · 3 ветки",
+        priceDelta: 0
+      },
+      {
+        code: "M",
+        label: "M · 5 веток",
+        priceDelta: 1100
+      },
+      {
+        code: "L",
+        label: "L · 7 веток",
+        priceDelta: 2200
+      },
+      {
+        code: "XL",
+        label: "XL · 9 веток",
+        priceDelta: 3300
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "m13",
+    slug: "podsolnuhi",
+    photoSize: "S",
+    image: "images/paloma/catalog/m13.jpg",
+    name: "Подсолнухи",
+    price: 2500,
+    categories: [
+      "sept",
+      "mono"
+    ],
+    badge: null,
+    composition: "Подсолнух",
+    desc: "Крупные подсолнухи в школьной упаковке — самый заметный букет первого сентября, его видно через весь двор.",
+    pairs: "К фильтр-кофе.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #e8b830, #a07d16)",
+      hover: "linear-gradient(135deg, #a07d16, #e8b830)"
+    },
+    sizes: [
+      {
+        code: "S",
+        label: "S · 5 шт",
+        priceDelta: 0
+      },
+      {
+        code: "M",
+        label: "M · 7 шт",
+        priceDelta: 860
+      },
+      {
+        code: "L",
+        label: "L · 9 шт",
+        priceDelta: 1720
+      },
+      {
+        code: "XL",
+        label: "XL · 11 шт",
+        priceDelta: 2580
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "m14",
+    slug: "rozovaya-hrizantema",
+    photoSize: "M",
+    image: "images/paloma/catalog/m14.jpg",
+    name: "Розовая хризантема",
+    price: 1450,
+    categories: [
+      "sept",
+      "mono"
+    ],
+    badge: null,
+    composition: "Хризантема",
+    desc: "Кустовая хризантема сантини нежно-розового оттенка — лёгкий букет, который стоит в вазе больше двух недель.",
+    pairs: "К латте на миндальном.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #f2ccd4, #b98e98)",
+      hover: "linear-gradient(135deg, #b98e98, #f2ccd4)"
+    },
+    sizes: [
+      {
+        code: "S",
+        label: "S · 5 веток",
+        priceDelta: 0
+      },
+      {
+        code: "M",
+        label: "M · 7 веток",
+        priceDelta: 440
+      },
+      {
+        code: "L",
+        label: "L · 9 веток",
+        priceDelta: 880
+      },
+      {
+        code: "XL",
+        label: "XL · 11 веток",
+        priceDelta: 1320
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "n44",
+    slug: "pervyy-zvonok",
+    image: "images/paloma/catalog/n44.jpg",
+    name: "Первый звонок",
+    price: 4105,
+    priceFrom: true,
+    categories: [
+      "authors"
+    ],
+    badge: null,
+    composition: "Орнитогалум, хризантема, гладиолус, диантус Грин Трик, паникум",
+    desc: "Авторский букет к первому сентября: жёлтая хризантема, гладиолус и зелёный диантус Грин Трик в школьной упаковке PALOMA.",
+    pairs: "К капучино на кокосовом.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #e3c53f, #7f9146)",
+      hover: "linear-gradient(135deg, #7f9146, #e3c53f)"
+    },
+    sizes: [
+      {
+        code: "base",
+        label: "Базовый",
+        priceDelta: 0
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "n45",
+    slug: "korallovoe-utro",
+    image: "images/paloma/catalog/n45.jpg",
+    name: "Коралловое утро",
+    price: 4040,
+    priceFrom: true,
+    categories: [
+      "authors"
+    ],
+    badge: null,
+    composition: "Гортензия, паникум, эустома, эвкалипт, пионовидная роза, кустовая роза, диантус",
+    desc: "Коралловые пионовидные розы с зелёной гортензией и эвкалиптом — тёплый авторский букет с мягким переходом оттенков.",
+    pairs: "К флэт уайту.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #ef8f80, #94a86a)",
+      hover: "linear-gradient(135deg, #94a86a, #ef8f80)"
+    },
+    sizes: [
+      {
+        code: "base",
+        label: "Базовый",
+        priceDelta: 0
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "n46",
+    slug: "feyerverk",
+    image: "images/paloma/catalog/n46.jpg",
+    name: "Фейерверк",
+    price: 14975,
+    priceFrom: true,
+    categories: [
+      "authors"
+    ],
+    badge: null,
+    composition: "Дельфиниум, пионовидная кустовая роза, гладиолус, георгин, эустома, львиный зев, пионовидная роза, гортензия, паникум, целозия, лилия",
+    desc: "Большой авторский букет из одиннадцати культур: георгины, пионовидные розы, дельфиниум и лилия в фирменной коробке PALOMA.",
+    pairs: "К эспрессо-тонику.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #e79ab0, #6f86c4)",
+      hover: "linear-gradient(135deg, #6f86c4, #e79ab0)"
+    },
+    sizes: [
+      {
+        code: "base",
+        label: "Базовый",
+        priceDelta: 0
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "w7",
+    slug: "perlamutr",
+    image: "images/paloma/catalog/w7.jpg",
+    name: "Перламутр",
+    price: 9380,
+    priceFrom: true,
+    categories: [
+      "wedding"
+    ],
+    badge: null,
+    composition: "Астра, диантус, эустома, каллы, львиный зев",
+    desc: "Букет невесты с каллами и персиковой астрой на жемчужных нитях — компактный, лёгкий, держит форму весь день.",
+    pairs: "К свадебному оформлению PALOMA.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #f4dcd0, #c8a58f)",
+      hover: "linear-gradient(135deg, #c8a58f, #f4dcd0)"
+    },
+    sizes: [
+      {
+        code: "base",
+        label: "Базовый",
+        priceDelta: 0
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "w8",
+    slug: "monblan",
+    image: "images/paloma/catalog/w8.jpg",
+    name: "Монблан",
+    price: 7180,
+    priceFrom: true,
+    categories: [
+      "wedding"
+    ],
+    badge: null,
+    composition: "Антуриум, георгин, орнитогалум",
+    desc: "Лаконичный букет невесты: крупные белые георгины, зелень антуриума и жемчужные нити.",
+    pairs: "К свадебному оформлению PALOMA.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #f2efe6, #9aa88a)",
+      hover: "linear-gradient(135deg, #9aa88a, #f2efe6)"
+    },
+    sizes: [
+      {
+        code: "base",
+        label: "Базовый",
+        priceDelta: 0
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
+    id: "w9",
+    slug: "sorbet",
+    image: "images/paloma/catalog/w9.jpg",
+    name: "Сорбет",
+    price: 3355,
+    priceFrom: true,
+    categories: [
+      "wedding"
+    ],
+    badge: null,
+    composition: "Диантус, гладиолус, берграс, эустома",
+    desc: "Розово-белый букет невесты с эустомой и берграсом — воздушный силуэт с тонкими травами.",
+    pairs: "К свадебному оформлению PALOMA.",
+    placeholderGradient: {
+      main: "linear-gradient(135deg, #f3c6cf, #a9c47e)",
+      hover: "linear-gradient(135deg, #a9c47e, #f3c6cf)"
+    },
+    sizes: [
+      {
+        code: "base",
+        label: "Базовый",
+        priceDelta: 0
+      }
+    ],
+    addons: [
+      {
+        id: "card",
+        label: "Открытка",
+        price: 350
+      },
+      {
+        id: "vase",
+        label: "Ваза",
+        price: 1200
+      },
+      {
+        id: "coffee",
+        label: "Кофе с собой",
+        price: 320
+      }
+    ]
+  },
+  {
     id: "acc1",
     slug: "seletti-kintsugi-tray",
     image: "images/paloma/catalog/acc1.jpg",
