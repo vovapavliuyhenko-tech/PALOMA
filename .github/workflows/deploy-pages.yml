@@ -42,11 +42,16 @@ jobs:
       # отдавал 200. Публикуем только то, из чего состоит сам сайт.
       - name: Убрать служебное из публикации
         run: |
-          rm -rf paykeeper database src tools docs public .github
-          rm -f ./*.mjs
-          rm -f package.json package-lock.json tsconfig.json \
-                next.config.ts eslint.config.mjs postcss.config.mjs \
-                README.md AGENTS.md CLAUDE.md PALOMA_full_rebuild_cursor_prompt.md
+          # Папки: бэкенд, схема базы, мёртвый Next.js и Netlify, сборочные
+          # скрипты, тесты, внутренние заготовки страниц и документация.
+          rm -rf paykeeper database src tools scripts tests \
+                 docs public netlify partials internals .github
+          # Сборочные скрипты, конфиги и мусор в корне. CNAME и .nojekyll
+          # трогать нельзя: первый держит домен, второй — отдачу как есть.
+          rm -f ./*.mjs ./*.bak ./*.ps1
+          rm -f package.json package-lock.json tsconfig.json next.config.ts \
+                README.md AGENTS.md CLAUDE.md PALOMA_full_rebuild_cursor_prompt.md \
+                PHOTO_USAGE_MAP.md netlify.toml .gitignore
 
       # Предохранитель: если что-то из перечисленного всё же осталось —
       # роняем сборку, а не выкладываем молча. Дешевле сломанный деплой,
@@ -55,7 +60,8 @@ jobs:
         run: |
           found=$(find . -path ./.git -prune -o \
             \( -name '*.sql' -o -name '*.zip' -o -name 'lost-order-*.json' \
-               -o -name '*.mjs' -o -name 'package-lock.json' \) -print)
+               -o -name '*.mjs' -o -name '*.bak' -o -name '*.ps1' \
+               -o -name 'package-lock.json' \) -print)
           if [ -n "$found" ]; then
             echo "В публикацию попали служебные файлы:"; echo "$found"; exit 1
           fi
