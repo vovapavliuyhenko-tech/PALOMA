@@ -20,7 +20,7 @@ const crypto = require("crypto");
 
 /* Дата сборки архива. Видна в ?a=ping — по ней проверяют, что в облако
    загрузился именно свежий paloma-pay.zip, а не старый. */
-const BUILD = "2026-08-28-5";
+const BUILD = "2026-08-29-1";
 
 /* ── настройки из переменных окружения функции ── */
 const PK_SERVER = (process.env.PK_SERVER || "https://paloma.server.paykeeper.ru").replace(/\/+$/, "");
@@ -40,6 +40,19 @@ const TG_API_BASE = (process.env.TG_API_BASE || "https://api.telegram.org").repl
 
 const ORIGINS = [SITE, "https://www.paloma.website", "http://localhost:5500", "http://127.0.0.1:5500"];
 const AUTH = "Basic " + Buffer.from(`${PK_USER}:${PK_PASSWORD}`).toString("base64");
+
+/* ── Пределы частоты (см. ratelimit.js) ──
+   Промахов мимо пароля админки с одного адреса, после чего отказываем
+   всем запросам с него до конца окна. Десяти хватает менеджеру, который
+   путает раскладку, и мало для перебора. */
+const ADMIN_MAX_FAILS = Number(process.env.ADMIN_MAX_FAILS) || 10;
+const ADMIN_FAIL_WINDOW_SEC = Number(process.env.ADMIN_FAIL_WINDOW_SEC) || 900; /* 15 мин */
+
+/* Заказов и заявок с одного адреса в час. Публичные ручки notify и создание
+   счёта дёргают менеджера в Telegram — без потолка чат заваливается мусором.
+   Живой покупатель за час столько не оформляет. */
+const ORDER_MAX_PER_HOUR = Number(process.env.ORDER_MAX_PER_HOUR) || 15;
+const ORDER_WINDOW_SEC = 3600;
 
 /* TG_CHAT_ID может содержать несколько чатов через запятую —
    шлём в каждый (личка менеджера + рабочая группа и т.п.) */
@@ -1209,9 +1222,33 @@ module.exports.handler = async function handler(event) {
     let bodyObj = {};
     try { bodyObj = JSON.parse(rawBody(event) || "{}"); }
     catch { return reply(400, { error: "Некорректный JSON" }, origin); }
+    /* ── Защита от перебора пароля ──────────────────────────────────────
+       ADMIN_TOKEN — единственный рубеж между интернетом и журналом заказов
+       со всеми телефонами и адресами клиентов. Без счётчика его можно было
+       подбирать бесконечно и с любой скоростью.
+
+       Порядок важен: сначала смотрим счётчик и при исчерпанном лимите
+       отказываем НЕ СВЕРЯЯ пароль. Если сверять и лишь потом считать,
+       перебор не остановится — верный пароль всё равно пустит.
+
+       Считаем только промахи, поэтому обычной работе панели лимит не
+       мешает: удачный вход обнуляет счётчик. */
+    const rl = require("./ratelimit");
+    const failBucket = "admin-fail:" + rl.clientIp(event);
+    const gate = await rl.peek(failBucket, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_SEC);
+    if (!gate.ok) {
+      console.warn("[admin] перебор пароля, отказ:", rl.clientIp(event), gate.hits);
+      return reply(429, {
+        error: "Слишком много неудачных попыток. Попробуйте через " +
+          Math.ceil(gate.retryAfter / 60) + " мин.",
+      }, origin);
+    }
     const token = qs.token || bodyObj.token;
-    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN)
+    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
+      await rl.hit(failBucket, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_SEC);
       return reply(403, { error: "Нет доступа" }, origin);
+    }
+    await rl.reset(failBucket);
     // ── Страховочный журнал заказов: последние заказы, даже если TG не доходил ──
     if (action === "orders") {
       try {
@@ -1347,6 +1384,9 @@ module.exports.handler = async function handler(event) {
        не пройдёт проверку цены и покупатель увидит «Неизвестный товар». */
     await refreshCatalog();
 
+    /* Webhook НЕ ограничиваем: его зовёт PayKeeper, а не посетитель, и он
+       подписан секретным словом. Потерять уведомление об оплате из-за
+       лимита — хуже, чем принять лишний запрос. */
     if (action === "webhook") return await handleWebhook(event);
 
     let body;
@@ -1355,6 +1395,20 @@ module.exports.handler = async function handler(event) {
     } catch {
       return reply(400, { error: "Некорректный JSON" }, origin);
     }
+
+    /* Остальное здесь — публичное и заканчивается сообщением менеджеру в
+       Telegram: оформление заказа и выставление счёта. Ставим потолок на
+       адрес, иначе рабочий чат заваливается парой строк скрипта. */
+    const rlPub = require("./ratelimit");
+    const pubGate = await rlPub.hit(
+      "order:" + rlPub.clientIp(event), ORDER_MAX_PER_HOUR, ORDER_WINDOW_SEC);
+    if (!pubGate.ok) {
+      console.warn("[order] превышен лимит заказов:", rlPub.clientIp(event), pubGate.hits);
+      return reply(429, {
+        error: "Слишком много заказов подряд. Позвоните нам: +7 (989) 770-70-00",
+      }, origin);
+    }
+
     if (action === "notify") return await handleNotify(body, origin);
     return await createInvoice(body, origin);
   } catch (e) {

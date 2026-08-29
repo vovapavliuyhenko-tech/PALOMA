@@ -144,6 +144,24 @@
       out.className = cls || "";
     }
     function token() { return document.getElementById("token").value.trim(); }
+
+    /* Запрос к функции с админ-паролем в ТЕЛЕ, а не в адресной строке.
+       Раньше пароль уезжал как ?token=…: строка запроса целиком оседает
+       в логах облака и в истории браузера, то есть пароль от журнала
+       заказов лежал открытым текстом сразу в двух местах. Тело POST
+       в логи не пишется. Несекретные параметры (limit, sku) остаются
+       в адресе — на них смотреть можно. */
+    function adminPost(action, params) {
+      var url = FN + "?a=" + encodeURIComponent(action);
+      Object.keys(params || {}).forEach(function (k) {
+        if (params[k]) url += "&" + k + "=" + encodeURIComponent(params[k]);
+      });
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token() })
+      });
+    }
     function esc(s) {
       return String(s == null ? "" : s)
         .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -165,8 +183,7 @@
       var limit = document.getElementById("ordersLimit").value || "50";
       ordersMsg("Загружаю заказы…");
       try {
-        var res = await fetch(FN + "?a=orders&token=" + encodeURIComponent(token()) +
-                              "&limit=" + encodeURIComponent(limit));
+        var res = await adminPost("orders", { limit: limit });
         var data = await res.json();
         if (!res.ok || data.error) return ordersMsg(esc(data.error || "Ошибка"), "err");
         var orders = data.orders || [];
@@ -236,16 +253,14 @@
       var sku = document.getElementById("sku").value.trim();
       show("Считаю…"); statsBox.innerHTML = "";
       try {
-        var url = FN + "?a=codes-stats&token=" + encodeURIComponent(token());
-        if (sku) url += "&sku=" + encodeURIComponent(sku);
-        var res = await fetch(url);
+        var res = await adminPost("codes-stats", { sku: sku });
         var data = await res.json();
         if (!res.ok || data.error) return show(data.error || "Ошибка", "err");
         show("Остатки склада:", "ok");
         var names = { free: "свободен", reserved: "забронирован", sold: "продан", void: "аннулирован" };
         var rows = (data.stats || []).map(function (r) {
-          return "<tr><td>" + r.sku + "</td><td>" + (names[r.status] || r.status) +
-                 "</td><td>" + r.n + "</td></tr>";
+          return "<tr><td>" + esc(r.sku) + "</td><td>" + esc(names[r.status] || r.status) +
+                 "</td><td>" + esc(r.n) + "</td></tr>";
         }).join("");
         statsBox.innerHTML = rows
           ? "<table><tr><th>Товар</th><th>Статус</th><th>Кол-во</th></tr>" + rows + "</table>"
@@ -287,7 +302,7 @@
       if (!token()) return show("Введите админ-пароль сверху.", "err");
       btn.disabled = true; show("Проверяю (это займёт пару секунд)…"); statsBox.innerHTML = "";
       try {
-        var res = await fetch(FN + "?a=selftest&token=" + encodeURIComponent(token()));
+        var res = await adminPost("selftest", {});
         var data = await res.json();
         if (!res.ok || data.error) return show(data.error || "Ошибка", "err");
         var t = data.test;
