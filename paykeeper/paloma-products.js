@@ -2828,6 +2828,31 @@ window.PALOMA_PRODUCTS = [
       { id: "coffee", label: "Кофе с собой", price: 320 },
     ],
   },
+  {
+    id: "n50",
+    slug: "gortenziya-k-1-sentyabrya",
+    image: "images/paloma/catalog/sept-gortenziya-shkola.jpg",
+    name: "Гортензия к 1 сентября",
+    price: 2300,
+    priceFrom: true,
+    categories: ["sept", "mono"],
+    badge: null,
+    composition: "Гортензия",
+    desc: "Белая гортензия в праздничной упаковке «Снова в школу» — крупные шапки, которые не теряются в руках у первоклассника.",
+    pairs: "К фильтру или лунго.",
+    placeholderGradient: { main: "linear-gradient(135deg, #d8d2c6, #8f887c)", hover: "linear-gradient(135deg, #c4beb2, #7b756a)" },
+    sizes: [
+      { code: "S", label: "S · 3 шт", priceDelta: 0 },
+      { code: "M", label: "M · 5 шт", priceDelta: 1300 },
+      { code: "L", label: "L · 7 шт", priceDelta: 2600 },
+      { code: "XL", label: "XL · 9 шт", priceDelta: 3900 },
+    ],
+    addons: [
+      { id: "card", label: "Открытка", price: 350 },
+      { id: "vase", label: "Ваза", price: 1200 },
+      { id: "coffee", label: "Кофе с собой", price: 320 },
+    ],
+  },
 ];
 
 /* Общие допродажи — отдельные позиции в корзине */
