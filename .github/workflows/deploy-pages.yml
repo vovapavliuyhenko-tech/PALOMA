@@ -36,6 +36,31 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      # Раньше здесь стояло `path: .` — на сайт уезжала ВСЯ папка, включая
+      # исходники облачной функции, схему базы и служебные скрипты. Всё это
+      # открывалось по прямой ссылке любому: paloma.website/paykeeper/index.js
+      # отдавал 200. Публикуем только то, из чего состоит сам сайт.
+      - name: Убрать служебное из публикации
+        run: |
+          rm -rf paykeeper database src tools docs public .github
+          rm -f ./*.mjs
+          rm -f package.json package-lock.json tsconfig.json \
+                next.config.ts eslint.config.mjs postcss.config.mjs \
+                README.md AGENTS.md CLAUDE.md PALOMA_full_rebuild_cursor_prompt.md
+
+      # Предохранитель: если что-то из перечисленного всё же осталось —
+      # роняем сборку, а не выкладываем молча. Дешевле сломанный деплой,
+      # чем ещё одна утечка.
+      - name: Проверить, что секретного не осталось
+        run: |
+          found=$(find . -path ./.git -prune -o \
+            \( -name '*.sql' -o -name '*.zip' -o -name 'lost-order-*.json' \
+               -o -name '*.mjs' -o -name 'package-lock.json' \) -print)
+          if [ -n "$found" ]; then
+            echo "В публикацию попали служебные файлы:"; echo "$found"; exit 1
+          fi
+          echo "Чисто: служебных файлов в артефакте нет."
+
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:

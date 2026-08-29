@@ -8,6 +8,15 @@ Thumbs.db
 .env
 .env.*
 
+# Персональные данные клиентов: выгрузки заказов, заявок, восстановленные
+# вручную заказы. Один такой файл 8 дней отдавался с сайта по прямой ссылке —
+# с телефоном, почтой и адресом человека. Держим их вне репозитория.
+lost-order-*.json
+orders-*.json
+leads-*.json
+*-orders.csv
+*-clients.csv
+
 # Logs / deps (if added later)
 node_modules/
 npm-debug.log*
