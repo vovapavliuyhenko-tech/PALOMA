@@ -32,15 +32,31 @@ async function ensureTable() {
 }
 
 /* Кто спрашивает. За функцией стоит балансировщик Яндекса, поэтому
-   реальный адрес приходит заголовком, а не в соединении. Если адреса
-   нет — считаем всех одним ведром: лучше общий потолок, чем никакого. */
+   реальный адрес приходит не из соединения.
+
+   Первым делом смотрим requestContext.identity.sourceIp: событие
+   Яндекса повторяет формат AWS, и адрес лежит именно там. Заголовки —
+   запасной путь, и перебираем их без учёта регистра: имена приходят
+   по-разному, а точное совпадение легко промахивается.
+
+   Возвращаем null, если адрес определить не удалось. Именно null, а не
+   общее ведро: раньше здесь стояла строка «неизвестно», и все посетители
+   считались одним — десять неудачных попыток с любого адреса запирали
+   и владельца. Как это лечится, см. в index.js на месте вызова. */
 function clientIp(event) {
+  const ctx = (event && event.requestContext) || {};
+  const direct = (ctx.identity && ctx.identity.sourceIp) || ctx.sourceIp || "";
+  if (direct) return String(direct).split(",")[0].trim();
+
   const h = (event && event.headers) || {};
-  const raw =
-    h["X-Forwarded-For"] || h["x-forwarded-for"] ||
-    h["X-Real-Ip"] || h["x-real-ip"] || "";
-  const first = String(raw).split(",")[0].trim();
-  return first || "неизвестно";
+  for (const key of Object.keys(h)) {
+    const k = key.toLowerCase();
+    if (k === "x-forwarded-for" || k === "x-real-ip") {
+      const first = String(h[key] || "").split(",")[0].trim();
+      if (first) return first;
+    }
+  }
+  return null;
 }
 
 /* Отметить обращение и сказать, можно ли пускать.

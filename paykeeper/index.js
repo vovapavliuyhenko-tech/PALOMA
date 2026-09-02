@@ -20,7 +20,7 @@ const crypto = require("crypto");
 
 /* Дата сборки архива. Видна в ?a=ping — по ней проверяют, что в облако
    загрузился именно свежий paloma-pay.zip, а не старый. */
-const BUILD = "2026-08-29-5";
+const BUILD = "2026-08-29-6";
 
 /* ── настройки из переменных окружения функции ── */
 const PK_SERVER = (process.env.PK_SERVER || "https://paloma.server.paykeeper.ru").replace(/\/+$/, "");
@@ -1140,6 +1140,13 @@ module.exports.handler = async function handler(event) {
      чтобы после загрузки нового архива было видно, доехал он или нет. ── */
   if (action === "ping") {
     const out = { ok: true, версия: BUILD };
+    /* Свой же адрес, как его видит функция. Не секрет — спрашивающему
+       возвращаем только его собственный адрес. Нужно, чтобы проверять
+       работу лимитов фактом: если тут «не определён», счётчики по адресу
+       не работают, и это видно сразу, а не после блокировки владельца. */
+    try {
+      out.ваш_адрес = require("./ratelimit").clientIp(event) || "не определён";
+    } catch (e) { /* диагностика не должна ронять ping */ }
     try {
       require("./paloma-products.js");
       const seed = (global.window && global.window.PALOMA_PRODUCTS) || [];
@@ -1232,23 +1239,36 @@ module.exports.handler = async function handler(event) {
        перебор не остановится — верный пароль всё равно пустит.
 
        Считаем только промахи, поэтому обычной работе панели лимит не
-       мешает: удачный вход обнуляет счётчик. */
+       мешает: удачный вход обнуляет счётчик.
+
+       Считаем ПО АДРЕСУ. Если адрес определить не удалось — НЕ блокируем.
+       Первая версия в этом случае сваливала всех в общее ведро, и десяти
+       неудачных попыток с чужого адреса хватало, чтобы запереть владельца
+       в собственной панели. Это хуже той угрозы, от которой защищаемся:
+       перебор пароля — риск, а отказ в доступе хозяйке магазина — уже
+       случившаяся поломка. Поэтому здесь осознанно пропускаем и пишем в
+       журнал, чтобы потерю адреса было видно. */
     const rl = require("./ratelimit");
-    const failBucket = "admin-fail:" + rl.clientIp(event);
-    const gate = await rl.peek(failBucket, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_SEC);
-    if (!gate.ok) {
-      console.warn("[admin] перебор пароля, отказ:", rl.clientIp(event), gate.hits);
-      return reply(429, {
-        error: "Слишком много неудачных попыток. Попробуйте через " +
-          Math.ceil(gate.retryAfter / 60) + " мин.",
-      }, origin);
+    const ip = rl.clientIp(event);
+    if (!ip) console.warn("[admin] адрес посетителя не определён — лимит не применяется");
+
+    const failBucket = ip ? "admin-fail:" + ip : null;
+    if (failBucket) {
+      const gate = await rl.peek(failBucket, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_SEC);
+      if (!gate.ok) {
+        console.warn("[admin] перебор пароля, отказ:", ip, gate.hits);
+        return reply(429, {
+          error: "Слишком много неудачных попыток. Попробуйте через " +
+            Math.ceil(gate.retryAfter / 60) + " мин.",
+        }, origin);
+      }
     }
     const token = qs.token || bodyObj.token;
     if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
-      await rl.hit(failBucket, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_SEC);
+      if (failBucket) await rl.hit(failBucket, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_SEC);
       return reply(403, { error: "Нет доступа" }, origin);
     }
-    await rl.reset(failBucket);
+    if (failBucket) await rl.reset(failBucket);
     // ── Страховочный журнал заказов: последние заказы, даже если TG не доходил ──
     if (action === "orders") {
       try {
@@ -1414,15 +1434,24 @@ module.exports.handler = async function handler(event) {
 
     /* Остальное здесь — публичное и заканчивается сообщением менеджеру в
        Telegram: оформление заказа и выставление счёта. Ставим потолок на
-       адрес, иначе рабочий чат заваливается парой строк скрипта. */
+       адрес, иначе рабочий чат заваливается парой строк скрипта.
+
+       Адрес не определился — пропускаем без счёта, как и у админки: общее
+       ведро означало бы, что один спамер закрывает оформление заказа всем
+       покупателям сразу. Потерянная выручка дороже мусорных сообщений. */
     const rlPub = require("./ratelimit");
-    const pubGate = await rlPub.hit(
-      "order:" + rlPub.clientIp(event), ORDER_MAX_PER_HOUR, ORDER_WINDOW_SEC);
-    if (!pubGate.ok) {
-      console.warn("[order] превышен лимит заказов:", rlPub.clientIp(event), pubGate.hits);
-      return reply(429, {
-        error: "Слишком много заказов подряд. Позвоните нам: +7 (989) 770-70-00",
-      }, origin);
+    const pubIp = rlPub.clientIp(event);
+    if (pubIp) {
+      const pubGate = await rlPub.hit(
+        "order:" + pubIp, ORDER_MAX_PER_HOUR, ORDER_WINDOW_SEC);
+      if (!pubGate.ok) {
+        console.warn("[order] превышен лимит заказов:", pubIp, pubGate.hits);
+        return reply(429, {
+          error: "Слишком много заказов подряд. Позвоните нам: +7 (989) 770-70-00",
+        }, origin);
+      }
+    } else {
+      console.warn("[order] адрес покупателя не определён — лимит не применяется");
     }
 
     if (action === "notify") return await handleNotify(body, origin);
