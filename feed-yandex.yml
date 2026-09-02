@@ -963,15 +963,7 @@
         <param name="Состав">Пионовидная роза Мелон Экспрешн</param>
         <description>Монобукет из пионовидной розы Мелон Экспрешн. Размеры от S (11 шт) до XL (25 шт).</description>
       </offer>
-      <offer id="n40" available="true">
-        <url>https://paloma.website/product.html?slug=gelios</url>
-        <price>4945</price><currencyId>RUR</currencyId><categoryId>4</categoryId>
-        <picture>https://paloma.website/images/paloma/catalog/n40.jpg</picture>
-        <name>Гелиос</name><vendor>PALOMA</vendor>
-        <param name="Состав">Подсолнух, эустома, амми, листья малины</param>
-        <description>Солнечный букет-бестселлер с подсолнухами, эустомой и амми.</description>
-      </offer>
-          <offer id="acc41" available="true">
+<offer id="acc41" available="true">
         <url>https://paloma.website/product.html?slug=vaza-volna-zheltaya</url>
         <price>4200</price><currencyId>RUR</currencyId><categoryId>6</categoryId>
         <picture>https://paloma.website/images/paloma/catalog/acc41.jpg</picture>

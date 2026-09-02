@@ -2161,27 +2161,7 @@ window.PALOMA_PRODUCTS = [
       { id: "coffee", label: "Кофе с собой", price: 320 },
     ],
   },
-  {
-    id: "n40",
-    slug: "gelios",
-    image: "images/paloma/catalog/n40.jpg",
-    name: "Гелиос",
-    price: 4945,
-    priceFrom: true,
-    categories: ["bestsellers"],
-    badge: null,
-    composition: "Подсолнух, эустома, амми, листья малины",
-    desc: "Солнечный букет-бестселлер с подсолнухами, эустомой и амми.",
-    pairs: "К капучино из PALOMA Coffee.",
-    placeholderGradient: { main: "linear-gradient(135deg, #e0b83c, #a8801e)", hover: "linear-gradient(135deg, #d4ac30, #987218)" },
-    sizes: [{ code: "base", label: "Базовый", priceDelta: 0 }],
-    addons: [
-      { id: "card", label: "Открытка", price: 350 },
-      { id: "vase", label: "Ваза", price: 1200 },
-      { id: "coffee", label: "Кофе с собой", price: 320 },
-    ],
-  },
-  {
+{
     id: "acc41",
     slug: "vaza-volna-zheltaya",
     image: "images/paloma/catalog/acc41.jpg",
