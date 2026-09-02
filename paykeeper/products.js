@@ -335,7 +335,7 @@ async function setActive(id, active) {
 
 
 
-/* ── Разовая чистка: убрать из базы всё, что осталось от 1 сентября ──
+/* ── Разовая уборка каталога ──────────────────────────────────────────
 
    Зачем отдельное действие. Каталог на сайте берётся из базы, а не из
    встроенного прайса, поэтому правки в paloma-products.js сами по себе
@@ -343,11 +343,21 @@ async function setActive(id, active) {
    она только ДОБАВЛЯЕТ отсутствующие строки (ON CONFLICT DO NOTHING) и
    существующие не трогает.
 
-   Метку «sept» часть товаров получила прямо в панели, во встроенном
-   прайсе её у них никогда не было, — поэтому чистим по базе, а не по
-   списку id. Названия и описания правим только у тех двух товаров,
-   что были заведены под праздник, и только если они ещё не переименованы
-   вручную: повторный запуск ничего не портит. */
+   Делает три вещи:
+   1) снимает метку «sept» — часть товаров получила её прямо в панели,
+      во встроенном прайсе её у них никогда не было, поэтому чистим по
+      базе, а не по списку id;
+   2) возвращает двум праздничным товарам обычные названия — но только
+      если их ещё не переименовали вручную;
+   3) удаляет снятые с продажи товары (RETIRED).
+
+   Повторный запуск ничего не портит. */
+const RETIRED = [
+  /* Снят по просьбе владельца 29.08.2026. Из прайса и фидов уже убран,
+     здесь — чтобы исчез и из базы: иначе карточка осталась бы на сайте. */
+  { id: "n40", wasName: "Гелиос" },
+];
+
 const SEPT_RENAMES = [
   {
     id: "n50",
@@ -413,6 +423,18 @@ async function cleanupSept(force) {
     renamed.push(r.wasName + " → " + r.name);
   }
 
+  /* 3. Удаляем снятые с продажи. Сверяем имя: если под этим id владелец
+        успел завести другой товар, чужое не трогаем. */
+  const removed = [];
+  for (const r of RETIRED) {
+    const got = await query(`SELECT id, data FROM products WHERE id = $1`, [r.id]);
+    const row = got.rows[0];
+    if (!row) continue;
+    if (r.wasName && (row.data || {}).name !== r.wasName) continue;
+    await query(`DELETE FROM products WHERE id = $1`, [r.id]);
+    removed.push(r.wasName || r.id);
+  }
+
   await query(
     `INSERT INTO app_settings (key, value, updated_at)
        VALUES ('sept_cleaned', $1, now())
@@ -420,7 +442,7 @@ async function cleanupSept(force) {
     [JSON.stringify({ at: new Date().toISOString(), tags: tagged.rows.length })]
   );
 
-  return { снято_меток: tagged.rows.length, переименовано: renamed };
+  return { снято_меток: tagged.rows.length, переименовано: renamed, удалено: removed };
 }
 
 /* ── Порядок вывода: админка присылает id в нужной последовательности ── */
