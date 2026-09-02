@@ -966,13 +966,10 @@ window.PALOMA_PRODUCTS = [
     image: "images/paloma/catalog/m11.jpg",
     name: "Кремовый диантус",
     price: 2535,
-    categories: [
-      "sept",
-      "mono"
-    ],
+    categories: ["mono"],
     badge: null,
     composition: "Диантус",
-    desc: "Плотный букет кремового диантуса в школьной упаковке PALOMA — спокойный и нарядный подарок к первому сентября.",
+    desc: "Плотный букет кремового диантуса в фирменной упаковке PALOMA — спокойный и нарядный подарок.",
     pairs: "К капучино из PALOMA Coffee.",
     placeholderGradient: {
       main: "linear-gradient(135deg, #efe3b6, #b9a86f)",
@@ -1025,13 +1022,10 @@ window.PALOMA_PRODUCTS = [
     image: "images/paloma/catalog/m12.jpg",
     name: "Розовые астры",
     price: 2000,
-    categories: [
-      "sept",
-      "mono"
-    ],
+    categories: ["mono"],
     badge: null,
     composition: "Астры",
-    desc: "Нежные розовые астры — классический сентябрьский букет, который держится долго и не выглядит дежурным.",
+    desc: "Нежные розовые астры — классический букет, который держится долго и не выглядит дежурным.",
     pairs: "К раф-кофе на фисташке.",
     placeholderGradient: {
       main: "linear-gradient(135deg, #f0c3cd, #b3808d)",
@@ -1084,13 +1078,10 @@ window.PALOMA_PRODUCTS = [
     image: "images/paloma/catalog/m13.jpg",
     name: "Подсолнухи",
     price: 2500,
-    categories: [
-      "sept",
-      "mono"
-    ],
+    categories: ["mono"],
     badge: null,
     composition: "Подсолнух",
-    desc: "Крупные подсолнухи в школьной упаковке — самый заметный букет первого сентября, его видно через весь двор.",
+    desc: "Крупные подсолнухи в фирменной упаковке PALOMA — самый заметный букет, его видно издалека.",
     pairs: "К фильтр-кофе.",
     placeholderGradient: {
       main: "linear-gradient(135deg, #e8b830, #a07d16)",
@@ -1143,10 +1134,7 @@ window.PALOMA_PRODUCTS = [
     image: "images/paloma/catalog/m14.jpg",
     name: "Розовая хризантема",
     price: 1450,
-    categories: [
-      "sept",
-      "mono"
-    ],
+    categories: ["mono"],
     badge: null,
     composition: "Хризантема",
     desc: "Кустовая хризантема сантини нежно-розового оттенка — лёгкий букет, который стоит в вазе больше двух недель.",
@@ -1197,9 +1185,9 @@ window.PALOMA_PRODUCTS = [
   },
   {
     id: "n44",
-    slug: "pervyy-zvonok",
+    slug: "solnechnyy-polden",
     image: "images/paloma/catalog/n44.jpg",
-    name: "Первый звонок",
+    name: "Солнечный полдень",
     price: 4105,
     priceFrom: true,
     categories: [
@@ -1207,7 +1195,7 @@ window.PALOMA_PRODUCTS = [
     ],
     badge: null,
     composition: "Орнитогалум, хризантема, гладиолус, диантус Грин Трик, паникум",
-    desc: "Авторский букет к первому сентября: жёлтая хризантема, гладиолус и зелёный диантус Грин Трик в школьной упаковке PALOMA.",
+    desc: "Авторский букет в жёлто-зелёной гамме: хризантема, гладиолус, орнитогалум и зелёный диантус Грин Трик.",
     pairs: "К капучино на кокосовом.",
     placeholderGradient: {
       main: "linear-gradient(135deg, #e3c53f, #7f9146)",
@@ -2810,15 +2798,15 @@ window.PALOMA_PRODUCTS = [
   },
   {
     id: "n50",
-    slug: "gortenziya-k-1-sentyabrya",
-    image: "images/paloma/catalog/sept-gortenziya-shkola.jpg",
-    name: "Гортензия к 1 сентября",
+    slug: "gortenziya",
+    image: "images/paloma/catalog/gortenziya-belaya.jpg",
+    name: "Гортензия",
     price: 2300,
     priceFrom: true,
-    categories: ["sept", "mono"],
+    categories: ["mono"],
     badge: null,
     composition: "Гортензия",
-    desc: "Белая гортензия в праздничной упаковке «Снова в школу» — крупные шапки, которые не теряются в руках у первоклассника.",
+    desc: "Белая гортензия — крупные шапки, которые заметны даже в небольшом букете.",
     pairs: "К фильтру или лунго.",
     placeholderGradient: { main: "linear-gradient(135deg, #d8d2c6, #8f887c)", hover: "linear-gradient(135deg, #c4beb2, #7b756a)" },
     sizes: [

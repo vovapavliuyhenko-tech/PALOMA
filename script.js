@@ -1468,7 +1468,7 @@ function initHomeEditorialSectionsReveal() {
   "use strict";
 
   const sections = document.querySelectorAll(
-    ".home-subscription, .home-categories, .home-sept",
+    ".home-subscription, .home-categories",
   );
   if (!sections.length) return;
 

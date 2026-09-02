@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="paloma-responsive.css?v=nomarq1">
   <link rel="stylesheet" href="cursor.css?v=press1">
   <link rel="stylesheet" href="legal.css?v=2">
-  <link rel="stylesheet" href="home-hero-cover.css?v=sept4">
-  <link rel="stylesheet" href="home-editorial.css?v=sept9">
+  <link rel="stylesheet" href="home-hero-cover.css?v=10">
+  <link rel="stylesheet" href="home-editorial.css?v=10">
   <link rel="stylesheet" href="formats.css?v=fmt14">
   <link rel="stylesheet" href="event-author.css?v=ea6">
   <link rel="stylesheet" href="paloma-wave.css?v=w1">
@@ -107,7 +107,7 @@
   <meta name="twitter:title" content="PALOMA — авторские букеты и кофе в Новороссийске">
   <meta name="twitter:description" content="Авторские букеты и specialty-кофе в Новороссийске. Фото букета перед отправкой, доставка день-в-день по Новороссийску, Геленджику и Анапе.">
   <meta name="twitter:image" content="https://paloma.website/images/paloma/hero/hero-main.jpg">
-  <link rel="stylesheet" href="mobile-polish.css?v=41">
+  <link rel="stylesheet" href="mobile-polish.css?v=42">
   <script src="paloma-schema.js?v=1"></script>
 </head>
 <body class="is-home">
@@ -164,20 +164,6 @@
             <div class="catalog-dropdown" id="catalogDropdown" role="region" aria-labelledby="catalogNavTriggerMain">
               <div class="catalog-dropdown__inner">
                 <div class="catalog-dropdown__grid">
-
-                  <a href="catalog.html?cat=sept"
-                     class="catalog-nav-item" data-cursor="hover">
-                    <div class="catalog-nav-item__icon" aria-hidden="true">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                        <path d="M4 5h9a3 3 0 0 1 3 3v11a2.5 2.5 0 0 0-2.5-2.5H4z"/>
-                        <path d="M20 5h-1a3 3 0 0 0-3 3v11a2.5 2.5 0 0 1 2.5-2.5H20z"/>
-                      </svg>
-                    </div>
-                    <div class="catalog-nav-item__body">
-                      <span class="catalog-nav-item__title">1 сентября</span>
-                      <span class="catalog-nav-item__sub">Букеты учителям</span>
-                    </div>
-                  </a>
 
                   <a href="catalog.html?cat=online"
                      class="catalog-nav-item" data-cursor="hover">
@@ -441,29 +427,6 @@
           decoding="sync">
       </div>
 
-      <!-- Праздничная обложка: держим её по 1 сентября включительно, со 2-го
-           главная сама возвращается к обычному кадру — перевыкладывать сайт
-           не нужно. Скрипт стоит сразу за картинкой, чтобы подменить её до
-           отрисовки. Когда праздник пройдёт, этот блок можно удалить целиком
-           вместе с правилами .paloma-cover--sept и файлом hero-sept.jpg. -->
-      <script>
-        (function () {
-          var d = new Date();
-          var today = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-          if (today < 20260825 || today > 20260901) return;
-
-          var img = document.getElementById("homeHeroImg");
-          var hero = document.getElementById("homeHero");
-          if (!img || !hero) return;
-
-          img.src = "images/paloma/hero/hero-sept.jpg";
-          img.width = 1920;
-          img.height = 1440;
-          img.alt = "Букеты PALOMA к 1 сентября: гортензия и подсолнухи на школьной обёрточной бумаге";
-          hero.classList.add("paloma-cover--sept");
-        })();
-      </script>
-
       <div class="paloma-cover__overlay" aria-hidden="true"></div>
 
       <div class="paloma-cover__center">
@@ -689,63 +652,6 @@
     </div>
 
     <!-- =====================================================
-         PALOMA SEPT 1 — праздничная афиша
-         ===================================================== -->
-    <section class="home-sept" id="sept" aria-label="Первое сентября в PALOMA">
-      <!-- Видео-фон. Обёртка вылезает за секцию сверху и снизу: параллакс возит
-           её на ±380px, и без запаса из-под ролика показалась бы подложка. -->
-      <div class="home-sept__bg" data-parallax-bg aria-hidden="true">
-        <!-- src атрибутом, а не <source>: на телефонах script.js подменяет
-             видео на ленивую загрузку и ищет именно атрибут src. -->
-        <video class="home-sept__video" src="videos/paloma/sept-hero.mp4"
-               autoplay muted loop playsinline preload="metadata"></video>
-      </div>
-
-      <!-- Полоса идёт через всю секцию и уходит за карточку. -->
-      <div class="paloma-wave home-sept__band" aria-hidden="true">
-        <svg class="paloma-wave__svg" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-          <defs>
-            <path id="palomaWaveSept" fill="none"
-              d="M0,150 Q150,50 300,150 T600,150 T900,150 T1200,150"/>
-          </defs>
-          <!-- Две строки на одну кривую: на широком экране буквы мельче и слов
-               больше, на телефоне наоборот. Обе растянуты textLength на всю
-               длину кривой — полоса доходит до обоих краёв. -->
-          <text class="paloma-wave__text home-sept__band-line home-sept__band-line--wide">
-            <textPath href="#palomaWaveSept" xlink:href="#palomaWaveSept" startOffset="0"
-                      textLength="1284" lengthAdjust="spacing">PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA</textPath>
-          </text>
-          <text class="paloma-wave__text home-sept__band-line home-sept__band-line--narrow">
-            <textPath href="#palomaWaveSept" xlink:href="#palomaWaveSept" startOffset="0"
-                      textLength="1284" lengthAdjust="spacing">PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA&#160;&#160;PALOMA</textPath>
-          </text>
-        </svg>
-      </div>
-
-      <div class="home-sept__card">
-        <div class="home-sept__mark" aria-hidden="true">*</div>
-
-        <h2 class="home-sept__title">Первое сентября</h2>
-
-        <p class="home-sept__text">
-          Пока вы гладите рубашку и ищете второй бант, букет уже собран
-          и едет к школе — свежий, к нужному часу, без очередей и нервов.
-          Выберите букет на сайте, остальное сделаем мы
-        </p>
-
-        <a class="home-sept__link" href="catalog.html?cat=sept">
-          Выбрать букет к празднику
-        </a>
-
-        <p class="home-sept__note">
-          Заказы принимаем до 1 сентября
-        </p>
-
-        <span class="home-sept__date" aria-hidden="true">1.09</span>
-      </div>
-    </section>
-
-    <!-- =====================================================
          PALOMA CATEGORY COLLECTIONS — editorial row
          ===================================================== -->
     <section class="home-categories" id="categories" aria-label="Подборки по категориям">
@@ -761,9 +667,9 @@
       </div>
 
       <div class="home-categories__grid">
-        <a class="home-categories__item" href="catalog.html?cat=sept">
-          <div class="home-categories__photo home-categories__photo--sept"></div>
-          <span>1 сентября</span>
+        <a class="home-categories__item" href="catalog.html?cat=online">
+          <div class="home-categories__photo home-categories__photo--bouquets"></div>
+          <span>Онлайн-витрина</span>
         </a>
 
         <a class="home-categories__item" href="catalog.html?cat=season">
@@ -1547,12 +1453,12 @@
 
   <script src="preloader.js?v=giraffe1"></script>
   <script src="cart-core.js?v=ecom2"></script>
-  <script src="paloma-products.js?v=p57"></script>
-  <script src="products-live.js?v=4"></script>
-  <script src="catalog-data.js?v=p48"></script>
+  <script src="paloma-products.js?v=p58"></script>
+  <script src="products-live.js?v=5"></script>
+  <script src="catalog-data.js?v=p49"></script>
   <script src="payment-config.js?v=1"></script>
   <script src="lead-send.js?v=2"></script>
-  <script src="script.js?v=perf6"></script>
+  <script src="script.js?v=perf7"></script>
   <script src="paloma-animations.js"></script>
   <script src="paloma-media-paths.js"></script>
   <script src="paloma-media.js"></script>

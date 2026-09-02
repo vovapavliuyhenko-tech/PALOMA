@@ -70,47 +70,6 @@
     return map[label] || "product-card__badge--hit";
   }
 
-  /* ── Плашка «помощь в выборе» ────────────────────────────
-     Широкая полоса под сеткой в подборке «1 сентября»: когда
-     букеты пролистаны и ни один не подошёл, дальше идёт не
-     подвал, а обращение к флористу. Живёт вне сетки, поэтому
-     не занимает место карточки и не ломает ряды. */
-  const HELP_BAND_CAT = "sept";
-  /* Telegram не подставляет текст в личные чаты — ссылка просто
-     открывает диалог с менеджером, без заготовки сообщения. */
-  const HELP_BAND_TG = "https://t.me/+79897707000";
-
-  function syncHelpBand(filter) {
-    const existing = document.querySelector(".catalog-help-band");
-    if (filter !== HELP_BAND_CAT) {
-      existing?.remove();
-      return;
-    }
-    if (existing) return;
-
-    const href =
-      (window.PALOMA_MANAGER && window.PALOMA_MANAGER.telegramUrl) ||
-      HELP_BAND_TG;
-
-    const section = document.createElement("section");
-    section.className = "catalog-help-band";
-    section.innerHTML = `
-      <div class="catalog-help-band__inner">
-        <div class="catalog-help-band__copy">
-          <h2 class="catalog-help-band__title">Помощь в выборе индивидуального букета</h2>
-          <p class="catalog-help-band__text">Не нашли подходящий? Расскажите о поводе, вкусах
-            и бюджете — флорист соберёт букет под вас и пришлёт варианты на выбор.</p>
-        </div>
-        <a class="catalog-help-band__btn"
-           href="${href}"
-           target="_blank"
-           rel="noopener noreferrer"
-           data-cursor="hover">Написать в Telegram</a>
-      </div>`;
-
-    grid.insertAdjacentElement("afterend", section);
-  }
-
   function renderCard(product) {
     const raw = getRawProduct(product.id);
     const categories = product.categories.join(" ");
@@ -240,7 +199,6 @@
 
     const products = window.PALOMA_CATALOG.getByCategory(currentFilter);
     grid.innerHTML = "";
-    syncHelpBand(currentFilter);
 
     if (!products.length) {
       if (emptyEl) emptyEl.hidden = false;
@@ -397,22 +355,9 @@
     }
   });
 
-  /* Категория, на которой каталог открывается сам, без ?cat= в адресе.
-     Праздничная витрина: посетитель сразу попадает на неё, а не на «Все».
-     Пустую категорию не открываем — иначе каталог встретит человека
-     надписью «здесь пока нет товаров». Как только товары отмечены в панели,
-     подборка открывается сама. */
-  const DEFAULT_CAT = "sept";
-  let catFromUrl = true;
-
-  function defaultCatHasItems() {
-    return window.PALOMA_CATALOG.getByCategory(DEFAULT_CAT).length > 0;
-  }
-
   function initFromUrl() {
     const qp = new URLSearchParams(window.location.search);
-    catFromUrl = !!qp.get("cat");
-    const cat = qp.get("cat") || (defaultCatHasItems() ? DEFAULT_CAT : "all");
+    const cat = qp.get("cat") || "all";
     const resolved = window.PALOMA_CATALOG.resolveFilter(cat);
 
     const targetBtn =
@@ -438,17 +383,8 @@
   initFromUrl();
 
   /* Каталог обновился из базы (products-live.js) — перерисовываем сетку,
-     сохраняя выбранный посетителем фильтр.
-
-     Первая отрисовка идёт по встроенному прайсу, и праздничной подборки в нём
-     может ещё не быть — тогда открылись «Все». Если товары приехали из базы,
-     переключаемся на подборку: адрес посетитель не выбирал, значит показать
-     ему нужно именно её. Выбранный вручную фильтр не трогаем. */
+     сохраняя выбранный посетителем фильтр. */
   (window.PALOMA_RERENDER = window.PALOMA_RERENDER || []).push(function () {
-    if (!catFromUrl && currentFilter === "all" && defaultCatHasItems()) {
-      currentFilter = DEFAULT_CAT;
-      catFromUrl = true; // решение принято один раз, дальше не навязываемся
-    }
     setActiveFilter(currentFilter);
     renderGrid(currentFilter);
   });
