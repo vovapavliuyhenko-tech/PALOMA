@@ -335,6 +335,94 @@ async function setActive(id, active) {
 
 
 
+/* ── Разовая чистка: убрать из базы всё, что осталось от 1 сентября ──
+
+   Зачем отдельное действие. Каталог на сайте берётся из базы, а не из
+   встроенного прайса, поэтому правки в paloma-products.js сами по себе
+   на сайт не доезжают. Кнопка «Вернуть недостающие» тоже не поможет:
+   она только ДОБАВЛЯЕТ отсутствующие строки (ON CONFLICT DO NOTHING) и
+   существующие не трогает.
+
+   Метку «sept» часть товаров получила прямо в панели, во встроенном
+   прайсе её у них никогда не было, — поэтому чистим по базе, а не по
+   списку id. Названия и описания правим только у тех двух товаров,
+   что были заведены под праздник, и только если они ещё не переименованы
+   вручную: повторный запуск ничего не портит. */
+const SEPT_RENAMES = [
+  {
+    id: "n50",
+    wasName: "Гортензия к 1 сентября",
+    name: "Гортензия",
+    slug: "gortenziya",
+    desc: "Белая гортензия — крупные шапки, которые заметны даже в небольшом букете.",
+    image: "images/paloma/catalog/gortenziya-belaya.jpg",
+  },
+  {
+    id: "n44",
+    wasName: "Первый звонок",
+    name: "Солнечный полдень",
+    slug: "solnechnyy-polden",
+    desc: "Авторский букет в жёлто-зелёной гамме: хризантема, гладиолус, орнитогалум и зелёный диантус Грин Трик.",
+  },
+];
+
+async function cleanupSept(force) {
+  await ensureTable();
+  await ensureSettings();
+
+  /* Отметка, чтобы уборка прошла один раз. Без неё она бы срабатывала при
+     каждом открытии панели и молча возвращала переименованное обратно,
+     реши владелец назвать товар по-своему. */
+  if (!force) {
+    const done = await query(`SELECT value FROM app_settings WHERE key = 'sept_cleaned'`);
+    if (done.rows.length) return { пропущено: "уборка уже проводилась" };
+  }
+
+  /* 1. Снимаем метку категории у всех, у кого она есть. */
+  const tagged = await query(
+    `SELECT id, data FROM products
+      WHERE data->'categories' @> '["sept"]'::jsonb`
+  );
+  for (const row of tagged.rows) {
+    const data = row.data || {};
+    data.categories = (data.categories || []).filter((c) => c !== "sept");
+    await query(
+      `UPDATE products SET data = $2::jsonb, updated_at = now() WHERE id = $1`,
+      [row.id, JSON.stringify(data)]
+    );
+  }
+
+  /* 2. Переименовываем праздничные товары. */
+  const renamed = [];
+  for (const r of SEPT_RENAMES) {
+    const got = await query(`SELECT id, slug, data FROM products WHERE id = $1`, [r.id]);
+    const row = got.rows[0];
+    if (!row) continue;
+    const data = row.data || {};
+    if (data.name !== r.wasName) continue;      // уже переименован — не трогаем
+
+    data.name = r.name;
+    data.slug = r.slug;
+    data.desc = r.desc;
+    if (r.image) data.image = r.image;
+
+    await query(
+      `UPDATE products SET slug = $2, data = $3::jsonb, updated_at = now() WHERE id = $1`,
+      [r.id, r.slug, JSON.stringify(data)]
+    );
+    renamed.push(r.wasName + " → " + r.name);
+  }
+
+  await query(
+    `INSERT INTO app_settings (key, value, updated_at)
+       VALUES ('sept_cleaned', $1, now())
+     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+    [JSON.stringify({ at: new Date().toISOString(), tags: tagged.rows.length })]
+  );
+
+  return { снято_меток: tagged.rows.length, переименовано: renamed };
+}
+
 /* ── Порядок вывода: админка присылает id в нужной последовательности ── */
 async function reorder(ids) {
   await ensureTable();
@@ -403,4 +491,5 @@ async function getImage(id) {
 module.exports = {
   ensureTable, listActive, listAll, save, remove, setActive, slugify,
   reorder, saveImage, getImage, listForPricing, autoSeed, restoreMissing, health, listForSite, buildSizes,
+  cleanupSept,
 };

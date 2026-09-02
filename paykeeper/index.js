@@ -20,7 +20,7 @@ const crypto = require("crypto");
 
 /* Дата сборки архива. Видна в ?a=ping — по ней проверяют, что в облако
    загрузился именно свежий paloma-pay.zip, а не старый. */
-const BUILD = "2026-08-29-2";
+const BUILD = "2026-08-29-3";
 
 /* ── настройки из переменных окружения функции ── */
 const PK_SERVER = (process.env.PK_SERVER || "https://paloma.server.paykeeper.ru").replace(/\/+$/, "");
@@ -1191,7 +1191,7 @@ module.exports.handler = async function handler(event) {
   const ADMIN_ACTIONS = [
     "migrate", "release-expired", "codes-stats",
     "import-codes", "void-code", "selftest",
-    "products-migrate", "products-all", "products-reorder",
+    "products-migrate", "products-all", "products-reorder", "products-cleanup-sept",
     "product-save", "product-delete", "product-active", "product-image",
     "orders",
     "crm-list", "crm-update", "crm-import", "crm-import-pending", "pending-list", "tg-selftest",
@@ -1318,11 +1318,27 @@ module.exports.handler = async function handler(event) {
         if (action === "products-migrate")
           return reply(200, { ok: true, ...(await products.restoreMissing(builtInPrice())) }, origin);
 
+        /* Разовая уборка после 1 сентября: снять метку категории и вернуть
+           праздничным товарам обычные названия. Правки прайса до базы сами
+           не доходят, а «Вернуть недостающие» существующие строки не трогает.
+           Повторный вызов безвреден. */
+        if (action === "products-cleanup-sept")
+          return reply(200, { ok: true, ...(await products.cleanupSept(true)) }, origin);
+
         if (action === "products-all") {
           /* Первое открытие панели: каталог наполняется сам из встроенного
              прайса. Нажимать «перенести» вручную не нужно, а повторно перенос
              не сработает — отметка о нём лежит в базе. */
           const seeded = await products.autoSeed(builtInPrice);
+          /* Уборка после 1 сентября — сама, один раз, при первом открытии
+             панели с новой сборкой. Отдельной кнопки не заводим: задача
+             разовая, а отметка в базе не даст ей сработать дважды. */
+          try {
+            const sept = await products.cleanupSept();
+            if (sept && sept.снято_меток) console.log("[products] уборка 1 сентября", JSON.stringify(sept));
+          } catch (e) {
+            console.error("[products] уборка 1 сентября не удалась", e && e.message);
+          }
           const list = await products.listAll();
           /* builtIn — сколько товаров в исходном прайсе. Панель сравнивает его
              со своим списком и предлагает дозагрузить, если перенос оборвался. */
