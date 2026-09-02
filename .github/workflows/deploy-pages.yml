@@ -23,7 +23,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}
+      url: ${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url || steps.deploy4.outputs.page_url }}
     runs-on: ubuntu-latest
     # Успешный деплой укладывается в ~30 секунд. Лимит с запасом на три
     # попытки ниже: у deploy-pages свой внутренний таймаут ~10 минут, поэтому
@@ -72,9 +72,16 @@ jobs:
         with:
           path: .
 
-      # GitHub Pages периодически отдаёт транзиентную ошибку
-      # «Deployment failed, try again later» — публикуем с авто-ретраем
-      # (3 попытки с паузами), чтобы не пушить ручные retrigger-коммиты.
+      # GitHub Pages периодически отдаёт транзиентную ошибку — публикуем
+      # с авто-ретраем, чтобы не пушить ручные retrigger-коммиты.
+      #
+      # Паузы были 30 и 45 секунд, и этого не хватало на самый частый отказ:
+      # «Deployment request failed … due to in progress deployment. Please
+      # cancel <прошлый коммит> first or wait for it to complete». Публикация
+      # предыдущего коммита на стороне GitHub живёт дольше, чем свой workflow
+      # (тот показывает «успешно» за полминуты), и следующая сборка упирается
+      # в неё. Три попытки укладывались в полторы минуты и падали все три.
+      # Ждём заметно дольше — время дешевле неопубликованного сайта.
       - name: Deploy (attempt 1)
         id: deploy1
         continue-on-error: true
@@ -82,7 +89,7 @@ jobs:
 
       - name: Wait before retry
         if: steps.deploy1.outcome == 'failure'
-        run: sleep 30
+        run: sleep 120
 
       - name: Deploy (attempt 2)
         id: deploy2
@@ -90,11 +97,21 @@ jobs:
         continue-on-error: true
         uses: actions/deploy-pages@v4
 
-      - name: Wait before final retry
+      - name: Wait before retry
         if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
-        run: sleep 45
+        run: sleep 180
 
       - name: Deploy (attempt 3)
         id: deploy3
         if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before final retry
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure' && steps.deploy3.outcome == 'failure'
+        run: sleep 240
+
+      - name: Deploy (attempt 4)
+        id: deploy4
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure' && steps.deploy3.outcome == 'failure'
         uses: actions/deploy-pages@v4
