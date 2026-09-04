@@ -1306,12 +1306,14 @@ body.checkout-page .co-main {
   font-weight: 600;
   color: #1b1a18;
 }
+/* Контурная иконка в стиле остальной навигации, а не смайлик: смайлики
+   на разных устройствах рисуются по-своему и выбиваются из вёрстки.
+   margin-top ставит её по оптической середине первой строки текста. */
 .co-trust__icon {
   flex: none;
   width: 16px;
-  text-align: center;
-  font-size: 13px;
-  line-height: 1.45;
+  height: 16px;
+  margin-top: 1px;
   color: #e7385a;
 }
 
