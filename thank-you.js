@@ -169,7 +169,6 @@
         delivery: order.delivery || 0,
         clientName: f.name || order.clientName || "",
         phone: f.phone || "",
-        email: f.email || "",
         managerText: managerText,
       }),
     }).catch(() => {});
@@ -234,7 +233,7 @@
   }
 
   function messengerLabel(m) {
-    return { telegram: "Telegram", whatsapp: "WhatsApp", max: "MAX" }[m] || m || "—";
+    return { call: "звонок", telegram: "Telegram", whatsapp: "WhatsApp", max: "MAX" }[m] || m || "—";
   }
 
   function renderSummary(o, f) {
@@ -305,8 +304,15 @@
       if (addr) lines.push("", `Адрес доставки: ${addr}`);
     }
 
-    lines.push("", `Желаемая дата: ${dateRu(f.delivery_date)}`);
-    lines.push(`Желаемое время: ${timeStr(f)}`);
+    /* «Узнать у получателя» — дату и время выясняет менеджер, поля на
+       оформлении скрыты. Показывать их значения по умолчанию нельзя:
+       клиент решит, что заказал доставку на 09:00–22:00. */
+    if (f.delivery_type === "ask_recipient") {
+      lines.push("", "Дату и время уточним у получателя");
+    } else {
+      lines.push("", `Желаемая дата: ${dateRu(f.delivery_date)}`);
+      lines.push(`Желаемое время: ${timeStr(f)}`);
+    }
 
     if (f.recipient_type === "other") {
       lines.push("", `Получатель: ${f.recipient_name || "—"}`);
@@ -316,8 +322,12 @@
     }
 
     lines.push("", `Ваш телефон: ${f.phone || "—"}`);
-    lines.push(`Связь через ${messengerLabel(o.messenger)}: ${o.messengerContact || "—"}`);
-    if (f.email) lines.push(`Email: ${f.email}`);
+    /* «Связь через звонок» звучит коряво — у звонка своя формулировка. */
+    lines.push(
+      o.messenger === "call"
+        ? `Связь: позвоним на ${o.messengerContact || f.phone || "—"}`
+        : `Связь через ${messengerLabel(o.messenger)}: ${o.messengerContact || "—"}`,
+    );
 
     lines.push("", `Комментарий к заказу: ${f.comment ? f.comment : "—"}`);
     lines.push("", `Способ оплаты: ${paymentText(o.payment)}`);

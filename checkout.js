@@ -333,7 +333,11 @@
 
   /* true, если выбранное время доставки ещё не прошло (или дата не сегодня) */
   function isDeliveryTimeValid() {
-    if (getDeliveryType() === "pickup") return true; /* самовывоз — без даты */
+    const dt = getDeliveryType();
+    /* Самовывоз и «узнать у получателя» идут без даты: в первом случае
+       её нет, во втором её выясняет менеджер. Поля скрыты, и проверять
+       в них нечего — иначе форма молча не отправлялась бы. */
+    if (dt === "pickup" || dt === "ask_recipient") return true;
     const dateInput = document.getElementById("co-date");
     if (!dateInput || dateInput.value !== todayStr()) return true;
     const cutoff = nowMinutes() + LEAD_MIN;
@@ -351,6 +355,14 @@
     const $addrFields = document.getElementById("coAddressFields");
     if ($addrFields) {
       $addrFields.hidden = type !== "courier";
+    }
+
+    /* «Узнать у получателя» — дату и время согласует менеджер напрямую с
+       получателем, поэтому спрашивать их у отправителя незачем: он их
+       попросту не знает. Блок убираем целиком, а не оставляем пустым. */
+    const $dateTime = document.getElementById("coDateTimeFields");
+    if ($dateTime) {
+      $dateTime.hidden = type === "ask_recipient";
     }
 
     /* Самовывоз — оплата только в студии, онлайн-оплату убираем.
@@ -534,6 +546,13 @@
     const v = (raw || "").trim();
     const digits = v.replace(/\D/g, "");
     const isPhone = /^\+?\d[\d\s()\-]{8,}$/.test(v);
+    /* Звонок: отдельного поля нет, берём телефон из шапки формы. Он
+       обязателен и уже проверен своим правилом, так что здесь только
+       приводим к единому виду. */
+    if (kind === "call") {
+      const phone = (document.getElementById("co-phone")?.value || "").replace(/\D/g, "");
+      return phone.length >= 10 ? { ok: true, value: "+" + phone } : { ok: false };
+    }
     if (kind === "telegram") {
       if (isPhone && digits.length >= 10) return { ok: true, value: "+" + digits };
       const u = v.replace(/^@/, "");
@@ -570,7 +589,10 @@
         id: "co-date",
         errorId: "co-date-error",
         check: (v) => v.trim() !== "",
-        skip: () => getDeliveryType() === "pickup",
+        skip: () => {
+          const dt = getDeliveryType();
+          return dt === "pickup" || dt === "ask_recipient";
+        },
       },
     ];
 
@@ -620,7 +642,9 @@
     if (!messenger) {
       if (mErr) mErr.hidden = false;
       valid = false;
-    } else {
+    } else if (messenger !== "call") {
+      /* У звонка своего поля нет — телефон проверяется правилом выше,
+         второй раз спрашивать и проверять нечего. */
       if (mErr) mErr.hidden = true;
       const input = document.getElementById("co-msg-" + messenger);
       const fErr = document.getElementById("co-msg-" + messenger + "-error");
@@ -628,6 +652,8 @@
       if (input) input.classList.toggle("is-error", !res.ok);
       if (fErr) fErr.hidden = res.ok;
       if (!res.ok) valid = false;
+    } else if (mErr) {
+      mErr.hidden = true;
     }
 
     /* согласие на обработку ПДн */
@@ -803,7 +829,6 @@
         deliveryInfo: deliveryInfo(orderData),
         clientName: f.name || "",
         phone: f.phone || "",
-        email: f.email || "",
         messengerContact: orderData.messengerContact || "",
         managerText: managerText,
       }),
@@ -875,18 +900,26 @@
       const addr = [f.city, f.address, f.apt ? "кв. " + f.apt : ""].filter(Boolean).join(", ");
       if (addr) lines.push("Адрес: " + addr);
     }
-    if (f.delivery_date) lines.push("Дата: " + f.delivery_date);
-    /* Время доставки: точное («к 14:30») или интервал («09:00–12:00»). Раньше
-       не попадало в текст заказа — менеджер не видел выбранное время. */
-    const interval = f.time_from && f.time_to ? f.time_from + "–" + f.time_to : "";
-    const exactAt = f.exact_time ? "к " + f.exact_time : "";
-    /* Без time_type (старые заказы) берём то, что заполнено, — иначе строка
-       со временем пропадала из сообщения менеджеру целиком. */
-    const timeStr =
-      f.time_type === "exact" ? exactAt
-      : f.time_type === "interval" ? interval
-      : (exactAt || interval);
-    if (timeStr) lines.push("Время: " + timeStr);
+    /* При «узнать у получателя» дату и время в текст не кладём: поля скрыты,
+       и в них остаются значения по умолчанию (09:00–22:00). Менеджер принял
+       бы их за выбор клиента и звонил бы согласовывать несуществующее время. */
+    const askRecipient = f.delivery_type === "ask_recipient";
+    if (askRecipient) {
+      lines.push("Дату и время уточнить у получателя");
+    } else {
+      if (f.delivery_date) lines.push("Дата: " + f.delivery_date);
+      /* Время доставки: точное («к 14:30») или интервал («09:00–12:00»). Раньше
+         не попадало в текст заказа — менеджер не видел выбранное время. */
+      const interval = f.time_from && f.time_to ? f.time_from + "–" + f.time_to : "";
+      const exactAt = f.exact_time ? "к " + f.exact_time : "";
+      /* Без time_type (старые заказы) берём то, что заполнено, — иначе строка
+         со временем пропадала из сообщения менеджеру целиком. */
+      const timeStr =
+        f.time_type === "exact" ? exactAt
+        : f.time_type === "interval" ? interval
+        : (exactAt || interval);
+      if (timeStr) lines.push("Время: " + timeStr);
+    }
     if (f.recipient_type === "other") {
       lines.push("", "Получатель: " + (f.recipient_name || "—") + ", " + (f.recipient_phone || "—"));
     }
@@ -903,8 +936,11 @@
     }
 
     lines.push("", "Клиент: " + (f.name || "—") + ", " + (f.phone || "—"));
-    lines.push("Связь: " + (o.messenger || "—") + " " + (o.messengerContact || ""));
-    if (f.email) lines.push("Email: " + f.email);
+    /* Человеческая подпись способа связи: в заказе менеджеру «call» ничего
+       не говорит, а «звонок» сразу подсказывает, что надо набрать номер. */
+    const CONTACT_LABELS = { call: "звонок", telegram: "Telegram", whatsapp: "WhatsApp", max: "MAX" };
+    const contactWay = CONTACT_LABELS[o.messenger] || o.messenger || "—";
+    lines.push("Связь: " + contactWay + " " + (o.messengerContact || ""));
     if (f.comment) lines.push("", "Комментарий: " + f.comment);
     return lines.join("\n");
   }
@@ -929,8 +965,7 @@
           deliveryInfo: deliveryInfo(orderData),
           clientName: f.name || "",
           phone: f.phone || "",
-          email: f.email || "",
-          messengerContact: orderData.messengerContact || "",
+            messengerContact: orderData.messengerContact || "",
           managerText: buildManagerText(orderData),
         }),
       });

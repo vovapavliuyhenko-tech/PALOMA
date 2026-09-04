@@ -118,11 +118,16 @@
               </p>
             </div>
 
-            <div class="co-field">
-              <label class="co-label" for="co-email">Email</label>
-              <input class="co-input" type="email" id="co-email" name="email"
-                     autocomplete="email" placeholder="example@mail.ru">
-            </div>
+            <!-- Согласие стоит здесь, сразу под номером: это последнее поле
+                 с личными данными, и галочка читается как часть их ввода.
+                 Раньше она висела в самом низу, после выбора оплаты, где
+                 выглядела лишней преградой перед кнопкой. -->
+            <label class="co-consent" for="co-consent">
+              <input type="checkbox" id="co-consent" name="consent" value="1">
+              <span>Я согласен(на) на обработку персональных данных и принимаю
+                <a href="privacy.html" target="_blank" rel="noopener">Политику конфиденциальности</a>.</span>
+            </label>
+            <p class="co-error" id="co-consent-error" hidden>Нужно согласие на обработку персональных данных.</p>
           </fieldset>
 
           <fieldset class="co-fieldset">
@@ -224,7 +229,10 @@
             </div>
           </fieldset>
 
-          <fieldset class="co-fieldset">
+          <!-- Скрывается при «Узнать у получателя»: там дату и время
+               выясняет менеджер у самого получателя, спрашивать их у
+               отправителя бессмысленно. Скрытием ведает checkout.js. -->
+          <fieldset class="co-fieldset" id="coDateTimeFields">
             <legend class="co-fieldset__legend">Дата и время доставки</legend>
 
             <div class="co-field">
@@ -362,8 +370,15 @@
 
           <fieldset class="co-fieldset" id="co-messenger">
             <legend class="co-fieldset__legend">Удобный способ связи</legend>
-            <p class="co-field__hint">Менеджер напишет вам сюда, чтобы подтвердить наличие, состав и стоимость.</p>
-            <div class="co-messenger__options" role="radiogroup" aria-label="Мессенджер для связи">
+            <p class="co-field__hint">Менеджер свяжется с вами, чтобы подтвердить наличие, состав и стоимость.</p>
+            <div class="co-messenger__options" role="radiogroup" aria-label="Способ связи">
+              <!-- Звонок первым: многим быстрее ответить на звонок, чем
+                   высматривать сообщение. Отдельного поля не просим —
+                   звоним на телефон, указанный выше. -->
+              <label class="co-messenger-option">
+                <input type="radio" name="messenger" value="call" data-messenger>
+                <span class="co-messenger-option__label">Звонок</span>
+              </label>
               <label class="co-messenger-option">
                 <input type="radio" name="messenger" value="telegram" data-messenger>
                 <span class="co-messenger-option__label">Telegram</span>
@@ -377,7 +392,13 @@
                 <span class="co-messenger-option__label">MAX</span>
               </label>
             </div>
-            <p class="co-error" id="co-messenger-error" hidden>Выберите мессенджер для связи.</p>
+            <p class="co-error" id="co-messenger-error" hidden>Выберите способ связи.</p>
+
+            <!-- У звонка поля нет: номер уже введён выше, спрашивать его
+                 второй раз — лишняя работа для покупателя. -->
+            <div class="co-field co-messenger__field" data-messenger-field="call" hidden>
+              <p class="co-field__hint" id="co-msg-call-hint">Позвоним на номер, указанный выше.</p>
+            </div>
 
             <div class="co-field co-messenger__field" data-messenger-field="telegram" hidden>
               <label class="co-field__label" for="co-msg-telegram">Ваш Telegram</label>
@@ -482,13 +503,6 @@
             подтвердит состав заказа и итоговую стоимость. Оплата производится только после согласования заказа.
           </p>
 
-          <label class="co-consent" for="co-consent">
-            <input type="checkbox" id="co-consent" name="consent" value="1">
-            <span>Я согласен(на) на обработку персональных данных и принимаю
-              <a href="privacy.html" target="_blank" rel="noopener">Политику конфиденциальности</a>.</span>
-          </label>
-          <p class="co-error" id="co-consent-error" hidden>Нужно согласие на обработку персональных данных.</p>
-
           <button type="button" class="co-btn co-btn--primary co-summary__submit"
                   id="coSubmitBtn" aria-label="Оформить заказ">
             Оформить заказ
@@ -556,7 +570,7 @@
 
   <script src="cart-core.js?v=ecom2"></script>
   <script src="payment-config.js?v=pk4"></script>
-  <script src="checkout.js?v=card1"></script>
+  <script src="checkout.js?v=call1"></script>
   <script src="maintenance-banner.js?v=2"></script>
 </body>
 </html>
