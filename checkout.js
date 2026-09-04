@@ -500,19 +500,16 @@
     }
   });
 
-  /* Кнопки оформления неактивны, пока не отмечено согласие */
+  /* Раньше кнопка оформления стояла отключённой, пока не отмечено согласие.
+     Кто не замечал галочку — видел мёртвую кнопку без единого слова о том,
+     почему она не работает, и уходил. Теперь кнопка живая: по нажатию
+     validateForm показывает, чего не хватает, и страница прокручивается к
+     этому месту. Отправить заказ без согласия по-прежнему нельзя — проверка
+     на месте, изменился только способ об этом сказать. */
   function syncConsentGate() {
     const consent = document.getElementById("co-consent");
-    const enabled = !!consent && consent.checked;
-    [
-      document.getElementById("coSubmitBtn"),
-      document.getElementById("coSubmitMobile"),
-    ].forEach((b) => {
-      if (b) {
-        b.disabled = !enabled;
-        b.classList.toggle("is-disabled", !enabled);
-      }
-    });
+    const err = document.getElementById("co-consent-error");
+    if (err && consent && consent.checked) err.hidden = true;
   }
   syncConsentGate();
 

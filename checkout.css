@@ -1283,6 +1283,38 @@ body.checkout-page .co-main {
   line-height: 1.55;
   color: rgba(27, 26, 24, 0.8);
 }
+/* Доводы в нашу пользу рядом с кнопкой оформления. Намеренно тихие:
+   это опора для сомневающегося, а не реклама — иначе перетянут внимание
+   с самой кнопки. */
+.co-trust {
+  list-style: none;
+  margin: 14px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.co-trust__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: rgba(27, 26, 24, 0.72);
+}
+.co-trust__item b {
+  font-weight: 600;
+  color: #1b1a18;
+}
+.co-trust__icon {
+  flex: none;
+  width: 16px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #e7385a;
+}
+
 .co-consent {
   display: flex;
   align-items: flex-start;

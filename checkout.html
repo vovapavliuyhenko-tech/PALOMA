@@ -22,7 +22,7 @@
   <link rel="icon" type="image/png" href="assets/icons/favicon-giraffe.png?v=2">
   <link rel="stylesheet" href="fonts/paloma-fonts.css?v=w1">
   <link rel="stylesheet" href="styles.css?v=ph17">
-  <link rel="stylesheet" href="checkout.css?v=w11">
+  <link rel="stylesheet" href="checkout.css?v=conv1">
   <link rel="canonical" href="https://paloma.website/checkout.html">
   <meta name="robots" content="noindex, follow">
   <link rel="stylesheet" href="mobile-polish.css?v=42">
@@ -81,13 +81,6 @@
     <div class="co-grid" id="coGrid" hidden>
 
       <div class="co-form-col">
-
-        <div class="co-upsell" id="coUpsell">
-          <h2 class="co-section-title">
-            Идеально дополнят ваш букет
-          </h2>
-          <div class="co-upsell__grid" id="coUpsellGrid"></div>
-        </div>
 
         <form class="co-form" id="coForm" novalidate>
 
@@ -438,6 +431,15 @@
             </div>
           </fieldset>
 
+          <!-- Витрина допродажи стоит ПОСЛЕ полей, а не перед ними.
+               Раньше человек, пришедший платить, упирался в неё первой и
+               на телефоне прокручивал целый экран до первого поля. Теперь
+               предлагаем дополнить заказ тогда, когда он уже собран. -->
+          <div class="co-upsell" id="coUpsell">
+            <h2 class="co-section-title">Идеально дополнят ваш букет</h2>
+            <div class="co-upsell__grid" id="coUpsellGrid"></div>
+          </div>
+
           <button type="submit" class="co-btn co-btn--primary co-form__submit"
                   id="coSubmitMobile" aria-label="Оформить заказ">
             Оформить заказ
@@ -502,6 +504,26 @@
             После оформления заказа менеджер проверит наличие цветов и товаров, свяжется с вами,
             подтвердит состав заказа и итоговую стоимость. Оплата производится только после согласования заказа.
           </p>
+
+          <!-- Доводы в нашу пользу стоят вплотную к кнопке: именно здесь
+               сомнение сильнее всего, а до этой правки на оформлении не было
+               ни одного. Обещаем только то, что заявлено на сайте и
+               подтверждено: фото до отправки, свежесть, оплата после
+               согласования, оценка 5,0 на Яндекс Картах. -->
+          <ul class="co-trust" aria-label="Почему нам можно доверять">
+            <li class="co-trust__item">
+              <span class="co-trust__icon" aria-hidden="true">📷</span>
+              <span>Пришлём <b>фото букета до отправки</b> — соберём заново, если что-то не так</span>
+            </li>
+            <li class="co-trust__item">
+              <span class="co-trust__icon" aria-hidden="true">🌿</span>
+              <span>Свежесть <b>на неделю</b> и доставка точно в срок</span>
+            </li>
+            <li class="co-trust__item">
+              <span class="co-trust__icon" aria-hidden="true">★</span>
+              <span><b>5,0 на Яндекс Картах</b> — 219 оценок, «Хорошее место»</span>
+            </li>
+          </ul>
 
           <button type="button" class="co-btn co-btn--primary co-summary__submit"
                   id="coSubmitBtn" aria-label="Оформить заказ">
@@ -570,7 +592,7 @@
 
   <script src="cart-core.js?v=ecom2"></script>
   <script src="payment-config.js?v=pk4"></script>
-  <script src="checkout.js?v=call1"></script>
+  <script src="checkout.js?v=conv1"></script>
   <script src="maintenance-banner.js?v=2"></script>
 </body>
 </html>
