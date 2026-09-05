@@ -276,8 +276,12 @@
     const base =
       rawProduct && rawProduct.price != null ? rawProduct.price : product.price;
     const total = budgetMode ? product.price : base + sizePriceDelta;
+    /* Когда размер выбран, цена точная — «от» здесь лишнее и прямо врёт:
+       на верхнем размере получалось «от 7 500 ₽», хотя 7 500 ₽ — это
+       потолок диапазона 2 300–7 500, а не его начало. */
+    const exactBySize = !budgetMode && !!(rawProduct?.sizes || []).length;
     priceEl.textContent =
-      (product.priceFrom ? "от " : "") + formatPrice(total);
+      (product.priceFrom && !exactBySize ? "от " : "") + formatPrice(total);
   }
 
   function showNotFound() {
@@ -370,15 +374,19 @@
     sizesEl.hidden = false;
     sizeBtnsEl.innerHTML = "";
 
-    /* По умолчанию выбираем размер «как на фото» (photoSize), иначе первый. */
-    const photoSize = rawProduct?.photoSize;
+    /* По умолчанию — самый доступный размер, тот же, чью цену показала
+       карточка в каталоге.
+
+       Раньше подставлялся размер «как на фото» (photoSize). Из-за этого
+       переход с карточки «от 2 300 ₽» открывал страницу с выбранным XXL
+       и ценой 7 500 ₽ — человек видел втрое больше обещанного. Причём
+       у 121 товара из 142 photoSize не задан, и там всегда открывался
+       первый (самый дешёвый) размер: теперь каталог ведёт себя одинаково
+       для всех. Размер человек меняет сам — кнопки прямо под ценой. */
     let defaultIdx = 0;
-    if (photoSize) {
-      const idx = sizes.findIndex(
-        (s) => (s.code || s.label) === photoSize,
-      );
-      if (idx >= 0) defaultIdx = idx;
-    }
+    sizes.forEach((s, i) => {
+      if ((s.priceDelta || 0) < (sizes[defaultIdx].priceDelta || 0)) defaultIdx = i;
+    });
 
     sizes.forEach((size, i) => {
       const btn = document.createElement("button");
@@ -788,7 +796,8 @@
           '<a href="' + href + '" class="home-product-card__media" aria-label="Подробнее: ' + esc(p.name) + '">' + media + "</a>" +
           '<div class="home-product-card__body">' +
           '<h3 class="home-product-card__title"><a href="' + href + '">' + esc(p.name) + "</a></h3>" +
-          '<p class="home-product-card__price">' + formatPrice(p.price) + "</p>" +
+          /* «от» — как в каталоге и в карусели на главной: цена начальная */
+          '<p class="home-product-card__price">' + (p.priceFrom ? "от " : "") + formatPrice(p.price) + "</p>" +
           '<div class="home-product-card__actions">' +
           '<a href="' + href + '" class="home-product-card__more">Подробнее</a>' +
           "</div></div></article>"

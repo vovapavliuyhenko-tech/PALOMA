@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="styles.css?v=ph17">
   <link rel="stylesheet" href="paloma-animations.css?v=w1">
 <link rel="stylesheet" href="cart.css?v=w3">
-  <link rel="stylesheet" href="catalog.css?v=42">
+  <link rel="stylesheet" href="catalog.css?v=43">
   <link rel="stylesheet" href="paloma-wave.css?v=w1">
   <link rel="stylesheet" href="clients.css?v=nav1">
   <link rel="stylesheet" href="paloma-responsive.css?v=nomarq1">
@@ -407,6 +407,28 @@
               </div>
             </div>
 
+  <!-- Второй ряд управления: бюджет и порядок. В каталоге 142 товара,
+       половина дороже 7 000 ₽ — без этих двух контролов человек с
+       конкретной суммой в голове листает всё подряд и уходит. -->
+  <div class="catalog-tools" id="catalogTools">
+    <div class="catalog-tools__group" id="catalogBudget" role="group" aria-label="Бюджет">
+      <span class="catalog-tools__label">Бюджет</span>
+      <button type="button" class="catalog-budget-btn is-active" data-budget="all" aria-pressed="true">Любой</button>
+      <button type="button" class="catalog-budget-btn" data-budget="0-3000" aria-pressed="false">до 3 000 ₽</button>
+      <button type="button" class="catalog-budget-btn" data-budget="3000-6000" aria-pressed="false">3 000–6 000 ₽</button>
+      <button type="button" class="catalog-budget-btn" data-budget="6000-" aria-pressed="false">от 6 000 ₽</button>
+    </div>
+
+    <label class="catalog-tools__group catalog-sort">
+      <span class="catalog-tools__label">Сортировка</span>
+      <select class="catalog-sort__select" id="catalogSort">
+        <option value="default">По умолчанию</option>
+        <option value="price-asc">Сначала дешевле</option>
+        <option value="price-desc">Сначала дороже</option>
+      </select>
+    </label>
+  </div>
+
   <div class="catalog-count" id="catalogCount" aria-live="polite"></div>
 
   <div class="catalog-grid" id="catalogGrid" aria-label="Товары каталога"></div>
@@ -666,7 +688,7 @@
 
   <script src="paloma-products.js?v=p59"></script>
   <script src="products-live.js?v=5"></script>
-  <script src="catalog-data.js?v=p49"></script>
+  <script src="catalog-data.js?v=p50"></script>
   <script src="preloader.js?v=giraffe1"></script>
   <script src="cart-core.js?v=ecom2"></script>
   <script src="payment-config.js?v=1"></script>
@@ -678,7 +700,7 @@
 
   <script src="wishlist.js?v=goal1"></script>
   <script src="manager-config.js?v=1"></script>
-  <script src="catalog.js?v=42"></script>
+  <script src="catalog.js?v=43"></script>
   <script src="clients.js"></script>
   <script src="cursor.js?v=press3"></script>
   <script src="cookie-consent.js?v=2"></script>

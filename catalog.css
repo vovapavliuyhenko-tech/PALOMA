@@ -189,6 +189,107 @@
   text-decoration: none;
 }
 
+/* ── Бюджет и сортировка ──────────────────────────────────
+   Второй ряд под категориями. Держится тише пилюль-категорий:
+   те выбирают раздел, эти лишь подрезают показ внутри него. */
+.catalog-tools {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 14px clamp(8px, 1vw, 16px) 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 24px;
+}
+
+.catalog-tools__group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.catalog-tools__label {
+  font-family: var(--font-mono, var(--mono, "JetBrains Mono"), monospace);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, var(--muted, #1B1A18));
+  opacity: 0.6;
+}
+
+.catalog-budget-btn {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border, rgba(27, 26, 24, 0.22));
+  background: transparent;
+  font-family: var(--font-sans, var(--sans, "Manrope"), sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text, var(--ink, #1B1A18));
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.catalog-budget-btn:hover {
+  border-color: var(--color-text, var(--ink, #1B1A18));
+}
+
+.catalog-budget-btn.is-active {
+  background: var(--color-text, var(--ink, #1B1A18));
+  color: #FFFFFF;
+  border-color: var(--color-text, var(--ink, #1B1A18));
+}
+
+.catalog-budget-btn:focus-visible,
+.catalog-sort__select:focus-visible {
+  outline: 2px solid var(--color-accent, var(--burgundy, #E7385A));
+  outline-offset: 2px;
+}
+
+.catalog-sort {
+  cursor: pointer;
+}
+
+.catalog-sort__select {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border, rgba(27, 26, 24, 0.22));
+  background: transparent;
+  font-family: var(--font-sans, var(--sans, "Manrope"), sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text, var(--ink, #1B1A18));
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .catalog-tools {
+    gap: 8px 16px;
+  }
+
+  /* На узком экране ряд бюджета прокручивается, как и категории выше */
+  .catalog-tools__group#catalogBudget {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .catalog-tools__group#catalogBudget::-webkit-scrollbar {
+    display: none;
+  }
+
+  .catalog-budget-btn {
+    flex-shrink: 0;
+  }
+}
+
 .catalog-count {
   max-width: 1440px;
   margin: 0 auto;

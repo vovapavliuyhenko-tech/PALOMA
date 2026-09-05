@@ -10,10 +10,52 @@
   const countEl = document.getElementById("catalogCount");
   const emptyEl = document.getElementById("catalogEmpty");
   const resetBtn = document.getElementById("catalogResetBtn");
+  const budgetEl = document.getElementById("catalogBudget");
+  const sortEl = document.getElementById("catalogSort");
 
   if (!grid || !window.PALOMA_CATALOG) return;
 
   let currentFilter = "all";
+
+  /* Посетитель сам выбрал раздел — подставлять ему категорию из адреса
+     больше не нужно. Флаг был потерян при объявлении: строка ниже
+     присваивала ему значение, а объявления не было. В "use strict" это
+     ReferenceError — обработчик клика падал на этом месте, не доходя ни
+     до подсветки кнопки, ни до перерисовки сетки. Внешне выглядело так,
+     будто фильтры каталога вообще не нажимаются: все 142 товара
+     оставались на месте в любом разделе. */
+  let catFromUrl = false;
+
+  /* Бюджет и порядок показа — поверх выбранной категории.
+     "all" | "0-3000" | "3000-6000" | "6000-" и default | price-asc | price-desc */
+  let currentBudget = "all";
+  let currentSort = "default";
+
+  function budgetMatch(price) {
+    if (currentBudget === "all") return true;
+    const [min, max] = currentBudget.split("-");
+    if (min && price < Number(min)) return false;
+    if (max && price >= Number(max)) return false;
+    return true;
+  }
+
+  /* Цена у карточки — начальная (минимальный размер), по ней и считаем:
+     человек выбирает бюджет и должен увидеть то, что в него укладывается. */
+  function applyTools(list) {
+    const out = list.filter((p) => budgetMatch(p.price));
+    if (currentSort === "price-asc") return out.sort((a, b) => a.price - b.price);
+    if (currentSort === "price-desc") return out.sort((a, b) => b.price - a.price);
+    return out;
+  }
+
+  function resetBudget() {
+    currentBudget = "all";
+    budgetEl?.querySelectorAll(".catalog-budget-btn").forEach((b) => {
+      const on = (b.dataset.budget || "all") === "all";
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
 
   /* ── Блок «Корпоративные букеты» ──────────────────────────
      Это не товарная категория, а промо-врезка под сеткой, и
@@ -116,6 +158,8 @@
     article.dataset.productId = product.id;
     article.dataset.name = product.name;
     article.dataset.price = String(product.price);
+    /* размер, чью цену показывает карточка: его и кладём в корзину */
+    article.dataset.size = product.displaySize || "";
     if (product.priceFrom) article.dataset.priceFrom = "1";
     article.dataset.category = categories;
     article.dataset.composition = product.composition || "";
@@ -197,11 +241,22 @@
   function renderGrid(filter) {
     currentFilter = window.PALOMA_CATALOG.resolveFilter(filter);
 
-    const products = window.PALOMA_CATALOG.getByCategory(currentFilter);
+    const inCategory = window.PALOMA_CATALOG.getByCategory(currentFilter);
+    const products = applyTools(inCategory);
     grid.innerHTML = "";
 
     if (!products.length) {
-      if (emptyEl) emptyEl.hidden = false;
+      if (emptyEl) {
+        /* Пусто по двум разным причинам — и человеку важно понимать,
+           по какой именно: раздел ещё не наполнен или сумма не подошла. */
+        const msg = emptyEl.querySelector("p");
+        if (msg) {
+          msg.textContent = inCategory.length
+            ? "В этот бюджет здесь ничего не попало. Попробуйте другую сумму."
+            : "В этой категории пока нет товаров.";
+        }
+        emptyEl.hidden = false;
+      }
       if (countEl) countEl.textContent = "";
       return;
     }
@@ -291,8 +346,37 @@
     });
   }
 
+  budgetEl?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".catalog-budget-btn");
+    if (!btn) return;
+    const value = btn.dataset.budget || "all";
+    if (value === currentBudget) return;
+    currentBudget = value;
+    budgetEl.querySelectorAll(".catalog-budget-btn").forEach((b) => {
+      const on = b === btn;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    renderGrid(currentFilter);
+  });
+
+  sortEl?.addEventListener("change", () => {
+    currentSort = sortEl.value || "default";
+    renderGrid(currentFilter);
+  });
+
+  /* Сброс из пустого состояния: раньше он просто «нажимал» пилюлю «Все», но
+     если категория уже была «Все», обработчик выходил на первой же проверке
+     и ничего не перерисовывал — кнопка выглядела сломанной. Снимаем и
+     бюджет, и категорию, и рисуем сами. */
   resetBtn?.addEventListener("click", () => {
-    filters?.querySelector('[data-filter="all"]')?.click();
+    resetBudget();
+    setActiveFilter("all");
+    showCorporate(false);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("cat");
+    history.replaceState(null, "", url.toString());
+    renderGrid("all");
   });
 
   grid.addEventListener("click", (e) => {
@@ -318,10 +402,23 @@
       const phEl = card.querySelector(".product-card__ph");
       const bg = phEl ? getComputedStyle(phEl).background : "";
 
+      /* Размер брали как "M" — жёстко, независимо от товара. У 120 из 142
+         букетов размера M вообще нет, а цена в корзину шла с карточки: так
+         «Белая гортензия» попадала в заказ как «M — 7 500 ₽», хотя M у неё
+         стоит 3 600 ₽, а 7 500 ₽ — это XXL. Флорист получал размер, которого
+         у букета не существует, по цене другого. Берём тот размер, чью цену
+         карточка и показывает. */
+      const size = card.dataset.size || "";
+
       window.PalomaCart.add({
-        id: card.dataset.id + "-quick-m-" + (card.dataset.price || "0"),
+        id:
+          card.dataset.id +
+          "-quick-" +
+          (size ? size.toLowerCase() : "std") +
+          "-" +
+          (card.dataset.price || "0"),
         name: card.dataset.name || "",
-        size: "M",
+        size: size,
         addons: [],
         price: parseInt(card.dataset.price, 10) || 0,
         qty: 1,

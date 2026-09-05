@@ -58,19 +58,33 @@
         : [];
     const pg = p.placeholderGradient || {};
 
-    /* photoSize — размер, показанный на фотографии. Цена под названием и на карточке
-       каталога должна соответствовать именно этому размеру (base + его priceDelta).
-       Такая цена точная, поэтому «от» убираем. */
+    /* Цена на карточке — начальная, с пометкой «от», плюс сам размер,
+       которому она соответствует (displaySize — его кладёт в корзину
+       кнопка «В корзину» в каталоге).
+
+       Раньше здесь показывалась цена размера с фотографии (photoSize),
+       и «от» при этом убиралось как «точная цена». На деле каталог
+       открывался ценами 7 500 / 11 100 / 26 600 ₽, тогда как те же
+       букеты начинаются с 2 300 / 4 220 / 9 100 ₽ — завышение до 3,3×
+       на первом же экране. Вдобавок карточка расходилась с товарной
+       страницей: там у того же букета написано «от 2 300 ₽».
+
+       Показываем минимальную цену: она честная, совпадает с товарной
+       страницей и не отпугивает на входе. photoSize остаётся в данных —
+       он ещё нужен галерее. */
     let displayPrice = p.price;
+    let displaySize = null;
     let priceFrom = !!p.priceFrom;
-    if (p.photoSize && Array.isArray(p.sizes)) {
-      const s = p.sizes.find(
-        (x) => (x.code || x.label) === p.photoSize,
-      );
-      if (s) {
-        displayPrice = p.price + (s.priceDelta || 0);
-        priceFrom = false;
-      }
+    if (Array.isArray(p.sizes) && p.sizes.length) {
+      const priced = p.sizes.map((s) => ({
+        size: s.code || s.label || null,
+        price: p.price + (s.priceDelta || 0),
+      }));
+      const cheapest = priced.reduce((a, b) => (b.price < a.price ? b : a));
+      displayPrice = cheapest.price;
+      displaySize = cheapest.size;
+      /* «от» — только когда размеры действительно стоят по-разному */
+      if (priced.some((x) => x.price !== cheapest.price)) priceFrom = true;
     }
 
     return {
@@ -80,6 +94,8 @@
       category: cats[0] || "online",
       categoryLabel: CATEGORY_LABELS[cats[0]] || "",
       price: displayPrice,
+      /* размер, которому соответствует цена выше */
+      displaySize: displaySize,
       photoSize: p.photoSize || null,
       /* Цена «от» — итог согласует менеджер (свадебные букеты идут диапазоном) */
       priceFrom: priceFrom,
