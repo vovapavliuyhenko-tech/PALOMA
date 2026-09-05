@@ -246,17 +246,25 @@
 }
 
 .catalog-budget-btn:focus-visible,
-.catalog-sort__select:focus-visible {
+.catalog-select__trigger:focus-visible,
+.catalog-select__option:focus-visible {
   outline: 2px solid var(--color-accent, var(--burgundy, #E7385A));
   outline-offset: 2px;
 }
 
-.catalog-sort {
-  cursor: pointer;
+/* ── Свой выпадающий список ───────────────────────────────
+   Родной <select> рисует операционная система, и в стиль
+   сайта он не приводится. Кнопка повторяет пилюлю бюджета,
+   карточка списка — тень и скругление, как у меню в шапке. */
+.catalog-select {
+  position: relative;
 }
 
-.catalog-sort__select {
-  padding: 7px 12px;
+.catalog-select__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
   border-radius: 999px;
   border: 1px solid var(--color-border, rgba(27, 26, 24, 0.22));
   background: transparent;
@@ -264,7 +272,94 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--color-text, var(--ink, #1B1A18));
+  white-space: nowrap;
   cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.catalog-select__trigger:hover {
+  border-color: var(--color-text, var(--ink, #1B1A18));
+}
+
+.catalog-select__trigger.is-open {
+  border-color: var(--color-accent, var(--burgundy, #E7385A));
+  color: var(--color-accent, var(--burgundy, #E7385A));
+}
+
+.catalog-select__chevron {
+  flex-shrink: 0;
+  transition: transform 0.25s var(--ease-soft, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.catalog-select__trigger.is-open .catalog-select__chevron {
+  transform: rotate(180deg);
+}
+
+.catalog-select__list {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 100%;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--color-bg, #FFFFFF);
+  border: 1px solid var(--color-border-soft, var(--line, rgba(27, 26, 24, 0.12)));
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(27, 26, 24, 0.12);
+}
+
+.catalog-select__list:not([hidden]) {
+  animation: catalogSelectIn 0.18s var(--ease-soft, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes catalogSelectIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.catalog-select__option {
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-family: var(--font-sans, var(--sans, "Manrope"), sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text, var(--ink, #1B1A18));
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.catalog-select__option:hover {
+  background: rgba(27, 26, 24, 0.05);
+}
+
+/* Выбранный пункт — тем же чёрным, что и активная пилюля бюджета рядом */
+.catalog-select__option.is-selected,
+.catalog-select__option.is-selected:hover {
+  background: var(--color-text, var(--ink, #1B1A18));
+  color: #FFFFFF;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-select__list:not([hidden]) {
+    animation: none;
+  }
+
+  .catalog-select__chevron {
+    transition: none;
+  }
 }
 
 @media (max-width: 640px) {

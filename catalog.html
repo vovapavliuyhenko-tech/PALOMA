@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="styles.css?v=ph17">
   <link rel="stylesheet" href="paloma-animations.css?v=w1">
 <link rel="stylesheet" href="cart.css?v=w3">
-  <link rel="stylesheet" href="catalog.css?v=43">
+  <link rel="stylesheet" href="catalog.css?v=44">
   <link rel="stylesheet" href="paloma-wave.css?v=w1">
   <link rel="stylesheet" href="clients.css?v=nav1">
   <link rel="stylesheet" href="paloma-responsive.css?v=nomarq1">
@@ -419,14 +419,32 @@
       <button type="button" class="catalog-budget-btn" data-budget="6000-" aria-pressed="false">от 6 000 ₽</button>
     </div>
 
-    <label class="catalog-tools__group catalog-sort">
-      <span class="catalog-tools__label">Сортировка</span>
-      <select class="catalog-sort__select" id="catalogSort">
-        <option value="default">По умолчанию</option>
-        <option value="price-asc">Сначала дешевле</option>
-        <option value="price-desc">Сначала дороже</option>
-      </select>
-    </label>
+    <!-- Свой список вместо <select>: родной рисует операционная система —
+         синяя подсветка и чужой шрифт, рядом с пилюлями каталога это
+         выглядело деталью с другого сайта. -->
+    <div class="catalog-tools__group">
+      <span class="catalog-tools__label" id="catalogSortLabel">Сортировка</span>
+      <div class="catalog-select" id="catalogSort">
+        <button type="button" class="catalog-select__trigger" id="catalogSortTrigger"
+                aria-haspopup="listbox" aria-expanded="false"
+                aria-labelledby="catalogSortLabel catalogSortTrigger" data-cursor="hover">
+          <span id="catalogSortValue">По умолчанию</span>
+          <svg class="catalog-select__chevron" width="10" height="6" viewBox="0 0 10 6"
+               fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M1 1l4 4 4-4"/>
+          </svg>
+        </button>
+        <ul class="catalog-select__list" id="catalogSortList" role="listbox"
+            aria-labelledby="catalogSortLabel" hidden>
+          <li class="catalog-select__option is-selected" role="option" tabindex="-1"
+              data-value="default" aria-selected="true">По умолчанию</li>
+          <li class="catalog-select__option" role="option" tabindex="-1"
+              data-value="price-asc" aria-selected="false">Сначала дешевле</li>
+          <li class="catalog-select__option" role="option" tabindex="-1"
+              data-value="price-desc" aria-selected="false">Сначала дороже</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <div class="catalog-count" id="catalogCount" aria-live="polite"></div>
@@ -700,7 +718,7 @@
 
   <script src="wishlist.js?v=goal1"></script>
   <script src="manager-config.js?v=1"></script>
-  <script src="catalog.js?v=43"></script>
+  <script src="catalog.js?v=44"></script>
   <script src="clients.js"></script>
   <script src="cursor.js?v=press3"></script>
   <script src="cookie-consent.js?v=2"></script>

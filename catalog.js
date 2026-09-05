@@ -11,7 +11,9 @@
   const emptyEl = document.getElementById("catalogEmpty");
   const resetBtn = document.getElementById("catalogResetBtn");
   const budgetEl = document.getElementById("catalogBudget");
-  const sortEl = document.getElementById("catalogSort");
+  const sortTrigger = document.getElementById("catalogSortTrigger");
+  const sortList = document.getElementById("catalogSortList");
+  const sortValue = document.getElementById("catalogSortValue");
 
   if (!grid || !window.PALOMA_CATALOG) return;
 
@@ -360,9 +362,81 @@
     renderGrid(currentFilter);
   });
 
-  sortEl?.addEventListener("change", () => {
-    currentSort = sortEl.value || "default";
+  /* ── Свой список сортировки ──────────────────────────────
+     Вместо <select>: тот рисуется операционной системой и в стиль
+     каталога не приводится. Поведение повторяем руками — клавиатура,
+     закрытие по Esc и по клику мимо. */
+  function sortOptions() {
+    return sortList
+      ? Array.prototype.slice.call(
+          sortList.querySelectorAll(".catalog-select__option"),
+        )
+      : [];
+  }
+
+  function openSort(open) {
+    if (!sortTrigger || !sortList) return;
+    sortList.hidden = !open;
+    sortTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+    sortTrigger.classList.toggle("is-open", open);
+    if (open) {
+      const opts = sortOptions();
+      (opts.find((o) => o.classList.contains("is-selected")) || opts[0])?.focus();
+    }
+  }
+
+  function chooseSort(opt) {
+    if (!opt) return;
+    sortOptions().forEach((o) => {
+      const on = o === opt;
+      o.classList.toggle("is-selected", on);
+      o.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    if (sortValue) sortValue.textContent = opt.textContent;
+    currentSort = opt.dataset.value || "default";
+    openSort(false);
+    sortTrigger?.focus();
     renderGrid(currentFilter);
+  }
+
+  sortTrigger?.addEventListener("click", () => {
+    openSort(sortList?.hidden !== false);
+  });
+
+  sortList?.addEventListener("click", (e) => {
+    chooseSort(e.target.closest(".catalog-select__option"));
+  });
+
+  /* Стрелками ходим по пунктам, Enter и пробел выбирают, Esc закрывает */
+  sortList?.addEventListener("keydown", (e) => {
+    const opts = sortOptions();
+    const i = opts.indexOf(document.activeElement);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const next = e.key === "ArrowDown" ? i + 1 : i - 1;
+      opts[(next + opts.length) % opts.length]?.focus();
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      chooseSort(opts[i]);
+    } else if (e.key === "Escape" || e.key === "Tab") {
+      openSort(false);
+      if (e.key === "Escape") sortTrigger?.focus();
+    }
+  });
+
+  sortTrigger?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      openSort(true);
+    } else if (e.key === "Escape") {
+      openSort(false);
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (sortList?.hidden === false && !e.target.closest(".catalog-select")) {
+      openSort(false);
+    }
   });
 
   /* Сброс из пустого состояния: раньше он просто «нажимал» пилюлю «Все», но
