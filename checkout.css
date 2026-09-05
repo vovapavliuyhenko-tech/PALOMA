@@ -218,6 +218,64 @@ body.checkout-page .co-main {
   }
 }
 
+/* ── Стрелка «кнопка ниже» ────────────────────────────────
+   Появляется под выбором оплаты, когда кнопка заказа не попала в
+   видимую часть прокручиваемой сводки. Цвет обычный, тёмный —
+   страница оплаты держится монохромной; внимание берём движением,
+   а не краской. Нажатие прокручивает к кнопке. */
+.co-scroll-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  margin: -8px 0 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans, "Manrope", sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--co-dark);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.25s ease;
+}
+
+.co-scroll-hint:hover {
+  opacity: 1;
+}
+
+.co-scroll-hint:focus-visible {
+  outline: 2px solid var(--co-accent);
+  outline-offset: 2px;
+  border-radius: var(--co-radius-sm);
+}
+
+.co-scroll-hint__arrow {
+  flex-shrink: 0;
+  animation: coHintBounce 1.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes coHintBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .co-scroll-hint__arrow {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 .co-btn--outline {
   background: transparent;
   color: var(--co-dark);

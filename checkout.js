@@ -905,6 +905,53 @@
   );
   armNudge();
 
+  /* ── Стрелка «кнопка ниже» ────────────────────────────────
+     Колонка сводки прокручивается сама (position: sticky + max-height),
+     и на невысоком экране кнопка заказа уходит за её нижний край: человек
+     упирается в выбор оплаты и думает, что дальше ничего нет.
+
+     Показываем стрелку только когда колонка правда прокручивается и кнопки
+     не видно. На узком экране колонка становится обычной (position: static),
+     кнопка попадает в общий поток, а внизу и так висит липкая панель —
+     подсказка там не нужна и не появится. */
+  function initScrollHint() {
+    const hint = document.getElementById("coScrollHint");
+    const col = document.querySelector(".co-summary-col");
+    const target = document.getElementById("coSubmitBtn");
+    if (!hint || !col || !target) return;
+
+    /* Считаем видимость сами, без IntersectionObserver: тот даёт первый
+       ответ асинхронно, а сводка в начале скрыта (coGrid[hidden]) — на
+       пустой колонке наблюдатель делал единственный вывод «прокрутки нет»
+       и больше не просыпался. Прямой расчёт отрабатывает сразу и там, где
+       нужно: при прокрутке, при смене размера и после отрисовки корзины. */
+    function update() {
+      if (col.scrollHeight <= col.clientHeight + 8) {
+        hint.hidden = true;
+        return;
+      }
+      const box = col.getBoundingClientRect();
+      const btn = target.getBoundingClientRect();
+      const visible = btn.top < box.bottom - 8 && btn.bottom > box.top + 8;
+      hint.hidden = visible;
+    }
+
+    col.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    document.addEventListener("paloma-cart-updated", update);
+    update();
+    /* init() с первой отрисовкой корзины идёт ниже по файлу, так что этот
+       расчёт пришёлся бы на ещё скрытую сводку — пересчитываем после неё. */
+    requestAnimationFrame(update);
+
+    hint.addEventListener("click", () => {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    return update;
+  }
+  const updateScrollHint = initScrollHint();
+
   /* Полный текст заказа для менеджера — уходит в функцию и оттуда в Telegram,
      чтобы менеджер получил детали даже если клиент не отправит их сам. */
   function money(n) {
