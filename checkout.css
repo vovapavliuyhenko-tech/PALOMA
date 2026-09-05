@@ -9,6 +9,9 @@
   --co-muted: rgba(27, 26, 24, 0.50);
   --co-line: rgba(27, 26, 24, 0.10);
   --co-accent: #1B1A18;
+  /* Фирменный розовый сайта (--burgundy в styles.css). Страница оплаты
+     держится монохромной, и цвет здесь ровно один — кнопка заказа. */
+  --co-pink: #E7385A;
   --co-error: #1B1A18;
   --co-success: #1B1A18;
   --co-radius: 12px;
@@ -177,6 +180,22 @@ body.checkout-page .co-main {
   border-color: var(--co-dark);
 }
 
+/* Розовая — только сама кнопка «Оформить заказ»: одна на экране, последний
+   шаг заказа. Остальные кнопки страницы остаются тёмными, иначе цвет
+   перестаёт что-либо значить. Составной селектор, чтобы перебивать
+   .co-btn--primary независимо от порядка правил. */
+.co-btn--primary.co-btn--pink {
+  background: var(--co-pink);
+  border-color: var(--co-pink);
+  /* Текст остаётся белым, как у .co-btn--primary — цвет здесь не задаём. */
+}
+
+.co-btn--primary.co-btn--pink:hover:not(:disabled) {
+  background: transparent;
+  color: var(--co-dark);
+  border-color: var(--co-dark);
+}
+
 .co-btn--primary:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -196,6 +215,7 @@ body.checkout-page .co-main {
   cursor: progress;
   animation: none;
 }
+
 
 /* Кнопка заказа привлекает внимание постоянно: «дышит» и по ней проходит
    светлый блик. Класс is-nudge вешается только на кнопки оформления —
@@ -239,15 +259,17 @@ body.checkout-page .co-main {
   display: none;
 }
 
+/* Тень подкрашена розовым под цвет кнопки — серая под розовым читается
+   как грязь. */
 @keyframes coBtnBreathe {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 2px 10px rgba(27, 26, 24, 0.1);
+    box-shadow: 0 2px 10px rgba(231, 56, 90, 0.18);
   }
   50% {
     transform: scale(1.04);
-    box-shadow: 0 12px 32px rgba(27, 26, 24, 0.24);
+    box-shadow: 0 12px 32px rgba(231, 56, 90, 0.38);
   }
 }
 

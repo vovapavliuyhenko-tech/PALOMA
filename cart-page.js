@@ -12,7 +12,7 @@
       name: "Кофе к букету",
       price: 250,
       bg: "linear-gradient(135deg,#5c3d28,#8a6248)",
-      image: "assets/images/paloma/coffee/addon-coffee.jpg",
+      image: "images/paloma/catalog/upsell-coffee.jpg",
       category: "coffee",
     },
     {
@@ -20,7 +20,7 @@
       name: "Десерт из витрины",
       price: 320,
       bg: "linear-gradient(135deg,#c4a882,#8a6248)",
-      image: "assets/images/paloma/coffee/addon-dessert.jpg",
+      image: "images/paloma/catalog/upsell-dessert.jpg",
       category: "coffee",
     },
     {
@@ -28,7 +28,7 @@
       name: "Открытка",
       price: 150,
       bg: "linear-gradient(135deg,#d4bcc8,#8a5858)",
-      image: "assets/images/paloma/catalog/addon-card.jpg",
+      image: "images/paloma/included/card.jpg",
       category: "vases",
     },
     {
@@ -36,7 +36,7 @@
       name: "Ваза",
       price: 980,
       bg: "linear-gradient(135deg,#e0d8cc,#9c8870)",
-      image: "assets/images/paloma/catalog/addon-vase.jpg",
+      image: "images/paloma/catalog/upsell-vase.jpg",
       category: "vases",
     },
     {
@@ -44,7 +44,7 @@
       name: "Подарочная упаковка",
       price: 200,
       bg: "linear-gradient(135deg,#d4c8b8,#8a7860)",
-      image: "assets/images/paloma/catalog/addon-packaging.jpg",
+      image: "",
       category: "vases",
     },
   ];
