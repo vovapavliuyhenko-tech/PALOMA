@@ -177,6 +177,47 @@ body.checkout-page .co-main {
   cursor: not-allowed;
 }
 
+/* Отправка заказа: кнопка становится прозрачной с обводкой и говорит, что
+   происходит. Раньше она просто бледнела на 45% — это читается как
+   «сломалась», а не «работает». Заодно видно, что нажатие принято, и
+   человек не жмёт второй раз. */
+.co-btn--primary[aria-busy="true"],
+.co-btn--primary[aria-busy="true"]:disabled,
+.co-btn--primary[aria-busy="true"]:hover {
+  opacity: 1;
+  background: transparent;
+  color: var(--co-dark);
+  border-color: var(--co-dark);
+  cursor: progress;
+  animation: none;
+}
+
+/* Подсказка тому, кто застыл над формой: кнопка тихо «дышит» — четыре
+   цикла и замолкает. Постоянная анимация на шаге, где вводят телефон,
+   читается как реклама и мешает доверию, поэтому она конечная и
+   включается только после паузы (см. checkout.js). */
+.co-btn--primary.is-nudge:not(:disabled) {
+  animation: coBtnBreathe 2.8s cubic-bezier(0.22, 1, 0.36, 1) 4;
+}
+
+@keyframes coBtnBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 10px rgba(27, 26, 24, 0.1);
+  }
+  50% {
+    transform: scale(1.025);
+    box-shadow: 0 10px 28px rgba(27, 26, 24, 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .co-btn--primary.is-nudge:not(:disabled) {
+    animation: none;
+  }
+}
+
 .co-btn--outline {
   background: transparent;
   color: var(--co-dark);

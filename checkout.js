@@ -730,6 +730,10 @@
       document.getElementById("coSubmitMobile"),
     ].forEach((b) => {
       if (b) {
+        /* Подпись возвращаем в releaseSubmit, поэтому запоминаем исходную */
+        if (!b.dataset.label) b.dataset.label = b.textContent.trim();
+        b.textContent = "Отправляем заказ…";
+        b.classList.remove("is-nudge");
         b.disabled = true;
         b.setAttribute("aria-busy", "true");
       }
@@ -862,11 +866,44 @@
       document.getElementById("coSubmitMobile"),
     ].forEach((b) => {
       if (b) {
+        if (b.dataset.label) b.textContent = b.dataset.label;
         b.disabled = false;
         b.removeAttribute("aria-busy");
       }
     });
+    armNudge();
   }
+
+  /* ── Кнопка «дышит», если человек застыл ──────────────────
+     Не сразу: сначала даём спокойно заполнить форму. Через паузу
+     без единого действия кнопка делает четыре вдоха и замолкает —
+     любое касание клавиатуры или экрана сбрасывает отсчёт заново. */
+  const NUDGE_IDLE_MS = 9000;
+  let nudgeTimer = null;
+
+  function nudgeButtons() {
+    return [
+      document.getElementById("coSubmitBtn"),
+      document.getElementById("coSubmitMobile"),
+    ].filter(Boolean);
+  }
+
+  function armNudge() {
+    clearTimeout(nudgeTimer);
+    nudgeButtons().forEach((b) => b.classList.remove("is-nudge"));
+    if (submitting) return;
+    nudgeTimer = setTimeout(() => {
+      if (submitting) return;
+      nudgeButtons().forEach((b) => {
+        if (!b.disabled) b.classList.add("is-nudge");
+      });
+    }, NUDGE_IDLE_MS);
+  }
+
+  ["pointerdown", "keydown", "input"].forEach((ev) =>
+    document.addEventListener(ev, armNudge, { passive: true }),
+  );
+  armNudge();
 
   /* Полный текст заказа для менеджера — уходит в функцию и оттуда в Telegram,
      чтобы менеджер получил детали даже если клиент не отправит их сам. */
