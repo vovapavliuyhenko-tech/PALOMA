@@ -878,9 +878,6 @@
      Не сразу: сначала даём спокойно заполнить форму. Через паузу
      без единого действия кнопка делает четыре вдоха и замолкает —
      любое касание клавиатуры или экрана сбрасывает отсчёт заново. */
-  const NUDGE_IDLE_MS = 9000;
-  let nudgeTimer = null;
-
   function nudgeButtons() {
     return [
       document.getElementById("coSubmitBtn"),
@@ -888,21 +885,15 @@
     ].filter(Boolean);
   }
 
+  /* Кнопка привлекает внимание всё время, пока человек на странице: так
+     решил владелец. Раньше анимация включалась через паузу бездействия и
+     затихала после четырёх циклов — таймер убран, остаётся только снять
+     класс на время отправки, чтобы «Отправляем заказ…» не переливалось. */
   function armNudge() {
-    clearTimeout(nudgeTimer);
-    nudgeButtons().forEach((b) => b.classList.remove("is-nudge"));
-    if (submitting) return;
-    nudgeTimer = setTimeout(() => {
-      if (submitting) return;
-      nudgeButtons().forEach((b) => {
-        if (!b.disabled) b.classList.add("is-nudge");
-      });
-    }, NUDGE_IDLE_MS);
+    nudgeButtons().forEach((b) => {
+      b.classList.toggle("is-nudge", !submitting && !b.disabled);
+    });
   }
-
-  ["pointerdown", "keydown", "input"].forEach((ev) =>
-    document.addEventListener(ev, armNudge, { passive: true }),
-  );
   armNudge();
 
   /* ── Стрелка «кнопка ниже» ────────────────────────────────

@@ -167,9 +167,14 @@ body.checkout-page .co-main {
   width: 100%;
 }
 
+/* Наведение выворачивает кнопку наизнанку: прозрачная с обводкой.
+   Раньше здесь менялся фон на --co-accent, а он равен тому же чёрному
+   (#1B1A18) — на вид не происходило ничего. Рамка в 1.5px заложена в
+   .co-btn заранее, поэтому кнопка не дёргается. */
 .co-btn--primary:hover:not(:disabled) {
-  background: var(--co-accent);
-  border-color: var(--co-accent);
+  background: transparent;
+  color: var(--co-dark);
+  border-color: var(--co-dark);
 }
 
 .co-btn--primary:disabled {
@@ -192,12 +197,46 @@ body.checkout-page .co-main {
   animation: none;
 }
 
-/* Подсказка тому, кто застыл над формой: кнопка тихо «дышит» — четыре
-   цикла и замолкает. Постоянная анимация на шаге, где вводят телефон,
-   читается как реклама и мешает доверию, поэтому она конечная и
-   включается только после паузы (см. checkout.js). */
+/* Кнопка заказа привлекает внимание постоянно: «дышит» и по ней проходит
+   светлый блик. Класс is-nudge вешается только на кнопки оформления —
+   .co-btn--primary носит ещё и ссылка «Перейти в каталог» из пустой
+   корзины, её трогать незачем. Снимается на время отправки. */
 .co-btn--primary.is-nudge:not(:disabled) {
-  animation: coBtnBreathe 2.8s cubic-bezier(0.22, 1, 0.36, 1) 4;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  animation: coBtnBreathe 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.co-btn--primary.is-nudge:not(:disabled)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42%;
+  z-index: -1;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.34),
+    transparent
+  );
+  animation: coBtnShine 3.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  transition: opacity 0.25s ease;
+}
+
+/* Под курсором кнопка выворачивается наизнанку — светлый блик по
+   прозрачному фону выглядел бы грязью, поэтому гасим и его, и дыхание. */
+.co-btn--primary.is-nudge:hover:not(:disabled) {
+  animation: none;
+}
+
+.co-btn--primary.is-nudge:hover:not(:disabled)::after {
+  opacity: 0;
+}
+
+.co-btn--primary[aria-busy="true"]::after {
+  display: none;
 }
 
 @keyframes coBtnBreathe {
@@ -207,13 +246,26 @@ body.checkout-page .co-main {
     box-shadow: 0 2px 10px rgba(27, 26, 24, 0.1);
   }
   50% {
-    transform: scale(1.025);
-    box-shadow: 0 10px 28px rgba(27, 26, 24, 0.2);
+    transform: scale(1.04);
+    box-shadow: 0 12px 32px rgba(27, 26, 24, 0.24);
+  }
+}
+
+@keyframes coBtnShine {
+  0% {
+    transform: translateX(-180%);
+  }
+  55% {
+    transform: translateX(340%);
+  }
+  100% {
+    transform: translateX(340%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .co-btn--primary.is-nudge:not(:disabled) {
+  .co-btn--primary.is-nudge:not(:disabled),
+  .co-btn--primary.is-nudge:not(:disabled)::after {
     animation: none;
   }
 }
@@ -224,32 +276,44 @@ body.checkout-page .co-main {
    страница оплаты держится монохромной; внимание берём движением,
    а не краской. Нажатие прокручивает к кнопке. */
 .co-scroll-hint {
+  /* Прижата к нижнему краю прокручиваемой колонки, а не оставлена в потоке.
+     В потоке она стояла сразу под выбором оплаты — но на широком экране
+     сама оплата уже у нижнего края, и подсказка уезжала за него вместе с
+     кнопкой. Липкая пилюля висит над содержимым, пока есть куда листать. */
+  position: sticky;
+  bottom: 10px;
+  z-index: 5;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
-  padding: 10px 14px;
   margin: -8px 0 0;
-  border: none;
-  background: transparent;
+  padding: 9px 18px;
+  border: 1px solid var(--co-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 22px rgba(27, 26, 24, 0.14);
   font-family: var(--font-sans, "Manrope", sans-serif);
   font-size: 12px;
   font-weight: 600;
   color: var(--co-dark);
+  white-space: nowrap;
   cursor: pointer;
-  opacity: 0.8;
-  transition: opacity 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .co-scroll-hint:hover {
-  opacity: 1;
+  border-color: var(--co-dark);
+  box-shadow: 0 8px 26px rgba(27, 26, 24, 0.2);
 }
 
 .co-scroll-hint:focus-visible {
   outline: 2px solid var(--co-accent);
   outline-offset: 2px;
-  border-radius: var(--co-radius-sm);
 }
 
 .co-scroll-hint__arrow {
