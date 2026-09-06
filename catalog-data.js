@@ -58,33 +58,29 @@
         : [];
     const pg = p.placeholderGradient || {};
 
-    /* Цена на карточке — начальная, с пометкой «от», плюс сам размер,
-       которому она соответствует (displaySize — его кладёт в корзину
-       кнопка «В корзину» в каталоге).
+    /* photoSize — размер, показанный на фотографии. Цена под названием и на
+       карточке каталога соответствует именно ему (base + его priceDelta):
+       на снимке конкретный букет, и цена должна быть его. Такая цена точная,
+       поэтому «от» убираем.
 
-       Раньше здесь показывалась цена размера с фотографии (photoSize),
-       и «от» при этом убиралось как «точная цена». На деле каталог
-       открывался ценами 7 500 / 11 100 / 26 600 ₽, тогда как те же
-       букеты начинаются с 2 300 / 4 220 / 9 100 ₽ — завышение до 3,3×
-       на первом же экране. Вдобавок карточка расходилась с товарной
-       страницей: там у того же букета написано «от 2 300 ₽».
-
-       Показываем минимальную цену: она честная, совпадает с товарной
-       страницей и не отпугивает на входе. photoSize остаётся в данных —
-       он ещё нужен галерее. */
+       displaySize — размер, которому отвечает показанная цена. Его кладёт в
+       корзину кнопка «В корзину» на карточке. Раньше размер был прописан
+       там жёстко как "M" независимо от товара, из-за чего «Белая гортензия»
+       попадала в заказ как «M — 7 500 ₽», хотя M у неё стоит 3 600 ₽, а
+       7 500 ₽ — это XXL. Теперь ярлык всегда совпадает с ценой. */
     let displayPrice = p.price;
     let displaySize = null;
     let priceFrom = !!p.priceFrom;
     if (Array.isArray(p.sizes) && p.sizes.length) {
-      const priced = p.sizes.map((s) => ({
-        size: s.code || s.label || null,
-        price: p.price + (s.priceDelta || 0),
-      }));
-      const cheapest = priced.reduce((a, b) => (b.price < a.price ? b : a));
-      displayPrice = cheapest.price;
-      displaySize = cheapest.size;
-      /* «от» — только когда размеры действительно стоят по-разному */
-      if (priced.some((x) => x.price !== cheapest.price)) priceFrom = true;
+      displaySize = p.sizes[0].code || p.sizes[0].label || null;
+      if (p.photoSize) {
+        const s = p.sizes.find((x) => (x.code || x.label) === p.photoSize);
+        if (s) {
+          displayPrice = p.price + (s.priceDelta || 0);
+          displaySize = s.code || s.label || null;
+          priceFrom = false;
+        }
+      }
     }
 
     return {
