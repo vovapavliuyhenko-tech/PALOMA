@@ -231,10 +231,40 @@
       .catch(function () { /* нет сети — остаёмся на встроенном прайсе */ });
   }
 
+  /* ── Сезонные вкладки ─────────────────────────────────────────────────────
+     Вкладка «Осень» в фильтрах каталога и в меню помечена data-season-tab и
+     спрятана в разметке. Показываем её, только если в каталоге есть хоть один
+     товар с этим разделом: владелице достаточно поставить галочку в панели,
+     а когда сезон пройдёт и галочки снимут — вкладка уйдёт сама.
+     Тот же механизм стоял у «1 сентября» и был удалён вместе с праздником. */
+  var SEASON_KEY = "paloma:season-tabs";
+
+  function syncSeasonTabs() {
+    var tabs = document.querySelectorAll("[data-season-tab]");
+    var list = window.PALOMA_PRODUCTS || [];
+    var live = [];
+    Array.prototype.forEach.call(tabs, function (tab) {
+      var cat = tab.getAttribute("data-season-tab");
+      var has = list.some(function (p) {
+        var c = p.categories;
+        return Array.isArray(c) ? c.indexOf(cat) >= 0 : c === cat;
+      });
+      tab.hidden = !has;
+      if (has && live.indexOf(cat) < 0) live.push(cat);
+    });
+    /* Ответ запоминаем: страницы без каталога (доставка, статьи) не качают
+       ради одной вкладки весь список товаров — читает его script.js. */
+    try {
+      if (list.length) localStorage.setItem(SEASON_KEY, live.join(","));
+    } catch (e) { /* приватный режим */ }
+  }
+
   window.PALOMA_RERENDER.push(syncHomeShowcase);
+  window.PALOMA_RERENDER.push(syncSeasonTabs);
 
   function start() {
     syncHomeShowcase(); // список из кэша уже применён — сверяем сразу
+    syncSeasonTabs();
     refresh();
   }
   if (document.readyState === "loading") {

@@ -1860,3 +1860,19 @@ if (document.body.classList.contains("event-decoration-page")) {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
+
+/* ── Сезонные вкладки на страницах без каталога ──────────────────────────
+   Пункт «Осень» в меню спрятан в разметке. Где подключён каталог, решение
+   принимает products-live.js и запоминает ответ; здесь его только читаем. */
+(function () {
+  "use strict";
+  var tabs = document.querySelectorAll("[data-season-tab]");
+  if (!tabs.length || window.PALOMA_PRODUCTS) return;
+  var live = "";
+  try { live = localStorage.getItem("paloma:season-tabs") || ""; } catch (e) { return; }
+  if (!live) return;
+  var set = live.split(",");
+  Array.prototype.forEach.call(tabs, function (tab) {
+    if (set.indexOf(tab.getAttribute("data-season-tab")) >= 0) tab.hidden = false;
+  });
+})();
