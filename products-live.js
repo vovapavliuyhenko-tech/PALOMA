@@ -29,9 +29,33 @@
     try { return JSON.stringify(a) === JSON.stringify(b); } catch (e) { return false; }
   }
 
+  /* ── Разделы, закреплённые в коде ────────────────────────────────────────
+     Товар попадает в раздел галочкой в панели каталога. Здесь — дополнение
+     к ней: товары, которые владелец попросил включить в раздел сразу, не
+     дожидаясь галочки. «Авторская Осень» заведена через панель в
+     «Авторских» и 17.09.2026 добавлена в «Осень». Снять — убрать строку;
+     галочку «Осень» в панели это не отменяет. */
+  var PINNED_CATEGORIES = {
+    p1789461486044: ["autumn"] // «Авторская Осень»
+  };
+
+  function pinCategories(list) {
+    return list.map(function (p) {
+      var extra = p && PINNED_CATEGORIES[p.id];
+      if (!extra) return p;
+      var cats = Array.isArray(p.categories) ? p.categories.slice() : p.category ? [p.category] : [];
+      extra.forEach(function (c) { if (cats.indexOf(c) < 0) cats.push(c); });
+      var copy = {};
+      for (var k in p) copy[k] = p[k];
+      copy.categories = cats;
+      return copy;
+    });
+  }
+
   /* Меняем массив НА МЕСТЕ: на него уже могли сохранить ссылку другие скрипты. */
   function apply(list) {
     if (!Array.isArray(list) || !list.length) return false;
+    list = pinCategories(list);
     var cur = window.PALOMA_PRODUCTS;
     if (!Array.isArray(cur)) { window.PALOMA_PRODUCTS = list.slice(); return true; }
     if (same(cur, list)) return false;
